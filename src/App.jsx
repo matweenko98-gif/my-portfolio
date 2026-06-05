@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Hero from './components/Hero';
 import Services from './components/Services';
+import Reviews from './components/Reviews';
 import Cases from './components/Cases';
 import Workflow from './components/Workflow';
 import Contacts from './components/Contacts';
@@ -48,6 +49,7 @@ export default function App() {
         <Services />
         <Cases />
         <Workflow />
+        <Reviews />
         <Contacts />
       </main>
     </div>
