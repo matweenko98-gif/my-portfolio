@@ -108,54 +108,139 @@ function TildaCalculator({ service, onSendSuccess }) {
   const [pagesCount, setPagesCount] = useState('1_page');
   const [contentReady, setContentReady] = useState('ready');
   const [comments, setComments] = useState('');
-  
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [animateItem, setAnimateItem] = useState(null);
+  const [selectedItems, setSelectedItems] = useState({
+    siteType: 'Индивидуальный Лендинг',
+    pagesCount: '1 страница',
+    contentReady: 'У меня есть всё готовое',
+  });
+  const [packageBump, setPackageBump] = useState(false);
+  const folderRef = React.useRef(null);
+  const lidRef = React.useRef(null);
+  const [folderOpen, setFolderOpen] = useState(false);
 
-  const getTildaPriceAndDays = (siteType, pagesCount, contentReady) => {
-    let basePrice = 30000;
-    let baseDays = 7;
-    
-    if (siteType === 'template_site') {
-      basePrice = 20000;
-      baseDays = 5;
-    } else if (siteType === 'multipage_shop') {
-      basePrice = 50000;
-      baseDays = 15;
-    }
+  const siteTypeOptions = [
+    { value: 'individual_landing', label: 'Индивидуальный Лендинг', price: 30000, days: 7, description: 'одностраничный сайт с уникальным дизайном в Zero-блоках' },
+    { value: 'template_site', label: 'Сайт на шаблонах Tilda', price: 20000, days: 5, description: 'быстрый старт на стандартных блоках с кастомизацией под стиль' },
+    { value: 'multipage_shop', label: 'Многостраничный сайт / Магазин', price: 50000, days: 15, description: 'уникальный дизайн, сложная структура' }
+  ];
 
-    let pagesMultiplier = 1.0;
-    let pagesDays = 0;
-    if (pagesCount === '2_5_pages') {
-      pagesMultiplier = 1.3;
-      pagesDays = 5;
-    } else if (pagesCount === '5_10_pages') {
-      pagesMultiplier = 1.6;
-      pagesDays = 10;
-    } else if (pagesCount === 'more_10_pages') {
-      pagesMultiplier = 2.0;
-      pagesDays = 15;
-    }
+  const pagesOptions = [
+    { value: '1_page', label: '1 страница', multiplier: 1, extraDays: 0, description: 'подходит для лендинга' },
+    { value: '2_5_pages', label: 'От 2 до 5 страниц', multiplier: 1.3, extraDays: 5, description: '' },
+    { value: '5_10_pages', label: 'От 5 до 10 страниц', multiplier: 1.6, extraDays: 10, description: '' },
+    { value: 'more_10_pages', label: 'Более 10 страниц / Каталог', multiplier: 2.0, extraDays: 15, description: '' }
+  ];
 
-    let contentMultiplier = 1.0;
-    let contentDays = 0;
-    if (contentReady === 'partial') {
-      contentMultiplier = 1.2;
-      contentDays = 3;
-    } else if (contentReady === 'none') {
-      contentMultiplier = 1.4;
-      contentDays = 7;
-    }
+  const contentReadyOptions = [
+    { value: 'ready', label: 'У меня есть всё готовое', multiplier: 1, extraDays: 0, description: 'тексты, фотографии, фирменный стиль' },
+    { value: 'partial', label: 'Материалы есть частично', multiplier: 1.2, extraDays: 3, description: 'потребуется помощь в доработке или структурировании' },
+    { value: 'none', label: 'Ничего нет', multiplier: 1.4, extraDays: 7, description: 'нужна разработка структуры и текстов с нуля' }
+  ];
 
-    const price = Math.round(basePrice * pagesMultiplier * contentMultiplier);
-    const days = baseDays + pagesDays + contentDays;
+  const activeSiteType = siteTypeOptions.find((opt) => opt.value === siteType);
+  const activePages = pagesOptions.find((opt) => opt.value === pagesCount);
+  const activeContentReady = contentReadyOptions.find((opt) => opt.value === contentReady);
 
-    return { price, days };
+  const price = Math.round(activeSiteType.price * activePages.multiplier * activeContentReady.multiplier);
+  const days = activeSiteType.days + activePages.extraDays + activeContentReady.extraDays;
+
+  const selectedOptions = [
+    { id: 'siteType', label: activeSiteType.label, positionClass: 'left-4 top-20' },
+    { id: 'pagesCount', label: activePages.label, positionClass: 'right-4 top-24' },
+    { id: 'contentReady', label: activeContentReady.label, positionClass: 'left-1/2 top-[55%] -translate-x-1/2' }
+  ];
+
+  useEffect(() => {
+    if (!animateItem) return;
+    // keep previous small bump behavior as fallback
+    setPackageBump(true);
+    const reset = setTimeout(() => {
+      setAnimateItem(null);
+      setPackageBump(false);
+    }, 650);
+    return () => clearTimeout(reset);
+  }, [animateItem]);
+
+  const flyFromElement = (sourceEl, label, group) => {
+    if (!sourceEl || !folderRef.current || !group) return;
+    const start = sourceEl.getBoundingClientRect();
+    const target = folderRef.current.getBoundingClientRect();
+
+    const clone = document.createElement('div');
+    clone.className = 'fly-item fixed z-[9999] rounded-xl bg-zinc-950 text-white px-3 py-2 text-[11px] font-semibold shadow-2xl';
+    clone.textContent = label;
+    document.body.appendChild(clone);
+
+    const duration = 700;
+    const startTime = performance.now();
+
+    const sx = start.left + start.width / 2;
+    const sy = start.top + start.height / 2;
+    const ex = target.left + target.width / 2;
+    const ey = target.top + target.height / 2;
+
+    const cx = (sx + ex) / 2;
+    const cy = Math.min(sy, ey) - Math.max(120, Math.abs(ex - sx) * 0.35);
+
+    const ease = (t) => (--t) * t * t + 1; // easeOutCubic
+
+    const step = (now) => {
+      const t = Math.min(1, (now - startTime) / duration);
+      const e = ease(t);
+
+      // Quadratic bezier
+      const x = (1 - e) * (1 - e) * sx + 2 * (1 - e) * e * cx + e * e * ex;
+      const y = (1 - e) * (1 - e) * sy + 2 * (1 - e) * e * cy + e * e * ey;
+
+      const scale = 1 - 0.25 * e;
+      const opacity = 1 - 0.6 * e;
+
+      clone.style.left = `${x - start.width / 2}px`;
+      clone.style.top = `${y - start.height / 2}px`;
+      clone.style.transform = `scale(${scale})`;
+      clone.style.opacity = `${opacity}`;
+
+      if (t < 0.9) {
+        requestAnimationFrame(step);
+      } else {
+        // open package just before arrival
+        setFolderOpen(true);
+        setTimeout(() => {
+          clone.remove();
+          setSelectedItems((prev) => ({
+            ...prev,
+            [group]: label,
+          }));
+          setPackageBump(true);
+          setTimeout(() => {
+            setPackageBump(false);
+            setFolderOpen(false);
+          }, 300);
+        }, 80);
+      }
+    };
+
+    requestAnimationFrame(step);
   };
 
-  const { price, days } = getTildaPriceAndDays(siteType, pagesCount, contentReady);
+  const handleOptionChange = (group, value, label, ev) => {
+    if (group === 'siteType') setSiteType(value);
+    if (group === 'pagesCount') setPagesCount(value);
+    if (group === 'contentReady') setContentReady(value);
+    setAnimateItem({ id: group, label });
+    // trigger global arc flight from clicked element
+    try {
+      const src = ev && ev.currentTarget ? ev.currentTarget : ev && ev.target ? ev.target : null;
+      flyFromElement(src, label, group);
+    } catch (e) {
+      // ignore
+    }
+  };
 
   const handleSubmit = async (type) => {
     const newErrors = {};
@@ -170,24 +255,9 @@ function TildaCalculator({ service, onSendSuccess }) {
     setErrors({});
     setLoading(true);
 
-    const siteTypeLabels = {
-      individual_landing: 'Индивидуальный Лендинг',
-      template_site: 'Сайт на шаблонах Tilda',
-      multipage_shop: 'Многостраничный сайт / Магазин'
-    };
-
-    const pagesLabels = {
-      '1_page': '1 страница',
-      '2_5_pages': 'От 2 до 5 страниц',
-      '5_10_pages': 'От 5 до 10 страниц',
-      'more_10_pages': 'Более 10 страниц / Каталог товаров'
-    };
-
-    const contentReadyLabels = {
-      ready: 'У меня есть всё готовое',
-      partial: 'Материалы есть частично',
-      none: 'Ничего нет'
-    };
+    const siteTypeLabels = siteTypeOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
+    const pagesLabels = pagesOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
+    const contentReadyLabels = contentReadyOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
 
     let messageText = '';
     if (type === 'consultation') {
@@ -245,152 +315,154 @@ function TildaCalculator({ service, onSendSuccess }) {
     }
   };
 
-  const siteTypeDescriptions = {
-    individual_landing: 'одностраничный сайт с уникальным дизайном в Zero-блоках',
-    template_site: 'быстрый старт на стандартных блоках с кастомизацией под стиль',
-    multipage_shop: 'уникальный дизайн, сложная структура'
-  };
-
-  const pagesDescriptions = {
-    '1_page': 'подходит для лендинга',
-    '2_5_pages': '',
-    '5_10_pages': '',
-    'more_10_pages': ''
-  };
-
-  const contentReadyDescriptions = {
-    ready: 'тексты, фотографии, фирменный стиль',
-    partial: 'потребуется помощь в доработке или структурировании',
-    none: 'нужна разработка структуры и текстов с нуля'
-  };
-
   return (
     <div className="bg-zinc-50/70 border border-zinc-100 rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
       <div className="text-sm font-semibold text-zinc-950 border-b border-zinc-200/50 pb-3">
         Конфигуратор проекта
       </div>
 
-      <div className="flex flex-col gap-5">
-        {/* ШАГ 1: ТИП САЙТА И ДИЗАЙН-КОНЦЕПЦИЯ */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 1: ТИП САЙТА И ДИЗАЙН-КОНЦЕПЦИЯ
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-zinc-100 rounded-xl border border-zinc-200/30">
-            {[
-              { value: 'individual_landing', label: 'Индивидуальный Лендинг' },
-              { value: 'template_site', label: 'Сайт на шаблонах Tilda' },
-              { value: 'multipage_shop', label: 'Многостраничный сайт / Магазин' }
-            ].map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setSiteType(opt.value)}
-                className={`text-center py-2.5 px-1 sm:px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                  siteType === opt.value
-                    ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-          {siteTypeDescriptions[siteType] && (
-            <span className="text-[11px] text-zinc-400 font-medium px-1 mt-0.5">
-              * {siteTypeDescriptions[siteType]}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <div className="space-y-6 h-full">
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              ШАГ 1: ТИП САЙТА И ДИЗАЙН-КОНЦЕПЦИЯ
             </span>
-          )}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+              {siteTypeOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => handleOptionChange('siteType', opt.value, opt.label, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
+                    siteType === opt.value
+                      ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
+                      : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[11px] text-zinc-400 font-medium px-1">
+              {activeSiteType.description}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              ШАГ 2: КОЛИЧЕСТВО СТРАНИЦ
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+              {pagesOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => handleOptionChange('pagesCount', opt.value, opt.label, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
+                    pagesCount === opt.value
+                      ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
+                      : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[11px] text-zinc-400 font-medium px-1">
+              {activePages.description}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              ШАГ 3: ГОТОВНОСТЬ КОНТЕНТА
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+              {contentReadyOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => handleOptionChange('contentReady', opt.value, opt.label, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
+                    contentReady === opt.value
+                      ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
+                      : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[11px] text-zinc-400 font-medium px-1">
+              {activeContentReady.description}
+            </span>
+          </div>
         </div>
 
-        {/* ШАГ 2: КОЛИЧЕСТВО СТРАНИЦ */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 2: КОЛИЧЕСТВО СТРАНИЦ
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 p-1 bg-zinc-100 rounded-xl border border-zinc-200/30">
-            {[
-              { value: '1_page', label: '1 страница' },
-              { value: '2_5_pages', label: 'От 2 до 5 страниц' },
-              { value: '5_10_pages', label: 'От 5 до 10 страниц' },
-              { value: 'more_10_pages', label: 'Более 10 страниц / Каталог' }
-            ].map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setPagesCount(opt.value)}
-                className={`text-center py-2.5 px-1 sm:px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                  pagesCount === opt.value
-                    ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+        <div className="flex flex-col justify-between gap-6 h-full">
+          <div className="text-xs uppercase tracking-[0.35em] text-zinc-950/40 text-left">
+            СОБЕРИ СВОЙ ПРОДУКТ
           </div>
-          {pagesDescriptions[pagesCount] && (
-            <span className="text-[11px] text-zinc-400 font-medium px-1 mt-0.5">
-              * {pagesDescriptions[pagesCount]}
-            </span>
-          )}
-        </div>
-
-        {/* ШАГ 3: ГОТОВНОСТЬ КОНТЕНТА */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 3: ГОТОВНОСТЬ КОНТЕНТА
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-zinc-100 rounded-xl border border-zinc-200/30">
-            {[
-              { value: 'ready', label: 'У меня есть всё готовое' },
-              { value: 'partial', label: 'Материалы есть частично' },
-              { value: 'none', label: 'Ничего нет' }
-            ].map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setContentReady(opt.value)}
-                className={`text-center py-2.5 px-1 sm:px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                  contentReady === opt.value
-                    ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+          <div className={`relative flex-1 rounded-2xl border border-white/30 bg-white/10 backdrop-blur-[14px] shadow-[0_18px_44px_rgba(15,23,42,0.06)] transition-all duration-300 overflow-hidden ${packageBump ? 'shadow-[0_22px_48px_rgba(15,23,42,0.08)]' : ''}`}>
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute left-6 top-8 w-28 h-28 rounded-2xl bg-white/18 blur-3xl" />
+              <div className="absolute right-6 bottom-8 w-28 h-28 rounded-2xl bg-white/12 blur-2xl" />
+            </div>
+            <div className="relative h-full px-6 py-6 flex items-center justify-center">
+              <div ref={folderRef} className={`package relative w-full max-w-[460px] h-full max-h-[460px] transition-transform duration-300 ${folderOpen ? 'package--open' : ''}`}>
+                <svg viewBox="0 0 140 140" className="absolute inset-0 h-full w-full opacity-90" preserveAspectRatio="xMidYMid meet">
+                  <defs>
+                    <linearGradient id="bagGradient" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="rgba(255,255,255,0.35)" />
+                      <stop offset="100%" stopColor="rgba(255,255,255,0.08)" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="16" y="32" width="108" height="72" rx="16" fill="url(#bagGradient)" stroke="rgba(255,255,255,0.28)" strokeWidth="2" />
+                  <path d="M36 32 C36 18, 52 12, 52 28" stroke="rgba(255,255,255,0.35)" strokeWidth="4" fill="none" />
+                  <path d="M104 32 C104 18, 88 12, 88 28" stroke="rgba(255,255,255,0.35)" strokeWidth="4" fill="none" />
+                </svg>
+                <div className="package__glass absolute left-1/2 bottom-4 -translate-x-1/2 w-[82%] h-[70%] overflow-hidden rounded-xl bg-white/20 backdrop-blur-[12px] border border-white/20">
+                  <div className="relative h-full w-full px-3 py-3">
+                    {['siteType', 'pagesCount', 'contentReady'].map((key, idx) => (
+                      <div
+                        key={key}
+                        className="package-item-inside absolute left-1/2 -translate-x-1/2 bg-white/90 text-zinc-950 px-4 py-3 text-[11px] font-semibold shadow-sm"
+                        style={{
+                          top: `${14 + idx * 64}px`,
+                          width: '90%',
+                          borderRadius: 16,
+                          transform: `rotate(${idx % 2 === 0 ? -1.5 : 1.5}deg)`,
+                        }}
+                      >
+                        {selectedItems[key]}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          {contentReadyDescriptions[contentReady] && (
-            <span className="text-[11px] text-zinc-400 font-medium px-1 mt-0.5">
-              * {contentReadyDescriptions[contentReady]}
-            </span>
-          )}
-        </div>
 
-        {/* ШАГ 4: ДОПОЛНИТЕЛЬНЫЕ ПОЖЕЛАНИЯ */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 4: ДОПОЛНИТЕЛЬНЫЕ ПОЖЕЛАНИЯ
-          </span>
-          <label className="block text-[11px] text-zinc-500 font-medium leading-relaxed px-1">
-            Расскажите коротко о вашем проекте или укажите детали, которых нет в списке (например, ссылки на примеры сайтов)
-          </label>
-          <textarea
-            rows={3}
-            placeholder="Например: Нужна интеграция с CRM и личный кабинет..."
-            value={comments}
-            onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none h-24"
-          />
+          <div className="text-center">
+            <div className="text-sm font-medium text-zinc-500">Итого: от {formatPrice(price)} ₽</div>
+          </div>
         </div>
       </div>
 
-      {/* Поля ввода контактов */}
-      <div className="flex flex-col gap-4 pt-4 border-t border-zinc-200/50">
-        <div className="text-xs font-semibold text-zinc-950">
-          Контактные данные для расчета
+      <div className="flex flex-col gap-5 pt-2 border-t border-zinc-200/50">
+        <div className="flex flex-col gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+            Свободные пожелания
+          </span>
+          <textarea
+            rows={4}
+            placeholder="Например: Нужна интеграция с CRM и личный кабинет..."
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+            className="w-full bg-white border border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
+          />
         </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
@@ -406,7 +478,7 @@ function TildaCalculator({ service, onSendSuccess }) {
               }}
               className={`w-full bg-white border ${
                 errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
@@ -425,27 +497,18 @@ function TildaCalculator({ service, onSendSuccess }) {
               }}
               className={`w-full bg-white border ${
                 errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
         </div>
-      </div>
 
-      {/* Итоговая стоимость и кнопки */}
-      <div className="pt-4 border-t border-zinc-200/50 flex flex-col gap-4">
-        <div className="text-[13px] text-zinc-600 leading-relaxed font-medium bg-zinc-100/50 border border-zinc-200/20 rounded-xl px-4 py-2.5">
-          Примерная стоимость: <span className="font-semibold text-zinc-950 text-sm">от {formatPrice(price)} руб.</span>
-          <span className="mx-2 text-zinc-350">•</span>
-          Сроки: <span className="font-semibold text-zinc-950 text-sm">от {days} {getDaysWord(days)}</span>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2 w-full">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             type="button"
             disabled={loading}
             onClick={() => handleSubmit('calculation')}
-            className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-sm font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -453,7 +516,7 @@ function TildaCalculator({ service, onSendSuccess }) {
             type="button"
             disabled={loading}
             onClick={() => handleSubmit('consultation')}
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50"
           >
             {loading ? 'Отправка...' : 'Нужна консультация'}
           </button>
@@ -1400,7 +1463,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
           const isDeadline = detail.label.toLowerCase().includes('срок');
           return (
             <div key={idx} className="flex items-start gap-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 mt-2 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-zinc-300 mt-2 shrink-0" />
               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
                 <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider min-w-[140px] sm:min-w-[160px] block sm:inline">
                   {detail.label}:
@@ -1547,7 +1610,7 @@ export default function Services() {
         }`}
       >
         <div 
-          className={`bg-white border border-zinc-100 rounded-3xl p-6 sm:p-8 max-w-[440px] w-full shadow-2xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
+          className={`bg-white border border-zinc-100 rounded-2xl p-6 sm:p-8 max-w-[440px] w-full shadow-2xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
             isSuccessModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
           }`}
         >

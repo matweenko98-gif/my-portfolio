@@ -32,7 +32,68 @@
   }
 }
 
+@keyframes flyIn {
+  from {
+    opacity: 0;
+    transform: translate(-18px, -18px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
+}
+
+.animate-flyIn {
+  animation: flyIn 0.55s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+  opacity: 0;
+}
+
+/* Package (shopper bag) visual and open/confirmation state */
+.package {
+  pointer-events: none;
+  display: inline-block;
+}
+.package__outer {
+  transform-origin: center;
+  transition: transform 220ms cubic-bezier(.2,.9,.25,1), box-shadow 220ms;
+  will-change: transform;
+}
+.package--open .package__outer {
+  transform: translateY(-6px) scale(1.04);
+  box-shadow: 0 26px 70px rgba(15,23,42,0.18);
+}
+.package__glass {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16);
+}
+.package-item-inside {
+  filter: blur(0.8px);
+  opacity: 0.92;
+  border: 1px solid rgba(15,23,42,0.06);
+}
+.package-item-outside {
+  z-index: 2;
+  border: 1px solid rgba(15,23,42,0.08);
+}
+
+/* Fly clone element */
+.fly-item {
+  pointer-events: none;
+  will-change: transform, left, top, opacity;
+}
+
+/* Small bounce for confirmation */
+.bounce-brief {
+  transform-origin: center;
+  animation: bounceSmall 260ms ease-out;
+}
+
+@keyframes bounceSmall {
+  0% { transform: scale(0.98); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
 }
