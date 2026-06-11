@@ -1,11 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Layers, Code, RefreshCw, Send, X, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Layers, Code, RefreshCw, Send, X, CheckCircle2, Layout, Files, FileText } from 'lucide-react';
 import contentData from '../contentData';
+import ProjectCart from './ProjectCart';
+import { flyChipToCart } from '../utils/flyToCart';
+
+const TILDA_CART_ICON_KEYS = {
+  siteType: 'layout',
+  pagesCount: 'files',
+  contentReady: 'fileText',
+};
 
 // НАСТРОЙКА TELEGRAM БОТА
 // Вставьте ваш токен бота и ID чата для активации отправки заявок в Telegram
 const TG_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN";
 const TG_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID";
+const TELEGRAM_CONSULT_URL = 'https://t.me/ksen_web';
 
 const Figma = (props) => (
   <svg
@@ -103,25 +112,32 @@ const SegmentedControl = ({ label, options, val, setVal }) => (
   </div>
 );
 
+function getOptionButtonClass(isSelected, isFirstHint) {
+  if (isSelected) {
+    return 'bg-white text-zinc-950 shadow-sm border border-zinc-900';
+  }
+  if (isFirstHint) {
+    return 'text-zinc-600 border-2 border-dashed border-zinc-300 bg-transparent hover:border-zinc-400 hover:text-zinc-900';
+  }
+  return 'text-zinc-500 border border-transparent hover:text-zinc-900 hover:bg-zinc-200/40';
+}
+
 function TildaCalculator({ service, onSendSuccess }) {
-  const [siteType, setSiteType] = useState('individual_landing');
-  const [pagesCount, setPagesCount] = useState('1_page');
-  const [contentReady, setContentReady] = useState('ready');
+  const [siteType, setSiteType] = useState(null);
+  const [pagesCount, setPagesCount] = useState(null);
+  const [contentReady, setContentReady] = useState(null);
   const [comments, setComments] = useState('');
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [animateItem, setAnimateItem] = useState(null);
-  const [selectedItems, setSelectedItems] = useState({
-    siteType: 'Индивидуальный Лендинг',
-    pagesCount: '1 страница',
-    contentReady: 'У меня есть всё готовое',
-  });
-  const [packageBump, setPackageBump] = useState(false);
-  const folderRef = React.useRef(null);
-  const lidRef = React.useRef(null);
-  const [folderOpen, setFolderOpen] = useState(false);
+  const [cartBump, setCartBump] = useState(false);
+  const [badgeBump, setBadgeBump] = useState(false);
+  const [highlightedSlot, setHighlightedSlot] = useState(null);
+  const [collectedIds, setCollectedIds] = useState([]);
+  const cartRef = useRef(null);
+  const cartIconRef = useRef(null);
+  const slotRefs = useRef({});
 
   const siteTypeOptions = [
     { value: 'individual_landing', label: 'Индивидуальный Лендинг', price: 30000, days: 7, description: 'одностраничный сайт с уникальным дизайном в Zero-блоках' },
@@ -142,108 +158,61 @@ function TildaCalculator({ service, onSendSuccess }) {
     { value: 'none', label: 'Ничего нет', multiplier: 1.4, extraDays: 7, description: 'нужна разработка структуры и текстов с нуля' }
   ];
 
-  const activeSiteType = siteTypeOptions.find((opt) => opt.value === siteType);
-  const activePages = pagesOptions.find((opt) => opt.value === pagesCount);
-  const activeContentReady = contentReadyOptions.find((opt) => opt.value === contentReady);
+  const activeSiteType = siteType ? siteTypeOptions.find((opt) => opt.value === siteType) : null;
+  const activePages = pagesCount ? pagesOptions.find((opt) => opt.value === pagesCount) : null;
+  const activeContentReady = contentReady ? contentReadyOptions.find((opt) => opt.value === contentReady) : null;
 
-  const price = Math.round(activeSiteType.price * activePages.multiplier * activeContentReady.multiplier);
-  const days = activeSiteType.days + activePages.extraDays + activeContentReady.extraDays;
+  const isCartComplete = Boolean(siteType && pagesCount && contentReady);
+  const price = isCartComplete
+    ? Math.round(activeSiteType.price * activePages.multiplier * activeContentReady.multiplier)
+    : 0;
+  const days = isCartComplete
+    ? activeSiteType.days + activePages.extraDays + activeContentReady.extraDays
+    : 0;
 
-  const selectedOptions = [
-    { id: 'siteType', label: activeSiteType.label, positionClass: 'left-4 top-20' },
-    { id: 'pagesCount', label: activePages.label, positionClass: 'right-4 top-24' },
-    { id: 'contentReady', label: activeContentReady.label, positionClass: 'left-1/2 top-[55%] -translate-x-1/2' }
+  const cartItems = [
+    { id: 'siteType', step: 1, icon: Layout },
+    { id: 'pagesCount', step: 2, icon: Files },
+    { id: 'contentReady', step: 3, icon: FileText },
   ];
 
-  useEffect(() => {
-    if (!animateItem) return;
-    // keep previous small bump behavior as fallback
-    setPackageBump(true);
-    const reset = setTimeout(() => {
-      setAnimateItem(null);
-      setPackageBump(false);
-    }, 650);
-    return () => clearTimeout(reset);
-  }, [animateItem]);
+  const registerSlotRef = useCallback((id, el) => {
+    if (el) slotRefs.current[id] = el;
+  }, []);
 
-  const flyFromElement = (sourceEl, label, group) => {
-    if (!sourceEl || !folderRef.current || !group) return;
-    const start = sourceEl.getBoundingClientRect();
-    const target = folderRef.current.getBoundingClientRect();
-
-    const clone = document.createElement('div');
-    clone.className = 'fly-item fixed z-[9999] rounded-xl bg-zinc-950 text-white px-3 py-2 text-[11px] font-semibold shadow-2xl';
-    clone.textContent = label;
-    document.body.appendChild(clone);
-
-    const duration = 700;
-    const startTime = performance.now();
-
-    const sx = start.left + start.width / 2;
-    const sy = start.top + start.height / 2;
-    const ex = target.left + target.width / 2;
-    const ey = target.top + target.height / 2;
-
-    const cx = (sx + ex) / 2;
-    const cy = Math.min(sy, ey) - Math.max(120, Math.abs(ex - sx) * 0.35);
-
-    const ease = (t) => (--t) * t * t + 1; // easeOutCubic
-
-    const step = (now) => {
-      const t = Math.min(1, (now - startTime) / duration);
-      const e = ease(t);
-
-      // Quadratic bezier
-      const x = (1 - e) * (1 - e) * sx + 2 * (1 - e) * e * cx + e * e * ex;
-      const y = (1 - e) * (1 - e) * sy + 2 * (1 - e) * e * cy + e * e * ey;
-
-      const scale = 1 - 0.25 * e;
-      const opacity = 1 - 0.6 * e;
-
-      clone.style.left = `${x - start.width / 2}px`;
-      clone.style.top = `${y - start.height / 2}px`;
-      clone.style.transform = `scale(${scale})`;
-      clone.style.opacity = `${opacity}`;
-
-      if (t < 0.9) {
-        requestAnimationFrame(step);
-      } else {
-        // open package just before arrival
-        setFolderOpen(true);
-        setTimeout(() => {
-          clone.remove();
-          setSelectedItems((prev) => ({
-            ...prev,
-            [group]: label,
-          }));
-          setPackageBump(true);
-          setTimeout(() => {
-            setPackageBump(false);
-            setFolderOpen(false);
-          }, 300);
-        }, 80);
-      }
-    };
-
-    requestAnimationFrame(step);
-  };
-
-  const handleOptionChange = (group, value, label, ev) => {
+  const handleOptionChange = (group, value, ev) => {
     if (group === 'siteType') setSiteType(value);
     if (group === 'pagesCount') setPagesCount(value);
     if (group === 'contentReady') setContentReady(value);
-    setAnimateItem({ id: group, label });
-    // trigger global arc flight from clicked element
-    try {
-      const src = ev && ev.currentTarget ? ev.currentTarget : ev && ev.target ? ev.target : null;
-      flyFromElement(src, label, group);
-    } catch (e) {
-      // ignore
-    }
+
+    const item = cartItems.find((entry) => entry.id === group);
+    const src = ev?.currentTarget ?? ev?.target ?? null;
+    const target = slotRefs.current[group] ?? cartRef.current;
+
+    flyChipToCart(
+      src,
+      target,
+      { step: item?.step ?? '•', iconKey: TILDA_CART_ICON_KEYS[group] },
+      () => {
+        setCollectedIds((prev) => (prev.includes(group) ? prev : [...prev, group]));
+        setHighlightedSlot(group);
+        setCartBump(true);
+        setBadgeBump(true);
+        setTimeout(() => {
+          setHighlightedSlot(null);
+          setCartBump(false);
+          setBadgeBump(false);
+        }, 450);
+      }
+    );
   };
 
-  const handleSubmit = async (type) => {
+  const handleSubmit = async () => {
     const newErrors = {};
+    if (!isCartComplete) {
+      alert('Пожалуйста, выберите все параметры проекта в конфигураторе.');
+      return;
+    }
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
     if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
 
@@ -259,18 +228,7 @@ function TildaCalculator({ service, onSendSuccess }) {
     const pagesLabels = pagesOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
     const contentReadyLabels = contentReadyOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
 
-    let messageText = '';
-    if (type === 'consultation') {
-      messageText = `
-<b>🔔 Новая заявка с сайта-портфолио (Консультация)</b>
-
-<b>Клиент:</b> ${name}
-<b>Контакт:</b> ${contact}
-
-⚠️ <b>Примечание:</b> Клиент сомневается в выборе, нужна консультация.
-      `.trim();
-    } else {
-      messageText = `
+    const messageText = `
 <b>🔔 Новая заявка с сайта-портфолио (Расчет Tilda)</b>
 
 <b>Клиент:</b> ${name}
@@ -287,23 +245,16 @@ function TildaCalculator({ service, onSendSuccess }) {
 <b>Сроки:</b> от ${days} ${getDaysWord(days)}
 
 ✅ <b>Действие:</b> Подтверждение расчета
-      `.trim();
-    }
+    `.trim();
 
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        if (type === 'consultation') {
-          window.open('https://t.me/ksen_web', '_blank');
-          setName('');
-          setContact('');
-        } else {
-          const customSuccessMsg = `Расчет получен! Я свяжусь с вами в ближайшее время для уточнения деталей. Мой номер телефона: ${contentData.contacts.phone}, Telegram: https://t.me/ksen_web`;
-          onSendSuccess(customSuccessMsg);
-          setName('');
-          setContact('');
-          setComments('');
-        }
+        const customSuccessMsg = `Расчет получен! Я свяжусь с вами в ближайшее время для уточнения деталей. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        onSendSuccess(customSuccessMsg);
+        setName('');
+        setContact('');
+        setComments('');
       } else {
         alert('Ошибка при отправке. Пожалуйста, проверьте настройки токена бота.');
       }
@@ -321,30 +272,29 @@ function TildaCalculator({ service, onSendSuccess }) {
         Конфигуратор проекта
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-        <div className="space-y-6 h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
+        <div className="space-y-6 h-full flex flex-col">
           <div className="flex flex-col gap-2">
             <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
               ШАГ 1: ТИП САЙТА И ДИЗАЙН-КОНЦЕПЦИЯ
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
-              {siteTypeOptions.map((opt) => (
+              {siteTypeOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={(e) => handleOptionChange('siteType', opt.value, opt.label, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                    siteType === opt.value
-                      ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                      : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                  }`}
+                  onClick={(e) => handleOptionChange('siteType', opt.value, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                    siteType === opt.value,
+                    siteType === null && index === 0
+                  )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
             <span className="text-[11px] text-zinc-400 font-medium px-1">
-              {activeSiteType.description}
+              {activeSiteType?.description ?? siteTypeOptions[0].description}
             </span>
           </div>
 
@@ -353,23 +303,22 @@ function TildaCalculator({ service, onSendSuccess }) {
               ШАГ 2: КОЛИЧЕСТВО СТРАНИЦ
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
-              {pagesOptions.map((opt) => (
+              {pagesOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={(e) => handleOptionChange('pagesCount', opt.value, opt.label, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                    pagesCount === opt.value
-                      ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                      : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                  }`}
+                  onClick={(e) => handleOptionChange('pagesCount', opt.value, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                    pagesCount === opt.value,
+                    pagesCount === null && index === 0
+                  )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
             <span className="text-[11px] text-zinc-400 font-medium px-1">
-              {activePages.description}
+              {activePages?.description ?? pagesOptions[0].description}
             </span>
           </div>
 
@@ -378,74 +327,40 @@ function TildaCalculator({ service, onSendSuccess }) {
               ШАГ 3: ГОТОВНОСТЬ КОНТЕНТА
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
-              {contentReadyOptions.map((opt) => (
+              {contentReadyOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={(e) => handleOptionChange('contentReady', opt.value, opt.label, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                    contentReady === opt.value
-                      ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                      : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                  }`}
+                  onClick={(e) => handleOptionChange('contentReady', opt.value, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                    contentReady === opt.value,
+                    contentReady === null && index === 0
+                  )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
             <span className="text-[11px] text-zinc-400 font-medium px-1">
-              {activeContentReady.description}
+              {activeContentReady?.description ?? contentReadyOptions[0].description}
             </span>
           </div>
         </div>
 
-        <div className="flex flex-col justify-between gap-6 h-full">
-          <div className="text-xs uppercase tracking-[0.35em] text-zinc-950/40 text-left">
-            СОБЕРИ СВОЙ ПРОДУКТ
-          </div>
-          <div className={`relative flex-1 rounded-2xl border border-white/30 bg-white/10 backdrop-blur-[14px] shadow-[0_18px_44px_rgba(15,23,42,0.06)] transition-all duration-300 overflow-hidden ${packageBump ? 'shadow-[0_22px_48px_rgba(15,23,42,0.08)]' : ''}`}>
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute left-6 top-8 w-28 h-28 rounded-2xl bg-white/18 blur-3xl" />
-              <div className="absolute right-6 bottom-8 w-28 h-28 rounded-2xl bg-white/12 blur-2xl" />
-            </div>
-            <div className="relative h-full px-6 py-6 flex items-center justify-center">
-              <div ref={folderRef} className={`package relative w-full max-w-[460px] h-full max-h-[460px] transition-transform duration-300 ${folderOpen ? 'package--open' : ''}`}>
-                <svg viewBox="0 0 140 140" className="absolute inset-0 h-full w-full opacity-90" preserveAspectRatio="xMidYMid meet">
-                  <defs>
-                    <linearGradient id="bagGradient" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="rgba(255,255,255,0.35)" />
-                      <stop offset="100%" stopColor="rgba(255,255,255,0.08)" />
-                    </linearGradient>
-                  </defs>
-                  <rect x="16" y="32" width="108" height="72" rx="16" fill="url(#bagGradient)" stroke="rgba(255,255,255,0.28)" strokeWidth="2" />
-                  <path d="M36 32 C36 18, 52 12, 52 28" stroke="rgba(255,255,255,0.35)" strokeWidth="4" fill="none" />
-                  <path d="M104 32 C104 18, 88 12, 88 28" stroke="rgba(255,255,255,0.35)" strokeWidth="4" fill="none" />
-                </svg>
-                <div className="package__glass absolute left-1/2 bottom-4 -translate-x-1/2 w-[82%] h-[70%] overflow-hidden rounded-xl bg-white/20 backdrop-blur-[12px] border border-white/20">
-                  <div className="relative h-full w-full px-3 py-3">
-                    {['siteType', 'pagesCount', 'contentReady'].map((key, idx) => (
-                      <div
-                        key={key}
-                        className="package-item-inside absolute left-1/2 -translate-x-1/2 bg-white/90 text-zinc-950 px-4 py-3 text-[11px] font-semibold shadow-sm"
-                        style={{
-                          top: `${14 + idx * 64}px`,
-                          width: '90%',
-                          borderRadius: 16,
-                          transform: `rotate(${idx % 2 === 0 ? -1.5 : 1.5}deg)`,
-                        }}
-                      >
-                        {selectedItems[key]}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-sm font-medium text-zinc-500">Итого: от {formatPrice(price)} ₽</div>
-          </div>
+        <div className="h-full flex flex-col">
+          <ProjectCart
+            cartRef={cartRef}
+            cartIconRef={cartIconRef}
+            registerSlotRef={registerSlotRef}
+            items={cartItems}
+            collectedIds={collectedIds}
+            price={price}
+            days={days}
+            isComplete={isCartComplete}
+            bump={cartBump}
+            badgeBump={badgeBump}
+            highlightedSlot={highlightedSlot}
+          />
         </div>
       </div>
 
@@ -507,19 +422,19 @@ function TildaCalculator({ service, onSendSuccess }) {
           <button
             type="button"
             disabled={loading}
-            onClick={() => handleSubmit('calculation')}
+            onClick={handleSubmit}
             className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-sm font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => handleSubmit('consultation')}
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50"
+          <a
+            href={TELEGRAM_CONSULT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-lg transition-all duration-200 text-center"
           >
-            {loading ? 'Отправка...' : 'Нужна консультация'}
-          </button>
+            Нужна консультация
+          </a>
         </div>
       </div>
     </div>
@@ -562,7 +477,7 @@ function RedesignCalculator({ service, onSendSuccess }) {
 
   const price = getPrice(redesignDepth, projectVolume, contentStatus);
 
-  const handleSubmit = async (type) => {
+  const handleSubmit = async () => {
     const newErrors = {};
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
     if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
@@ -592,18 +507,7 @@ function RedesignCalculator({ service, onSendSuccess }) {
       full_rewrite: 'Полная переработка смыслов'
     };
 
-    let messageText = '';
-    if (type === 'consultation') {
-      messageText = `
-<b>🔔 Новая заявка с сайта-портфолио (Консультация - Редизайн)</b>
-
-<b>Клиент:</b> ${name}
-<b>Контакт:</b> ${contact}
-
-⚠️ <b>Примечание:</b> Клиент хочет обсудить аудит старого сайта голосом.
-      `.trim();
-    } else {
-      messageText = `
+    const messageText = `
 <b>🔔 Новая заявка с сайта-портфолио (Редизайн сайта)</b>
 
 <b>Клиент:</b> ${name}
@@ -619,23 +523,16 @@ function RedesignCalculator({ service, onSendSuccess }) {
 <b>Примерная стоимость:</b> от ${formatPrice(price)} руб.
 
 ✅ <b>Действие:</b> Подтверждение расчета
-      `.trim();
-    }
+    `.trim();
 
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        if (type === 'consultation') {
-          window.open('https://t.me/ksen_web', '_blank');
-          setName('');
-          setContact('');
-        } else {
-          const customSuccessMsg = `Расчет получен! Я изучу ваш текущий сайт и свяжусь в ближайшее время. Мой номер телефона: ${contentData.contacts.phone}, Telegram: https://t.me/ksen_web`;
-          onSendSuccess(customSuccessMsg);
-          setName('');
-          setContact('');
-          setComments('');
-        }
+        const customSuccessMsg = `Расчет получен! Я изучу ваш текущий сайт и свяжусь в ближайшее время. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        onSendSuccess(customSuccessMsg);
+        setName('');
+        setContact('');
+        setComments('');
       } else {
         alert('Ошибка при отправке. Пожалуйста, проверьте настройки токена бота.');
       }
@@ -840,19 +737,19 @@ function RedesignCalculator({ service, onSendSuccess }) {
           <button
             type="button"
             disabled={loading}
-            onClick={() => handleSubmit('calculation')}
+            onClick={handleSubmit}
             className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => handleSubmit('consultation')}
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+          <a
+            href={TELEGRAM_CONSULT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 text-center"
           >
-            {loading ? 'Отправка...' : 'Нужна консультация'}
-          </button>
+            Нужна консультация
+          </a>
         </div>
       </div>
     </div>
@@ -893,7 +790,7 @@ function FigmaCalculator({ service, onSendSuccess }) {
 
   const price = getPrice(figmaType, figmaComplexity, figmaSpec);
 
-  const handleSubmit = async (type) => {
+  const handleSubmit = async () => {
     const newErrors = {};
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
     if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
@@ -922,18 +819,7 @@ function FigmaCalculator({ service, onSendSuccess }) {
       no_spec: 'Есть только идея и референсы (Потребуется совместное проведение аналитики, проектирование логики и структуры с нуля)'
     };
 
-    let messageText = '';
-    if (type === 'consultation') {
-      messageText = `
-<b>🔔 Новая заявка с сайта-портфолио (Консультация - Дизайн в Figma)</b>
-
-<b>Клиент:</b> ${name}
-<b>Контакт:</b> ${contact}
-
-⚠️ <b>Примечание:</b> Клиент хочет обсудить проектирование интерфейса голосом.
-      `.trim();
-    } else {
-      messageText = `
+    const messageText = `
 <b>🔔 Новая заявка с сайта-портфолио (Дизайн в Figma)</b>
 
 <b>Клиент:</b> ${name}
@@ -949,23 +835,16 @@ function FigmaCalculator({ service, onSendSuccess }) {
 <b>Примерная стоимость:</b> от ${formatPrice(price)} руб.
 
 ✅ <b>Действие:</b> Подтверждение расчета
-      `.trim();
-    }
+    `.trim();
 
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        if (type === 'consultation') {
-          window.open('https://t.me/ksen_web', '_blank');
-          setName('');
-          setContact('');
-        } else {
-          const customSuccessMsg = `Расчет получен! Я проанализирую вашу задачу и свяжусь в ближайшее время для обсуждения концепции. Мой номер телефона: ${contentData.contacts.phone}, Telegram: https://t.me/ksen_web`;
-          onSendSuccess(customSuccessMsg);
-          setName('');
-          setContact('');
-          setComments('');
-        }
+        const customSuccessMsg = `Расчет получен! Я проанализирую вашу задачу и свяжусь в ближайшее время для обсуждения концепции. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        onSendSuccess(customSuccessMsg);
+        setName('');
+        setContact('');
+        setComments('');
       } else {
         alert('Ошибка при отправке. Пожалуйста, проверьте настройки токена бота.');
       }
@@ -1168,19 +1047,19 @@ function FigmaCalculator({ service, onSendSuccess }) {
           <button
             type="button"
             disabled={loading}
-            onClick={() => handleSubmit('calculation')}
+            onClick={handleSubmit}
             className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => handleSubmit('consultation')}
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+          <a
+            href={TELEGRAM_CONSULT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 text-center"
           >
-            {loading ? 'Отправка...' : 'Нужна консультация'}
-          </button>
+            Нужна консультация
+          </a>
         </div>
       </div>
     </div>
@@ -1232,7 +1111,7 @@ function DefaultCalculator({ service, onSendSuccess }) {
     }));
   };
 
-  const handleSubmit = async (type) => {
+  const handleSubmit = async () => {
     const newErrors = {};
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
     if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
@@ -1269,7 +1148,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
 <b>Итоговая цена:</b> от ${formatPrice(price)} руб.
 <b>Сроки:</b> от ${days} ${getDaysWord(days)}
 
-${type === 'consultation' ? '⚠️ <b>Примечание:</b> Клиент сомневается в выборе, нужна консультация' : '✅ <b>Действие:</b> Подтверждение расчета'}
+✅ <b>Действие:</b> Подтверждение расчета
     `.trim();
 
     try {
@@ -1399,19 +1278,19 @@ ${type === 'consultation' ? '⚠️ <b>Примечание:</b> Клиент с
           <button
             type="button"
             disabled={loading}
-            onClick={() => handleSubmit('calculation')}
+            onClick={handleSubmit}
             className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => handleSubmit('consultation')}
-            className="flex-1 border border-zinc-200 text-zinc-650 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+          <a
+            href={TELEGRAM_CONSULT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 border border-zinc-200 text-zinc-650 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 text-center"
           >
-            {loading ? 'Отправка...' : 'Нужна консультация'}
-          </button>
+            Нужна консультация
+          </a>
         </div>
       </div>
     </div>
