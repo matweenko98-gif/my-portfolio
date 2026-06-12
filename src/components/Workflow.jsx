@@ -84,14 +84,19 @@ export default function Workflow() {
         {standards.map((std, idx) => {
           const IconComponent = iconMap[std.iconName] || Sparkles;
           return (
-            <div key={idx} className="border border-zinc-100 rounded-2xl p-6 bg-white shadow-sm flex flex-col gap-4">
-              <div className="inline-flex items-center justify-center p-2.5 bg-zinc-50 border border-zinc-100/50 rounded-xl w-10 h-10">
-                <IconComponent className="w-5 h-5 text-zinc-900" />
+            <div
+              key={idx}
+              className="group border border-zinc-100 rounded-2xl p-6 bg-white shadow-sm flex flex-col gap-4 transition-all duration-500 ease-in-out will-change-transform lg:hover:-translate-y-1 lg:hover:shadow-md lg:hover:border-zinc-200 lg:h-[280px] relative"
+            >
+              <div className="inline-flex items-center justify-center bg-zinc-50 border border-zinc-100/50 rounded-xl transition-all duration-500 ease-in-out will-change-[width,height,transform] w-10 h-10 lg:w-[68px] lg:h-[68px] lg:group-hover:w-10 lg:group-hover:h-10 shrink-0">
+                <IconComponent className="transition-all duration-500 ease-in-out will-change-transform w-5 h-5 lg:w-9 lg:h-9 lg:group-hover:w-5 lg:group-hover:h-5 text-zinc-900" />
               </div>
-              <div>
-                <h3 className="text-[15px] font-bold text-zinc-900 mb-1">{std.title}</h3>
-                <p className="text-[13px] text-zinc-500 leading-relaxed">{std.desc}</p>
-              </div>
+              <h3 className="text-[15px] font-bold text-zinc-900 transition-all duration-500 ease-in-out will-change-transform lg:absolute lg:bottom-6 lg:left-6 lg:right-6 lg:group-hover:-translate-y-[110px]">
+                {std.title}
+              </h3>
+              <p className="text-[13px] text-zinc-500 leading-relaxed transition-all duration-500 ease-in-out will-change-[transform,opacity] lg:absolute lg:bottom-6 lg:left-6 lg:right-6 lg:opacity-0 lg:pointer-events-none lg:translate-y-4 lg:group-hover:opacity-100 lg:group-hover:pointer-events-auto lg:group-hover:translate-y-0">
+                {std.desc}
+              </p>
             </div>
           );
         })}

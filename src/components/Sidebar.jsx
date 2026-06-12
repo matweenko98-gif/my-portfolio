@@ -56,7 +56,7 @@ export default function Sidebar({ activeSection }) {
       </nav>
 
       {/* ===== DESKTOP SIDEBAR ===== */}
-      <aside className="sidebar-desktop hidden lg:flex fixed top-0 left-0 w-80 h-screen max-h-screen overflow-hidden flex-col border-r border-zinc-100 bg-white z-100 p-6 xl:p-8">
+      <aside className="sidebar-desktop hidden lg:flex fixed top-0 left-0 w-[260px] h-screen max-h-screen overflow-hidden flex-col border-r border-zinc-100 bg-white z-100 p-5 xl:p-6">
         {/* Profile */}
         <div className="shrink-0 mb-5 xl:mb-6 sidebar-profile">
           <div className="w-16 h-16 xl:w-20 xl:h-20 rounded-2xl overflow-hidden mb-3 xl:mb-4 border border-zinc-200 bg-zinc-100">

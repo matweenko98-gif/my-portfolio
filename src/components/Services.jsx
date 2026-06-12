@@ -122,7 +122,7 @@ function getOptionButtonClass(isSelected, isFirstHint) {
   return 'text-zinc-500 border border-transparent hover:text-zinc-900 hover:bg-zinc-200/40';
 }
 
-function TildaCalculator({ service, onSendSuccess }) {
+function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
   const [siteType, setSiteType] = useState(null);
   const [pagesCount, setPagesCount] = useState(null);
   const [contentReady, setContentReady] = useState(null);
@@ -138,6 +138,20 @@ function TildaCalculator({ service, onSendSuccess }) {
   const cartRef = useRef(null);
   const cartIconRef = useRef(null);
   const slotRefs = useRef({});
+
+  // Reset state when closed
+  useEffect(() => {
+    if (!isCalcOpen) {
+      setSiteType(null);
+      setPagesCount(null);
+      setContentReady(null);
+      setComments('');
+      setName('');
+      setContact('');
+      setErrors({});
+      setCollectedIds([]);
+    }
+  }, [isCalcOpen]);
 
   const siteTypeOptions = [
     { value: 'individual_landing', label: 'Индивидуальный Лендинг', price: 30000, days: 7, description: 'одностраничный сайт с уникальным дизайном в Zero-блоках' },
@@ -441,44 +455,116 @@ function TildaCalculator({ service, onSendSuccess }) {
   );
 }
 
-function RedesignCalculator({ service, onSendSuccess }) {
-  const [redesignDepth, setRedesignDepth] = useState('visual_update');
-  const [projectVolume, setProjectVolume] = useState('landing');
-  const [contentStatus, setContentStatus] = useState('keep_all');
+function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
+  const [problemType, setProblemType] = useState(null);
+  const [volume, setVolume] = useState(null);
+  const [depth, setDepth] = useState(null);
   const [comments, setComments] = useState('');
-  
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [cartBump, setCartBump] = useState(false);
+  const [badgeBump, setBadgeBump] = useState(false);
+  const [highlightedSlot, setHighlightedSlot] = useState(null);
+  const [collectedIds, setCollectedIds] = useState([]);
+  const cartRef = useRef(null);
+  const cartIconRef = useRef(null);
+  const slotRefs = useRef({});
 
-  const getPrice = (depth, volume, content) => {
-    let basePrice = 20000;
-    if (depth === 'full_redesign') {
-      basePrice = 30000;
+  // Reset state when closed
+  useEffect(() => {
+    if (!isCalcOpen) {
+      setProblemType(null);
+      setVolume(null);
+      setDepth(null);
+      setComments('');
+      setName('');
+      setContact('');
+      setErrors({});
+      setCollectedIds([]);
     }
+  }, [isCalcOpen]);
 
-    let volumeMultiplier = 1.0;
-    if (volume === 'multipage') {
-      volumeMultiplier = 1.5;
-    } else if (volume === 'large') {
-      volumeMultiplier = 2.0;
-    }
+  const problemOptions = [
+    { value: 'outdated', label: 'Устарел дизайн', price: 20000, days: 0, description: 'обновим визуальный стиль сайта и сделаем его современным' },
+    { value: 'mobile_ux', label: 'Плохой мобильный UX', price: 25000, days: 2, description: 'исправим ошибки отображения на телефонах и планшетах' },
+    { value: 'no_leads', label: 'Нет заявок', price: 30000, days: 4, description: 'проработаем структуру, логику и офферы для роста конверсии' }
+  ];
 
-    let contentMultiplier = 1.0;
-    if (content === 'partial_edit') {
-      contentMultiplier = 1.2;
-    } else if (content === 'full_rewrite') {
-      contentMultiplier = 1.5;
-    }
+  const volumeOptions = [
+    { value: 'landing', label: 'Одностраничный сайт', multiplier: 1.0, extraDays: 0, description: 'подходит для лендинга' },
+    { value: 'multipage', label: 'До 5 страниц', multiplier: 1.4, extraDays: 3, description: 'подходит для сайтов компаний' },
+    { value: 'large', label: 'Крупный сайт / Магазин', multiplier: 1.8, extraDays: 7, description: 'более 5 страниц или каталог' }
+  ];
 
-    return Math.round(basePrice * volumeMultiplier * contentMultiplier);
+  const depthOptions = [
+    { value: 'visual_update', label: 'Визуальное обновление', multiplier: 1.0, extraDays: 0, description: 'тексты и структура остаются прежними, меняется только дизайн' },
+    { value: 'full_redesign', label: 'Полный редизайн UX/UI', multiplier: 1.3, extraDays: 3, description: 'исправление логики, новая структура и дизайн в Figma с нуля' },
+    { value: 'full_rewrite', label: 'Полная переработка смыслов', multiplier: 1.6, extraDays: 5, description: 'пишем тексты и структуру заново под новые задачи' }
+  ];
+
+  const activeProblem = problemType ? problemOptions.find((opt) => opt.value === problemType) : null;
+  const activeVolume = volume ? volumeOptions.find((opt) => opt.value === volume) : null;
+  const activeDepth = depth ? depthOptions.find((opt) => opt.value === depth) : null;
+
+  const isCartComplete = Boolean(problemType && volume && depth);
+  const price = isCartComplete
+    ? Math.round(activeProblem.price * activeVolume.multiplier * activeDepth.multiplier)
+    : 0;
+  const days = isCartComplete
+    ? 5 + activeProblem.days + activeVolume.extraDays + activeDepth.extraDays
+    : 0;
+
+  const cartItems = [
+    { id: 'problemType', step: 1, icon: RefreshCw },
+    { id: 'volume', step: 2, icon: Files },
+    { id: 'depth', step: 3, icon: FileText },
+  ];
+
+  const iconKeys = {
+    problemType: 'layout',
+    volume: 'files',
+    depth: 'fileText',
   };
 
-  const price = getPrice(redesignDepth, projectVolume, contentStatus);
+  const registerSlotRef = useCallback((id, el) => {
+    if (el) slotRefs.current[id] = el;
+  }, []);
+
+  const handleOptionChange = (group, value, ev) => {
+    if (group === 'problemType') setProblemType(value);
+    if (group === 'volume') setVolume(value);
+    if (group === 'depth') setDepth(value);
+
+    const item = cartItems.find((entry) => entry.id === group);
+    const src = ev?.currentTarget ?? ev?.target ?? null;
+    const target = slotRefs.current[group] ?? cartRef.current;
+
+    flyChipToCart(
+      src,
+      target,
+      { step: item?.step ?? '•', iconKey: iconKeys[group] },
+      () => {
+        setCollectedIds((prev) => (prev.includes(group) ? prev : [...prev, group]));
+        setHighlightedSlot(group);
+        setCartBump(true);
+        setBadgeBump(true);
+        setTimeout(() => {
+          setHighlightedSlot(null);
+          setCartBump(false);
+          setBadgeBump(false);
+        }, 450);
+      }
+    );
+  };
 
   const handleSubmit = async () => {
     const newErrors = {};
+    if (!isCartComplete) {
+      alert('Пожалуйста, выберите все параметры проекта в конфигураторе.');
+      return;
+    }
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
     if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
 
@@ -490,40 +576,11 @@ function RedesignCalculator({ service, onSendSuccess }) {
     setErrors({});
     setLoading(true);
 
-    const depthLabels = {
-      visual_update: 'Визуальное обновление стиля',
-      full_redesign: 'Полный редизайн с перепроектированием (UX/UI)'
-    };
+    const problemLabels = problemOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
+    const volumeLabels = volumeOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
+    const depthLabels = depthOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
 
-    const volumeLabels = {
-      landing: 'Одностраничный сайт (Лендинг)',
-      multipage: 'Многостраничный сайт (До 5 страниц)',
-      large: 'Крупный сайт / Интернет-магазин (Более 5 страниц или большой каталог)'
-    };
-
-    const contentLabels = {
-      keep_all: 'Контент переносим полностью',
-      partial_edit: 'Нужна частичная доработка',
-      full_rewrite: 'Полная переработка смыслов'
-    };
-
-    const messageText = `
-<b>🔔 Новая заявка с сайта-портфолио (Редизайн сайта)</b>
-
-<b>Клиент:</b> ${name}
-<b>Контакт:</b> ${contact}
-
-<b>Услуга:</b> ${service.title}
-<b>Выбранные параметры:</b>
-• Формат и глубина редизайна: <b>${depthLabels[redesignDepth]}</b>
-• Объем текущего проекта: <b>${volumeLabels[projectVolume]}</b>
-• Наличие контента и структуры: <b>${contentLabels[contentStatus]}</b>
-• Ссылка и пожелания: <b>${comments || 'Не указаны'}</b>
-
-<b>Примерная стоимость:</b> от ${formatPrice(price)} руб.
-
-✅ <b>Действие:</b> Подтверждение расчета
-    `.trim();
+    const messageText = `<b>🔔 Новая заявка с сайта-портфолио (Редизайн сайта)</b>\n\n<b>Клиент:</b> ${name}\n<b>Контакт:</b> ${contact}\n\n<b>Услуга:</b> ${service.title}\n<b>Выбранные параметры:</b>\n• Проблема сайта: <b>${problemLabels[problemType]}</b>\n• Объем страниц: <b>${volumeLabels[volume]}</b>\n• Глубина переработки: <b>${depthLabels[depth]}</b>\n• Дополнительные пожелания: <b>${comments || 'Нет'}</b>\n\n<b>Примерная стоимость:</b> от ${formatPrice(price)} руб.\n<b>Сроки:</b> от ${days} ${getDaysWord(days)}\n\n✅ <b>Действие:</b> Подтверждение расчета`;
 
     try {
       const success = await sendTelegramMessage(messageText);
@@ -544,148 +601,118 @@ function RedesignCalculator({ service, onSendSuccess }) {
     }
   };
 
-  const depthDescriptions = {
-    visual_update: 'перенос структуры на Tilda, освежение дизайна, настройка шрифтов, цветов и адаптивности',
-    full_redesign: 'глубокий анализ, новая структура в Figma с нуля, исправление логики и сборка на Tilda'
-  };
-
-  const volumeDescriptions = {
-    landing: 'одностраничный сайт (лендинг)',
-    multipage: 'многостраничный сайт (до 5 страниц)',
-    large: 'крупный сайт / интернет-магазин (более 5 страниц или каталог)'
-  };
-
-  const contentDescriptions = {
-    keep_all: 'тексты, фото и структура остаются прежними, меняется только визуал',
-    partial_edit: 'часть текстов обновим, добавим новые блоки или разделы',
-    full_rewrite: 'тексты и структура пишем заново под новые задачи бизнеса'
-  };
-
   return (
     <div className="bg-zinc-50/70 border border-zinc-100 rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-sm font-semibold text-zinc-950 border-b border-zinc-200/50 pb-3">
+      <div className="text-sm font-semibold text-zinc-955 border-b border-zinc-200/50 pb-3">
         Конфигуратор редизайна
       </div>
 
-      <div className="flex flex-col gap-5">
-        {/* ШАГ 1: ФОРМАТ И ГЛУБИНА РЕДИЗАЙНА */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 1: ФОРМАТ И ГЛУБИНА РЕДИЗАЙНА
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1 bg-zinc-100 rounded-xl border border-zinc-200/30">
-            {[
-              { value: 'visual_update', label: 'Визуальное обновление стиля' },
-              { value: 'full_redesign', label: 'Полный редизайн (UX/UI)' }
-            ].map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setRedesignDepth(opt.value)}
-                className={`text-center py-2.5 px-1 sm:px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                  redesignDepth === opt.value
-                    ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-          {depthDescriptions[redesignDepth] && (
-            <span className="text-[11px] text-zinc-400 font-medium px-1 mt-0.5">
-              * {depthDescriptions[redesignDepth]}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
+        <div className="space-y-6 h-full flex flex-col">
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              ШАГ 1: ТЕКУЩИЕ ПРОБЛЕМЫ САЙТА
             </span>
-          )}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+              {problemOptions.map((opt, index) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => handleOptionChange('problemType', opt.value, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                    problemType === opt.value,
+                    problemType === null && index === 0
+                  )}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[11px] text-zinc-400 font-medium px-1">
+              {activeProblem?.description ?? problemOptions[0].description}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              ШАГ 2: ОБЪЕМ СТРАНИЦ
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+              {volumeOptions.map((opt, index) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => handleOptionChange('volume', opt.value, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                    volume === opt.value,
+                    volume === null && index === 0
+                  )}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[11px] text-zinc-400 font-medium px-1">
+              {activeVolume?.description ?? volumeOptions[0].description}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              ШАГ 3: ГЛУБИНА ПЕРЕРАБОТКИ СМЫСЛОВ
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+              {depthOptions.map((opt, index) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => handleOptionChange('depth', opt.value, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                    depth === opt.value,
+                    depth === null && index === 0
+                  )}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[11px] text-zinc-400 font-medium px-1">
+              {activeDepth?.description ?? depthOptions[0].description}
+            </span>
+          </div>
         </div>
 
-        {/* ШАГ 2: ОБЪЕМ ТЕКУЩЕГО ПРОЕКТА */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 2: ОБЪЕМ ТЕКУЩЕГО ПРОЕКТА
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-zinc-100 rounded-xl border border-zinc-200/30">
-            {[
-              { value: 'landing', label: 'Лендинг' },
-              { value: 'multipage', label: 'До 5 страниц' },
-              { value: 'large', label: 'Крупный сайт / Магазин' }
-            ].map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setProjectVolume(opt.value)}
-                className={`text-center py-2.5 px-1 sm:px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                  projectVolume === opt.value
-                    ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-          {volumeDescriptions[projectVolume] && (
-            <span className="text-[11px] text-zinc-400 font-medium px-1 mt-0.5">
-              * {volumeDescriptions[projectVolume]}
-            </span>
-          )}
-        </div>
-
-        {/* ШАГ 3: НАЛИЧИЕ КОНТЕНТА И СТРУКТУРЫ */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 3: НАЛИЧИЕ КОНТЕНТА И СТРУКТУРЫ
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-zinc-100 rounded-xl border border-zinc-200/30">
-            {[
-              { value: 'keep_all', label: 'Контент переносим' },
-              { value: 'partial_edit', label: 'Частичная доработка' },
-              { value: 'full_rewrite', label: 'Полная переработка' }
-            ].map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setContentStatus(opt.value)}
-                className={`text-center py-2.5 px-1 sm:px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                  contentStatus === opt.value
-                    ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-          {contentDescriptions[contentStatus] && (
-            <span className="text-[11px] text-zinc-400 font-medium px-1 mt-0.5">
-              * {contentDescriptions[contentStatus]}
-            </span>
-          )}
-        </div>
-
-        {/* ШАГ 4: ДОПОЛНИТЕЛЬНЫЕ ПОЖЕЛАНИЯ И ССЫЛКА */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 4: ДОПОЛНИТЕЛЬНЫЕ ПОЖЕЛАНИЯ И ССЫЛКА
-          </span>
-          <label className="block text-[11px] text-zinc-500 font-medium leading-relaxed px-1">
-            Укажите ссылку на ваш текущий сайт и расскажите, что именно вас в нем не устраивает или какие задачи нужно решить
-          </label>
-          <textarea
-            rows={3}
-            placeholder="Например: www.mysite.com. Сайт долго грузится, не работает с мобильных и дизайн выглядит устаревшим..."
-            value={comments}
-            onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none h-24"
+        <div className="h-full flex flex-col">
+          <ProjectCart
+            cartRef={cartRef}
+            cartIconRef={cartIconRef}
+            registerSlotRef={registerSlotRef}
+            items={cartItems}
+            collectedIds={collectedIds}
+            price={price}
+            days={days}
+            isComplete={isCartComplete}
+            bump={cartBump}
+            badgeBump={badgeBump}
+            highlightedSlot={highlightedSlot}
           />
         </div>
       </div>
 
-      {/* Поля ввода контактов */}
-      <div className="flex flex-col gap-4 pt-4 border-t border-zinc-200/50">
-        <div className="text-xs font-semibold text-zinc-950">
-          Контактные данные для расчета
+      <div className="flex flex-col gap-5 pt-2 border-t border-zinc-200/50">
+        <div className="flex flex-col gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+            Дополнительные пожелания и ссылка на текущий сайт
+          </span>
+          <textarea
+            rows={4}
+            placeholder="Укажите ссылку на текущий сайт и напишите пожелания..."
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+            className="w-full bg-white border border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
+          />
         </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
@@ -701,7 +728,7 @@ function RedesignCalculator({ service, onSendSuccess }) {
               }}
               className={`w-full bg-white border ${
                 errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
@@ -720,25 +747,18 @@ function RedesignCalculator({ service, onSendSuccess }) {
               }}
               className={`w-full bg-white border ${
                 errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
         </div>
-      </div>
 
-      {/* Итоговая стоимость и кнопки */}
-      <div className="pt-4 border-t border-zinc-200/50 flex flex-col gap-4">
-        <div className="text-[13px] text-zinc-600 leading-relaxed font-medium bg-zinc-100/50 border border-zinc-200/20 rounded-xl px-4 py-2.5">
-          Примерная стоимость редизайна: <span className="font-semibold text-zinc-950 text-sm">от {formatPrice(price)} руб.</span>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2 w-full">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-sm font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -746,7 +766,7 @@ function RedesignCalculator({ service, onSendSuccess }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 text-center"
+            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-lg transition-all duration-200 text-center"
           >
             Нужна консультация
           </a>
@@ -756,42 +776,114 @@ function RedesignCalculator({ service, onSendSuccess }) {
   );
 }
 
-function FigmaCalculator({ service, onSendSuccess }) {
-  const [figmaType, setFigmaType] = useState('website_design');
-  const [figmaComplexity, setFigmaComplexity] = useState('small');
-  const [figmaSpec, setFigmaSpec] = useState('has_spec');
+function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
+  const [designType, setDesignType] = useState(null);
+  const [complexity, setComplexity] = useState(null);
+  const [specStatus, setSpecStatus] = useState(null);
   const [comments, setComments] = useState('');
-  
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [cartBump, setCartBump] = useState(false);
+  const [badgeBump, setBadgeBump] = useState(false);
+  const [highlightedSlot, setHighlightedSlot] = useState(null);
+  const [collectedIds, setCollectedIds] = useState([]);
+  const cartRef = useRef(null);
+  const cartIconRef = useRef(null);
+  const slotRefs = useRef({});
 
-  const getPrice = (type, complexity, spec) => {
-    let basePrice = 20000;
-    if (type === 'app_interface') {
-      basePrice = 35000;
+  // Reset state when closed
+  useEffect(() => {
+    if (!isCalcOpen) {
+      setDesignType(null);
+      setComplexity(null);
+      setSpecStatus(null);
+      setComments('');
+      setName('');
+      setContact('');
+      setErrors({});
+      setCollectedIds([]);
     }
+  }, [isCalcOpen]);
 
-    let complexityMultiplier = 1.0;
-    if (complexity === 'medium') {
-      complexityMultiplier = 1.4;
-    } else if (complexity === 'ecosystem') {
-      complexityMultiplier = 1.8;
-    }
+  const typeOptions = [
+    { value: 'website_design', label: 'Дизайн веб-сайта', price: 20000, days: 0, description: 'уникальный стиль, адаптивные макеты для ПК и мобильных устройств' },
+    { value: 'app_interface', label: 'Интерфейс приложения', price: 35000, days: 5, description: 'UX-сценарии, личные кабинеты, дашборды и экраны MVP' }
+  ];
 
-    let specMultiplier = 1.0;
-    if (spec === 'no_spec') {
-      specMultiplier = 1.3;
-    }
+  const complexityOptions = [
+    { value: 'small', label: 'До 5 экранов', multiplier: 1.0, extraDays: 0, description: 'подходит для простых сайтов и лендингов' },
+    { value: 'medium', label: 'От 5 до 15 экранов', multiplier: 1.4, extraDays: 5, description: 'подходит для сайтов компаний и небольших сервисов' },
+    { value: 'ecosystem', label: 'Более 15 экранов', multiplier: 1.8, extraDays: 10, description: 'сложная экосистема, детальный интерактивный прототип' }
+  ];
 
-    return Math.round(basePrice * complexityMultiplier * specMultiplier);
+  const specOptions = [
+    { value: 'has_spec', label: 'Есть готовый UI-кит / ТЗ', multiplier: 1.0, extraDays: 0, description: 'работа по готовым компонентам и готовой структуре' },
+    { value: 'no_spec', label: 'Без UI-кита / ТЗ с нуля', multiplier: 1.3, extraDays: 5, description: 'совместная разработка дизайн-системы и проектирование логики' }
+  ];
+
+  const activeType = designType ? typeOptions.find((opt) => opt.value === designType) : null;
+  const activeComplexity = complexity ? complexityOptions.find((opt) => opt.value === complexity) : null;
+  const activeSpec = specStatus ? specOptions.find((opt) => opt.value === specStatus) : null;
+
+  const isCartComplete = Boolean(designType && complexity && specStatus);
+  const price = isCartComplete
+    ? Math.round(activeType.price * activeComplexity.multiplier * activeSpec.multiplier)
+    : 0;
+  const days = isCartComplete
+    ? 10 + activeType.days + activeComplexity.extraDays + activeSpec.extraDays
+    : 0;
+
+  const cartItems = [
+    { id: 'designType', step: 1, icon: Figma },
+    { id: 'complexity', step: 2, icon: Files },
+    { id: 'specStatus', step: 3, icon: FileText },
+  ];
+
+  const iconKeys = {
+    designType: 'layout',
+    complexity: 'files',
+    specStatus: 'fileText',
   };
 
-  const price = getPrice(figmaType, figmaComplexity, figmaSpec);
+  const registerSlotRef = useCallback((id, el) => {
+    if (el) slotRefs.current[id] = el;
+  }, []);
+
+  const handleOptionChange = (group, value, ev) => {
+    if (group === 'designType') setDesignType(value);
+    if (group === 'complexity') setComplexity(value);
+    if (group === 'specStatus') setSpecStatus(value);
+
+    const item = cartItems.find((entry) => entry.id === group);
+    const src = ev?.currentTarget ?? ev?.target ?? null;
+    const target = slotRefs.current[group] ?? cartRef.current;
+
+    flyChipToCart(
+      src,
+      target,
+      { step: item?.step ?? '•', iconKey: iconKeys[group] },
+      () => {
+        setCollectedIds((prev) => (prev.includes(group) ? prev : [...prev, group]));
+        setHighlightedSlot(group);
+        setCartBump(true);
+        setBadgeBump(true);
+        setTimeout(() => {
+          setHighlightedSlot(null);
+          setCartBump(false);
+          setBadgeBump(false);
+        }, 450);
+      }
+    );
+  };
 
   const handleSubmit = async () => {
     const newErrors = {};
+    if (!isCartComplete) {
+      alert('Пожалуйста, выберите все параметры проекта в конфигураторе.');
+      return;
+    }
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
     if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
 
@@ -803,39 +895,11 @@ function FigmaCalculator({ service, onSendSuccess }) {
     setErrors({});
     setLoading(true);
 
-    const typeLabels = {
-      website_design: 'Дизайн веб-сайта / Лендинга',
-      app_interface: 'Интерфейс приложения / Платформы'
-    };
+    const typeLabels = typeOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
+    const complexityLabels = complexityOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
+    const specLabels = specOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
 
-    const complexityLabels = {
-      small: 'Небольшой проект (До 5 ключевых экранов или страниц сайта)',
-      medium: 'Средний проект (От 5 до 15 экранов, базовая интерактивная карта переходов)',
-      ecosystem: 'Сложная экосистема (Более 15 экранов, детальный интерактивный прототип, развернутая дизайн-система)'
-    };
-
-    const specLabels = {
-      has_spec: 'Есть четкое ТЗ и прототип (Структура страниц понятна, есть готовое описание логики и контент)',
-      no_spec: 'Есть только идея и референсы (Потребуется совместное проведение аналитики, проектирование логики и структуры с нуля)'
-    };
-
-    const messageText = `
-<b>🔔 Новая заявка с сайта-портфолио (Дизайн в Figma)</b>
-
-<b>Клиент:</b> ${name}
-<b>Контакт:</b> ${contact}
-
-<b>Услуга:</b> ${service.title}
-<b>Выбранные параметры:</b>
-• Тип продукта: <b>${typeLabels[figmaType]}</b>
-• Объем и сложность: <b>${complexityLabels[figmaComplexity]}</b>
-• Исходные данные и ТЗ: <b>${specLabels[figmaSpec]}</b>
-• Описание и референсы: <b>${comments || 'Не указаны'}</b>
-
-<b>Примерная стоимость:</b> от ${formatPrice(price)} руб.
-
-✅ <b>Действие:</b> Подтверждение расчета
-    `.trim();
+    const messageText = `<b>🔔 Новая заявка с сайта-портфолио (Дизайн в Figma)</b>\n\n<b>Клиент:</b> ${name}\n<b>Контакт:</b> ${contact}\n\n<b>Услуга:</b> ${service.title}\n<b>Выбранные параметры:</b>\n• Тип дизайна: <b>${typeLabels[designType]}</b>\n• Объем и сложность: <b>${complexityLabels[complexity]}</b>\n• UI-кит / ТЗ: <b>${specLabels[specStatus]}</b>\n• Дополнительные пожелания: <b>${comments || 'Нет'}</b>\n\n<b>Примерная стоимость (только дизайн):</b> от ${formatPrice(price)} руб.\n<b>Сроки:</b> от ${days} ${getDaysWord(days)}\n\n✅ <b>Действие:</b> Подтверждение расчета`;
 
     try {
       const success = await sendTelegramMessage(messageText);
@@ -856,146 +920,118 @@ function FigmaCalculator({ service, onSendSuccess }) {
     }
   };
 
-  const typeDescriptions = {
-    website_design: 'разработка уникальной визуальной концепции, UI-кита и адаптивных макетов для ПК и мобильных устройств. Базовая стоимость: от 20 000 руб.',
-    app_interface: 'проектирование пользовательских сценариев, UX-логики, сложных личных кабинетов, дашбордов и экранов MVP. Базовая стоимость: от 35 000 руб.'
-  };
-
-  const complexityDescriptions = {
-    small: 'до 5 ключевых экранов или страниц сайта',
-    medium: 'от 5 до 15 экранов, базовая интерактивная карта переходов',
-    ecosystem: 'более 15 экранов, детальный интерактивный прототип, развернутая дизайн-система'
-  };
-
-  const specDescriptions = {
-    has_spec: 'структура страниц понятна, есть готовое описание логики и контент',
-    no_spec: 'совместное проведение аналитики, проектирование логики и структуры с нуля'
-  };
-
   return (
     <div className="bg-zinc-50/70 border border-zinc-100 rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-sm font-semibold text-zinc-950 border-b border-zinc-200/50 pb-3">
+      <div className="text-sm font-semibold text-zinc-955 border-b border-zinc-200/50 pb-3">
         Конфигуратор дизайна в Figma
       </div>
 
-      <div className="flex flex-col gap-5">
-        {/* ШАГ 1: ТИП ПРОДУКТА И ПРОЕКТИРОВАНИЕ */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 1: ТИП ПРОДУКТА И ПРОЕКТИРОВАНИЕ
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1 bg-zinc-100 rounded-xl border border-zinc-200/30">
-            {[
-              { value: 'website_design', label: 'Дизайн веб-сайта / Лендинга' },
-              { value: 'app_interface', label: 'Интерфейс приложения / Платформы' }
-            ].map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setFigmaType(opt.value)}
-                className={`text-center py-2.5 px-1 sm:px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                  figmaType === opt.value
-                    ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-          {typeDescriptions[figmaType] && (
-            <span className="text-[11px] text-zinc-400 font-medium px-1 mt-0.5">
-              * {typeDescriptions[figmaType]}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
+        <div className="space-y-6 h-full flex flex-col">
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              ШАГ 1: ТИП ИНТЕРФЕЙСА
             </span>
-          )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+              {typeOptions.map((opt, index) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => handleOptionChange('designType', opt.value, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                    designType === opt.value,
+                    designType === null && index === 0
+                  )}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[11px] text-zinc-400 font-medium px-1">
+              {activeType?.description ?? typeOptions[0].description}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              ШАГ 2: КОЛИЧЕСТВО УНИКАЛЬНЫХ ЭКРАНОВ
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+              {complexityOptions.map((opt, index) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => handleOptionChange('complexity', opt.value, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                    complexity === opt.value,
+                    complexity === null && index === 0
+                  )}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[11px] text-zinc-400 font-medium px-1">
+              {activeComplexity?.description ?? complexityOptions[0].description}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+              ШАГ 3: НАЛИЧИЕ ГОТОВОГО UI-КИТА
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+              {specOptions.map((opt, index) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={(e) => handleOptionChange('specStatus', opt.value, e)}
+                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                    specStatus === opt.value,
+                    specStatus === null && index === 0
+                  )}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <span className="text-[11px] text-zinc-400 font-medium px-1">
+              {activeSpec?.description ?? specOptions[0].description}
+            </span>
+          </div>
         </div>
 
-        {/* ШАГ 2: ОБЪЕМ И СЛОЖНОСТЬ */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 2: ОБЪЕМ И СЛОЖНОСТЬ
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-zinc-100 rounded-xl border border-zinc-200/30">
-            {[
-              { value: 'small', label: 'Небольшой проект' },
-              { value: 'medium', label: 'Средний проект' },
-              { value: 'ecosystem', label: 'Сложная экосистема' }
-            ].map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setFigmaComplexity(opt.value)}
-                className={`text-center py-2.5 px-1 sm:px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                  figmaComplexity === opt.value
-                    ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-          {complexityDescriptions[figmaComplexity] && (
-            <span className="text-[11px] text-zinc-400 font-medium px-1 mt-0.5">
-              * {complexityDescriptions[figmaComplexity]}
-            </span>
-          )}
-        </div>
-
-        {/* ШАГ 3: ИСХОДНЫЕ ДАННЫЕ И ТЕХ. ЗАДАНИЕ */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 3: ИСХОДНЫЕ ДАННЫЕ И ТЕХ. ЗАДАНИЕ
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1 bg-zinc-100 rounded-xl border border-zinc-200/30">
-            {[
-              { value: 'has_spec', label: 'Есть четкое ТЗ и прототип' },
-              { value: 'no_spec', label: 'Есть только идея и референсы' }
-            ].map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setFigmaSpec(opt.value)}
-                className={`text-center py-2.5 px-1 sm:px-2 rounded-lg text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${
-                  figmaSpec === opt.value
-                    ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-          {specDescriptions[figmaSpec] && (
-            <span className="text-[11px] text-zinc-400 font-medium px-1 mt-0.5">
-              * {specDescriptions[figmaSpec]}
-            </span>
-          )}
-        </div>
-
-        {/* ШАГ 4: ДОПОЛНИТЕЛЬНЫЕ ПОЖЕЛАНИЯ И АНАЛИТИКА */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-            ШАГ 4: ДОПОЛНИТЕЛЬНЫЕ ПОЖЕЛАНИЯ И АНАЛИТИКА
-          </span>
-          <label className="block text-[11px] text-zinc-500 font-medium leading-relaxed px-1">
-            Опишите суть вашего сервиса или сайта, укажите ссылки на конкурентов или референсы, которые вам близки по стилистике
-          </label>
-          <textarea
-            rows={3}
-            placeholder="Например: Нужен современный Clean & Light дизайн для личного кабинета ИТ-платформы. Нравится минимализм и интерфейсы у Apple..."
-            value={comments}
-            onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none h-24"
+        <div className="h-full flex flex-col">
+          <ProjectCart
+            cartRef={cartRef}
+            cartIconRef={cartIconRef}
+            registerSlotRef={registerSlotRef}
+            items={cartItems}
+            collectedIds={collectedIds}
+            price={price}
+            days={days}
+            isComplete={isCartComplete}
+            bump={cartBump}
+            badgeBump={badgeBump}
+            highlightedSlot={highlightedSlot}
           />
         </div>
       </div>
 
-      {/* Поля ввода контактов */}
-      <div className="flex flex-col gap-4 pt-4 border-t border-zinc-200/50">
-        <div className="text-xs font-semibold text-zinc-950">
-          Контактные данные для расчета
+      <div className="flex flex-col gap-5 pt-2 border-t border-zinc-200/50">
+        <div className="flex flex-col gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+            Описание проекта и ссылки на референсы
+          </span>
+          <textarea
+            rows={4}
+            placeholder="Опишите ваши пожелания, стиль, референсы..."
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+            className="w-full bg-white border border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
+          />
         </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
@@ -1011,7 +1047,7 @@ function FigmaCalculator({ service, onSendSuccess }) {
               }}
               className={`w-full bg-white border ${
                 errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
@@ -1030,25 +1066,18 @@ function FigmaCalculator({ service, onSendSuccess }) {
               }}
               className={`w-full bg-white border ${
                 errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
         </div>
-      </div>
 
-      {/* Итоговая стоимость и кнопки */}
-      <div className="pt-4 border-t border-zinc-200/50 flex flex-col gap-4">
-        <div className="text-[13px] text-zinc-600 leading-relaxed font-medium bg-zinc-100/50 border border-zinc-200/20 rounded-xl px-4 py-2.5">
-          Примерная стоимость дизайна: <span className="font-semibold text-zinc-950 text-sm">от {formatPrice(price)} руб.</span>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2 w-full">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -1056,11 +1085,82 @@ function FigmaCalculator({ service, onSendSuccess }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 text-center"
+            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-lg transition-all duration-200 text-center"
           >
             Нужна консультация
           </a>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function AICalculator({ service }) {
+  const products = [
+    {
+      title: 'Веб-приложение / Сервис',
+      price: 'от 40 000 ₽',
+      desc: 'Создание личных кабинетов, баз данных, дашбордов и сложных интерактивных систем.',
+      features: ['Кастомный Frontend и Backend', 'Интеграция баз данных (PostgreSQL/Supabase)', 'Личные кабинеты пользователей', 'Админ-панель управления']
+    },
+    {
+      title: 'Мобильное MVP',
+      price: 'от 40 000 ₽',
+      desc: 'Разработка первых версий мобильных приложений для тестов гипотез на реальных пользователях.',
+      features: ['Адаптивное PWA/мобильное решение', 'Базовые функции авторизации', 'Push-уведомления и формы ввода', 'Быстрый запуск для тестирования']
+    },
+    {
+      title: 'Платформа / SaaS',
+      price: 'от 55 000 ₽',
+      desc: 'Разработка многопользовательских сервисов, обучающих ИТ-платформ с разветвленной логикой.',
+      features: ['Сложные алгоритмы и сценарии', 'Интеграция платежных шлюзов', 'Разделение прав доступа', 'Подготовка к масштабированию']
+    }
+  ];
+
+  return (
+    <div className="bg-zinc-50/70 border border-zinc-100 rounded-2xl p-5 sm:p-6 flex flex-col gap-6 w-full">
+      <div className="text-sm font-semibold text-zinc-955 border-b border-zinc-200/50 pb-3 flex justify-between items-center flex-wrap gap-2">
+        <span>Тарифы и направления разработки</span>
+        <span className="text-[11px] font-semibold text-zinc-500 bg-zinc-100 border border-zinc-200/30 px-2.5 py-1 rounded-lg">
+          Срок: Рассчитывается индивидуально
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {products.map((p, idx) => (
+          <div key={idx} className="bg-white border border-zinc-200/60 rounded-2xl p-5 flex flex-col justify-between shadow-[0_1px_3px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-zinc-300 transition-all duration-300">
+            <div>
+              <h4 className="text-sm font-bold text-zinc-900 mb-1">{p.title}</h4>
+              <span className="inline-block text-xs font-extrabold text-zinc-955 bg-zinc-50 border border-zinc-100 rounded-lg px-2.5 py-1 mb-3">
+                {p.price}
+              </span>
+              <p className="text-[11px] sm:text-xs text-zinc-500 leading-relaxed mb-4">{p.desc}</p>
+            </div>
+            <ul className="space-y-2 border-t border-zinc-150/50 pt-3">
+              {p.features.map((f, i) => (
+                <li key={i} className="flex items-start gap-2 text-[10.5px] text-zinc-650 leading-tight">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div className="pt-4 border-t border-zinc-200/50 flex flex-col items-center gap-3">
+        <p className="text-xs text-zinc-500 font-medium text-center">
+          Разработка сложных цифровых продуктов требует детального обсуждения технического задания и архитектуры.
+        </p>
+        <a
+          href={TELEGRAM_CONSULT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-zinc-950 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-8 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
+        >
+          <Send className="w-4 h-4" />
+          <span>Обсудить проект в Telegram</span>
+        </a>
       </div>
     </div>
   );
@@ -1297,15 +1397,18 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
   );
 }
 
-function Calculator({ service, onSendSuccess }) {
+function Calculator({ service, onSendSuccess, isCalcOpen }) {
   if (service.number === '01') {
-    return <TildaCalculator service={service} onSendSuccess={onSendSuccess} />;
+    return <TildaCalculator service={service} onSendSuccess={onSendSuccess} isCalcOpen={isCalcOpen} />;
   }
   if (service.number === '02') {
-    return <RedesignCalculator service={service} onSendSuccess={onSendSuccess} />;
+    return <RedesignCalculator service={service} onSendSuccess={onSendSuccess} isCalcOpen={isCalcOpen} />;
+  }
+  if (service.number === '03') {
+    return <AICalculator service={service} />;
   }
   if (service.number === '04') {
-    return <FigmaCalculator service={service} onSendSuccess={onSendSuccess} />;
+    return <FigmaCalculator service={service} onSendSuccess={onSendSuccess} isCalcOpen={isCalcOpen} />;
   }
   return <DefaultCalculator service={service} onSendSuccess={onSendSuccess} />;
 }
@@ -1366,68 +1469,36 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
         })}
       </div>
 
-      {service.number === '03' && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-5 pt-5 border-t border-zinc-100">
-          {[
-            { label: 'Веб-приложение / Сервис', price: 'от 40 000 ₽' },
-            { label: 'MVP мобильного приложения', price: 'от 45 000 ₽' },
-            { label: 'Платформа', price: 'от 55 000 ₽' }
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="bg-zinc-50/60 border border-zinc-100/70 rounded-xl px-3 py-2.5 flex items-center justify-center text-center text-xs text-zinc-800"
-            >
-              <span>
-                <strong className="font-semibold">{item.label}</strong> — <span style={{ fontSize: '0.9em', opacity: 0.7 }} className="font-semibold text-zinc-950">{item.price}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-zinc-100">
-        {service.number === '03' ? (
-          <a
-            href="https://t.me/ksen_web"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full block text-center bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
-          >
-            Рассказать о задаче
-          </a>
-        ) : (
-          <>
-            <button
-              onClick={onToggleCalc}
-              className={`text-xs font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer ${
-                isCalcOpen
-                  ? 'bg-zinc-200 text-zinc-800 hover:bg-zinc-300'
-                  : 'bg-zinc-900 text-white hover:bg-zinc-800'
-              }`}
-            >
-              {isCalcOpen ? 'Скрыть калькулятор' : 'Рассчитать стоимость'}
-            </button>
-            <button
-              onClick={() => window.open('https://t.me/ksen_web', '_blank')}
-              className="border border-zinc-200 text-zinc-900 hover:bg-zinc-50 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
-            >
-              Рассказать о задаче
-            </button>
-          </>
-        )}
+        <button
+          onClick={onToggleCalc}
+          className={`text-xs font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer ${
+            isCalcOpen
+              ? 'bg-zinc-200 text-zinc-800 hover:bg-zinc-300'
+              : 'bg-zinc-900 text-white hover:bg-zinc-800'
+          }`}
+        >
+          {isCalcOpen 
+            ? 'Скрыть подробности' 
+            : service.number === '03' ? 'Посмотреть тарифы' : 'Рассчитать стоимость'}
+        </button>
+        <button
+          onClick={() => window.open('https://t.me/ksen_web', '_blank')}
+          className="border border-zinc-200 text-zinc-900 hover:bg-zinc-50 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
+        >
+          Рассказать о задаче
+        </button>
       </div>
 
       {/* Smoothly Expanding Calculator Panel */}
-      {service.number !== '03' && (
-        <div
-          className={`transition-all duration-300 ease-in-out overflow-hidden ${
-            isCalcOpen ? 'max-h-[1500px] opacity-100 mt-6 pt-6 border-t border-zinc-100' : 'max-h-0 opacity-0 pointer-events-none'
-          }`}
-        >
-          <Calculator service={service} onSendSuccess={onSendSuccess} />
-        </div>
-      )}
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          isCalcOpen ? 'max-h-[1500px] opacity-100 mt-6 pt-6 border-t border-zinc-100' : 'max-h-0 opacity-0 pointer-events-none'
+        }`}
+      >
+        <Calculator service={service} onSendSuccess={onSendSuccess} isCalcOpen={isCalcOpen} />
+      </div>
     </div>
   );
 }
