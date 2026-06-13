@@ -51,7 +51,7 @@ export default function ProjectCart({
   return (
     <div
       ref={cartRef}
-      className={`project-cart flex flex-col h-full rounded-2xl border border-zinc-200 bg-zinc-50/80 shadow-inner overflow-hidden transition-transform duration-300 ${bump ? 'project-cart--bump' : ''
+      className={`project-cart flex flex-col h-full rounded-md border border-zinc-200/30 bg-zinc-50/80 overflow-hidden transition-transform duration-300 ${bump ? 'project-cart--bump' : ''
         }`}
     >
       <div className="px-4 pt-4 pb-2 shrink-0">
@@ -87,7 +87,7 @@ export default function ProjectCart({
             <div
               key={item.id}
               ref={(el) => registerSlotRef?.(item.id, el)}
-              className={`flex-1 flex items-center justify-center gap-1.5 min-h-[40px] rounded-xl border transition-all duration-300 ${isCollected
+              className={`flex-1 flex items-center justify-center gap-1.5 min-h-[40px] rounded-sm border transition-all duration-300 ${isCollected
                   ? isHighlighted
                     ? 'bg-white border-zinc-400 shadow-sm scale-[1.03]'
                     : 'bg-white border-zinc-200/90 shadow-sm'
@@ -96,7 +96,7 @@ export default function ProjectCart({
             >
               {isCollected ? (
                 <>
-                  <span className="w-5 h-5 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center text-[10px] font-bold text-zinc-700 shrink-0">
+                  <span className="w-5 h-5 rounded-sm bg-zinc-100 border border-zinc-200 flex items-center justify-center text-[10px] font-bold text-zinc-700 shrink-0">
                     {item.step}
                   </span>
                   {Icon && <Icon className="w-4 h-4 text-zinc-600 shrink-0" strokeWidth={1.5} />}
@@ -109,7 +109,7 @@ export default function ProjectCart({
         })}
       </div>
 
-      <div className="border-t border-zinc-200 bg-white px-4 py-3.5 shrink-0">
+      <div className="border-t border-zinc-200/30 bg-white px-4 py-3.5 shrink-0">
         <div className="flex items-center gap-2 text-[12px] text-zinc-500 mb-2">
           <Clock className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
           <span>

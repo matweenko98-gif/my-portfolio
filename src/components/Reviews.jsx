@@ -145,8 +145,8 @@ export default function Reviews() {
       style={{ height: '180vh' }}
     >
       <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden py-12 px-6 md:px-12 lg:px-16">
-        <div className="max-w-[640px] mb-8 select-none">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 mb-2">
+        <div className="max-w-3xl mb-8 select-none">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tighter text-black mb-2 md:whitespace-nowrap">
             {reviewsData.title}
           </h2>
           <p className="text-[14.5px] text-zinc-500 max-w-[500px] leading-relaxed">
@@ -156,7 +156,7 @@ export default function Reviews() {
 
         <div
           ref={containerRef}
-          className="relative w-full h-[58vh] overflow-hidden rounded-2xl border border-zinc-100 bg-zinc-50/20 shadow-inner"
+          className="relative w-full h-[58vh] overflow-hidden rounded-md border border-zinc-100 bg-zinc-50/20"
         >
           <div ref={trackRef} className="relative w-full will-change-transform">
             {Array.from({ length: TRACK_COPIES }, (_, cycle) =>
@@ -172,9 +172,9 @@ export default function Reviews() {
                       top: review.trackY + cycle * cycleHeight,
                     }}
                   >
-                    <div className="bg-white border border-zinc-200/40 rounded-2xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] transition-transform duration-200 ease-out hover:scale-[1.04] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] cursor-default">
+                    <div className="bg-white border border-zinc-200/30 rounded-md p-4 sm:p-5 shadow-[0_4px_20px_rgb(0,0,0,0.02)] transition-transform duration-200 ease-out hover:scale-[1.04] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] cursor-default">
                       {review.imageUrl ? (
-                        <div className="relative w-full overflow-hidden rounded-xl border border-zinc-100 bg-zinc-50">
+                        <div className="relative w-full overflow-hidden rounded-sm border border-zinc-100 bg-zinc-50">
                           <img
                             src={review.imageUrl}
                             alt={`Отзыв от ${review.name}`}

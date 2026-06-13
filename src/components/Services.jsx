@@ -89,9 +89,9 @@ const sendTelegramMessage = async (messageText) => {
 
 const SegmentedControl = ({ label, options, val, setVal }) => (
   <div className="flex flex-col gap-2">
-    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">{label}</span>
+    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">{label}</span>
     <div
-      className="grid gap-1.5 p-1 bg-zinc-100 rounded-xl border border-zinc-200/30"
+      className="grid gap-1.5 p-1 bg-zinc-100 rounded-md border border-zinc-200/30"
       style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
     >
       {options.map((opt) => (
@@ -99,7 +99,7 @@ const SegmentedControl = ({ label, options, val, setVal }) => (
           key={opt.value}
           type="button"
           onClick={() => setVal(opt.value)}
-          className={`text-center py-2 px-1 sm:px-3 rounded-lg text-[11px] sm:text-xs font-semibold transition-all ${
+          className={`text-center py-2 px-1 sm:px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all ${
             val === opt.value
               ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
               : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
@@ -116,10 +116,7 @@ function getOptionButtonClass(isSelected, isFirstHint) {
   if (isSelected) {
     return 'bg-white text-zinc-950 shadow-sm border border-zinc-900';
   }
-  if (isFirstHint) {
-    return 'text-zinc-600 border-2 border-dashed border-zinc-300 bg-transparent hover:border-zinc-400 hover:text-zinc-900';
-  }
-  return 'text-zinc-500 border border-transparent hover:text-zinc-900 hover:bg-zinc-200/40';
+  return 'text-zinc-500 border border-neutral-200/50 bg-transparent hover:border-neutral-300 hover:bg-zinc-150/30 hover:text-zinc-900';
 }
 
 function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
@@ -281,7 +278,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
   };
 
   return (
-    <div className="bg-zinc-50/70 border border-zinc-100 rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
+    <div className="bg-zinc-50/70 border border-zinc-100 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
       <div className="text-sm font-semibold text-zinc-950 border-b border-zinc-200/50 pb-3">
         Конфигуратор проекта
       </div>
@@ -289,16 +286,16 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
         <div className="space-y-6 h-full flex flex-col">
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
               ШАГ 1: ТИП САЙТА И ДИЗАЙН-КОНЦЕПЦИЯ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
               {siteTypeOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('siteType', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
                     siteType === opt.value,
                     siteType === null && index === 0
                   )}`}
@@ -313,16 +310,16 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
               ШАГ 2: КОЛИЧЕСТВО СТРАНИЦ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
               {pagesOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('pagesCount', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
                     pagesCount === opt.value,
                     pagesCount === null && index === 0
                   )}`}
@@ -337,16 +334,16 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
               ШАГ 3: ГОТОВНОСТЬ КОНТЕНТА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
               {contentReadyOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('contentReady', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
                     contentReady === opt.value,
                     contentReady === null && index === 0
                   )}`}
@@ -380,7 +377,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
 
       <div className="flex flex-col gap-5 pt-2 border-t border-zinc-200/50">
         <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
             Свободные пожелания
           </span>
           <textarea
@@ -388,13 +385,13 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Например: Нужна интеграция с CRM и личный кабинет..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
+            className="w-full bg-white border border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -406,14 +403,14 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
               className={`w-full bg-white border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -425,8 +422,8 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
               className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -437,7 +434,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-sm font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50"
+            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -445,7 +442,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-lg transition-all duration-200 text-center"
+            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-sm transition-all duration-200 text-center"
           >
             Нужна консультация
           </a>
@@ -602,7 +599,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
   };
 
   return (
-    <div className="bg-zinc-50/70 border border-zinc-100 rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
+    <div className="bg-zinc-50/70 border border-zinc-100 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
       <div className="text-sm font-semibold text-zinc-955 border-b border-zinc-200/50 pb-3">
         Конфигуратор редизайна
       </div>
@@ -610,16 +607,16 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
         <div className="space-y-6 h-full flex flex-col">
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
               ШАГ 1: ТЕКУЩИЕ ПРОБЛЕМЫ САЙТА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
               {problemOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('problemType', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
                     problemType === opt.value,
                     problemType === null && index === 0
                   )}`}
@@ -634,16 +631,16 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
               ШАГ 2: ОБЪЕМ СТРАНИЦ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
               {volumeOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('volume', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
                     volume === opt.value,
                     volume === null && index === 0
                   )}`}
@@ -658,16 +655,16 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
               ШАГ 3: ГЛУБИНА ПЕРЕРАБОТКИ СМЫСЛОВ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
               {depthOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('depth', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
                     depth === opt.value,
                     depth === null && index === 0
                   )}`}
@@ -701,7 +698,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
 
       <div className="flex flex-col gap-5 pt-2 border-t border-zinc-200/50">
         <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
             Дополнительные пожелания и ссылка на текущий сайт
           </span>
           <textarea
@@ -709,13 +706,13 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Укажите ссылку на текущий сайт и напишите пожелания..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
+            className="w-full bg-white border border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -727,14 +724,14 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
               className={`w-full bg-white border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -746,8 +743,8 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
               className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -758,7 +755,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-sm font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50"
+            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -766,7 +763,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-lg transition-all duration-200 text-center"
+            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-sm transition-all duration-200 text-center"
           >
             Нужна консультация
           </a>
@@ -921,7 +918,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
   };
 
   return (
-    <div className="bg-zinc-50/70 border border-zinc-100 rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
+    <div className="bg-zinc-50/70 border border-zinc-100 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
       <div className="text-sm font-semibold text-zinc-955 border-b border-zinc-200/50 pb-3">
         Конфигуратор дизайна в Figma
       </div>
@@ -929,16 +926,16 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
         <div className="space-y-6 h-full flex flex-col">
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
               ШАГ 1: ТИП ИНТЕРФЕЙСА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
               {typeOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('designType', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
                     designType === opt.value,
                     designType === null && index === 0
                   )}`}
@@ -953,16 +950,16 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
               ШАГ 2: КОЛИЧЕСТВО УНИКАЛЬНЫХ ЭКРАНОВ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
               {complexityOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('complexity', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
                     complexity === opt.value,
                     complexity === null && index === 0
                   )}`}
@@ -977,16 +974,16 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
               ШАГ 3: НАЛИЧИЕ ГОТОВОГО UI-КИТА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-zinc-100 rounded-2xl border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
               {specOptions.map((opt, index) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('specStatus', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
+                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
                     specStatus === opt.value,
                     specStatus === null && index === 0
                   )}`}
@@ -1020,7 +1017,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
 
       <div className="flex flex-col gap-5 pt-2 border-t border-zinc-200/50">
         <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
             Описание проекта и ссылки на референсы
           </span>
           <textarea
@@ -1028,13 +1025,13 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Опишите ваши пожелания, стиль, референсы..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
+            className="w-full bg-white border border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -1046,14 +1043,14 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
               className={`w-full bg-white border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -1065,8 +1062,8 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
               className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -1077,7 +1074,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-sm transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -1085,7 +1082,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-lg transition-all duration-200 text-center"
+            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-sm transition-all duration-200 text-center"
           >
             Нужна консультация
           </a>
@@ -1118,7 +1115,7 @@ function AICalculator({ service }) {
   ];
 
   return (
-    <div className="bg-zinc-50/70 border border-zinc-100 rounded-2xl p-5 sm:p-6 flex flex-col gap-6 w-full">
+    <div className="bg-zinc-50/70 border border-zinc-100 rounded-lg p-5 sm:p-6 flex flex-col gap-6 w-full">
       <div className="text-sm font-semibold text-zinc-955 border-b border-zinc-200/50 pb-3 flex justify-between items-center flex-wrap gap-2">
         <span>Тарифы и направления разработки</span>
         <span className="text-[11px] font-semibold text-zinc-500 bg-zinc-100 border border-zinc-200/30 px-2.5 py-1 rounded-lg">
@@ -1128,7 +1125,7 @@ function AICalculator({ service }) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {products.map((p, idx) => (
-          <div key={idx} className="bg-white border border-zinc-200/60 rounded-2xl p-5 flex flex-col justify-between shadow-[0_1px_3px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-zinc-300 transition-all duration-300">
+          <div key={idx} className="bg-white border border-zinc-200/60 rounded-md p-4 flex flex-col justify-between hover:shadow-sm hover:border-zinc-300 transition-all duration-300">
             <div>
               <h4 className="text-sm font-bold text-zinc-900 mb-1">{p.title}</h4>
               <span className="inline-block text-xs font-extrabold text-zinc-955 bg-zinc-50 border border-zinc-100 rounded-lg px-2.5 py-1 mb-3">
@@ -1156,7 +1153,7 @@ function AICalculator({ service }) {
           href={TELEGRAM_CONSULT_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-zinc-950 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-8 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-zinc-950 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
         >
           <Send className="w-4 h-4" />
           <span>Обсудить проект в Telegram</span>
@@ -1276,7 +1273,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
   };
 
   return (
-    <div className="bg-zinc-50/70 border border-zinc-100 rounded-2xl p-5 sm:p-6 flex flex-col gap-6">
+    <div className="bg-zinc-50/70 border border-zinc-100 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
       <div className="text-sm font-semibold text-zinc-950 border-b border-zinc-200/50 pb-3">
         Конфигуратор проекта
       </div>
@@ -1288,7 +1285,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
             const yesChoice = opt.choices[1];
             return (
               <div key={opt.id} className="flex flex-col gap-1.5">
-                <label className="flex items-start gap-3 p-3.5 bg-white border border-zinc-200/40 rounded-xl hover:border-zinc-300 cursor-pointer transition-all shadow-sm">
+                <label className="flex items-start gap-3 p-3.5 bg-white border border-zinc-200/40 rounded-sm hover:border-zinc-300 cursor-pointer transition-all">
                   <input
                     type="checkbox"
                     checked={isChecked}
@@ -1327,7 +1324,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -1339,14 +1336,14 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
               className={`w-full bg-white border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
+              } rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -1358,8 +1355,8 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
               className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-zinc-200 focus:ring-zinc-400 focus:border-zinc-400'
-              } rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
+              } rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -1368,7 +1365,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
 
       {/* Итоговая стоимость и кнопки */}
       <div className="pt-4 border-t border-zinc-200/50 flex flex-col gap-4">
-        <div className="text-[13px] text-zinc-600 leading-relaxed font-medium bg-zinc-100/50 border border-zinc-200/20 rounded-xl px-4 py-2.5">
+        <div className="text-[13px] text-zinc-600 leading-relaxed font-medium bg-zinc-100/50 border border-zinc-200/20 rounded-md px-4 py-2.5">
           Примерная стоимость: <span className="font-semibold text-zinc-950 text-sm">от {formatPrice(price)} руб.</span>
           <span className="mx-2 text-zinc-350">•</span>
           Сроки: <span className="font-semibold text-zinc-950 text-sm">от {days} {getDaysWord(days)}</span>
@@ -1379,7 +1376,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+            className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-sm transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -1387,7 +1384,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 border border-zinc-200 text-zinc-650 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-xl transition-all duration-200 text-center"
+            className="flex-1 border border-zinc-200 text-zinc-650 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-sm transition-all duration-200 text-center"
           >
             Нужна консультация
           </a>
@@ -1416,9 +1413,9 @@ function Calculator({ service, onSendSuccess, isCalcOpen }) {
 function ServiceGraphic({ number }) {
   if (number === '01') {
     return (
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-2xl border border-zinc-200/30 flex flex-col justify-between p-4 overflow-hidden select-none">
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-md border border-zinc-200/20 flex flex-col justify-between p-4 overflow-hidden select-none">
         {/* A mini-browser mockup */}
-        <div className="w-full bg-white border border-zinc-200/60 rounded-lg shadow-sm flex flex-col h-full overflow-hidden">
+        <div className="w-full bg-white border border-zinc-200/60 rounded-md shadow-sm flex flex-col h-full overflow-hidden">
           <div className="bg-zinc-50 border-b border-zinc-200/60 px-3 py-2 flex items-center gap-1.5 shrink-0">
             <div className="w-2 h-2 rounded-full bg-zinc-300" />
             <div className="w-2 h-2 rounded-full bg-zinc-300" />
@@ -1439,10 +1436,10 @@ function ServiceGraphic({ number }) {
   }
   if (number === '02') {
     return (
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-2xl border border-zinc-200/30 flex items-center justify-center p-4 overflow-hidden select-none">
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-md border border-zinc-200/30 flex items-center justify-center p-4 overflow-hidden select-none">
         <div className="relative w-full h-full flex items-center justify-center gap-2">
           {/* Left: Old site mockup */}
-          <div className="w-5/12 bg-white border border-zinc-100 rounded-lg shadow-sm p-2 rotate-[-4deg] opacity-60 scale-90 flex flex-col gap-1.5 animate-pulse">
+          <div className="w-5/12 bg-white border border-zinc-100 rounded-sm shadow-sm p-2 rotate-[-4deg] opacity-60 scale-90 flex flex-col gap-1.5 animate-pulse">
             <div className="h-2 bg-zinc-200 rounded w-4/5" />
             <div className="h-1.5 bg-zinc-100 rounded w-3/5" />
             <div className="h-8 bg-zinc-50 rounded border border-dashed border-zinc-200" />
@@ -1450,7 +1447,7 @@ function ServiceGraphic({ number }) {
           {/* Arrow in middle */}
           <div className="text-zinc-300 font-light text-base shrink-0">→</div>
           {/* Right: New redesigned site mockup */}
-          <div className="w-5/12 bg-white border border-zinc-200 rounded-lg shadow-md p-2.5 rotate-[2deg] scale-100 flex flex-col gap-2 relative z-10">
+          <div className="w-5/12 bg-white border border-zinc-200 rounded-sm shadow-md p-2.5 rotate-[2deg] scale-100 flex flex-col gap-2 relative z-10">
             <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 flex items-center justify-center text-[8px] text-white font-bold">✓</div>
             <div className="h-2 bg-zinc-800 rounded w-4/5" />
             <div className="h-1 bg-zinc-450 rounded w-2/5" />
@@ -1464,9 +1461,9 @@ function ServiceGraphic({ number }) {
   }
   if (number === '03') {
     return (
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-2xl border border-zinc-200/30 flex flex-col justify-between p-4 overflow-hidden select-none">
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-md border border-zinc-200/20 flex flex-col justify-between p-4 overflow-hidden select-none">
         {/* A dashboard UI with code info */}
-        <div className="w-full bg-white border border-zinc-200/60 rounded-lg shadow-sm flex flex-col h-full overflow-hidden">
+        <div className="w-full bg-white border border-zinc-200/60 rounded-md shadow-sm flex flex-col h-full overflow-hidden">
           <div className="bg-zinc-50 border-b border-zinc-200/60 px-3 py-1.5 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -1494,8 +1491,8 @@ function ServiceGraphic({ number }) {
   }
   if (number === '04') {
     return (
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-2xl border border-zinc-200/30 flex items-center justify-center p-4 overflow-hidden select-none">
-        <div className="w-full h-full bg-white border border-zinc-200/60 rounded-lg shadow-sm p-3 flex flex-col gap-2 relative">
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-md border border-zinc-200/30 flex items-center justify-center p-4 overflow-hidden select-none">
+        <div className="w-full h-full bg-white border border-zinc-200/60 rounded-md shadow-sm p-3 flex flex-col gap-2 relative">
           {/* Visual designer vector mockup */}
           <div className="flex items-center justify-between border-b border-zinc-100 pb-1.5">
             <span className="text-[9px] text-zinc-400 font-mono">Figma Artboard</span>
@@ -1530,7 +1527,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
   const IconComponent = ICON_MAP[service.number] || Layers;
 
   return (
-    <div id={`service-card-${service.number}`} className="group border border-zinc-100 rounded-2xl p-6 sm:p-8 hover:border-zinc-200 transition-all bg-white shadow-sm duration-300">
+    <div id={`service-card-${service.number}`} className="group border border-zinc-100 rounded-md p-6 sm:p-8 hover:border-zinc-200/40 transition-all bg-white duration-300">
       {/* Two-column layout grid for header and parameters */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-stretch">
         
@@ -1538,12 +1535,12 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
         <div className="md:col-span-3 flex flex-col justify-between h-full min-w-0">
           <div>
             <div className="flex items-start gap-4 mb-4">
-              <div className="inline-flex items-center justify-center p-2.5 bg-zinc-50 rounded-xl border border-zinc-100/50 shrink-0">
+              <div className="inline-flex items-center justify-center p-2.5 bg-zinc-50 rounded-sm border border-zinc-100/50 shrink-0">
                 <IconComponent className="w-5 h-5 text-zinc-900" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-zinc-400 tracking-wider mb-0.5">{service.number}</span>
-                <h3 className="text-xl md:text-2xl font-light text-zinc-900 leading-tight">{service.title}</h3>
+                <span className="text-[10px] font-medium tracking-wider text-gray-400 uppercase mb-0.5">[ Услуга {service.number} ]</span>
+                <h3 className="text-xl md:text-2xl font-light tracking-tight text-black leading-tight">{service.title}</h3>
               </div>
             </div>
             
@@ -1553,7 +1550,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
             <div className="block md:hidden space-y-4 border-t border-zinc-100 pt-5 mt-5">
               {service.details.map((detail, idx) => (
                 <div key={idx} className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-bold tracking-wider uppercase text-gray-400">
+                  <span className="text-[10px] font-medium tracking-wider uppercase text-gray-400">
                     {detail.label}
                   </span>
                   <span className={`text-[13px] leading-relaxed ${
@@ -1570,7 +1567,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
           <div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-zinc-100">
             <button
               onClick={onToggleCalc}
-              className={`text-xs font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer ${
+              className={`text-xs font-semibold py-2.5 px-5 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer ${
                 isCalcOpen
                   ? 'bg-zinc-200 text-zinc-800 hover:bg-zinc-300'
                   : 'bg-zinc-900 text-white hover:bg-zinc-800'
@@ -1582,7 +1579,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
             </button>
             <button
               onClick={() => window.open('https://t.me/ksen_web', '_blank')}
-              className="border border-zinc-200 text-zinc-900 hover:bg-zinc-50 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
+              className="border border-zinc-200 text-zinc-900 hover:bg-zinc-50 text-xs font-semibold py-2.5 px-5 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
             >
               Рассказать о задаче
             </button>
@@ -1599,10 +1596,10 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
 
           {/* Layer 2: Text Parameters (revealed on hover) */}
           <div className="absolute inset-0 w-full h-full flex flex-col justify-center transition-all duration-500 opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100">
-            <div className="bg-zinc-50/50 border border-zinc-100 rounded-2xl p-5 h-full flex flex-col justify-center space-y-4">
+            <div className="bg-zinc-50/50 border border-zinc-100 rounded-md p-5 h-full flex flex-col justify-center space-y-4">
               {service.details.map((detail, idx) => (
                 <div key={idx} className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-bold tracking-wider uppercase text-gray-400">
+                  <span className="text-[10px] font-medium tracking-wider uppercase text-gray-400">
                     {detail.label}
                   </span>
                   <span className={`text-[13px] leading-relaxed ${
@@ -1656,7 +1653,7 @@ export default function Services() {
 
   return (
     <section id="services" className="py-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100">
-      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 mb-2">
+      <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-black mb-6">
         {contentData.services.title}
       </h2>
       <p className="text-[15px] text-zinc-500 max-w-[640px] mb-12">
@@ -1687,7 +1684,7 @@ export default function Services() {
         }`}
       >
         <div 
-          className={`bg-white border border-zinc-100 rounded-2xl p-6 sm:p-8 max-w-[440px] w-full shadow-2xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
+          className={`bg-white border border-zinc-100 rounded-md p-6 sm:p-8 max-w-[440px] w-full shadow-xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
             isSuccessModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
           }`}
         >
@@ -1704,7 +1701,7 @@ export default function Services() {
           </button>
 
           {/* Иконка успеха */}
-          <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm">
+          <div className="w-16 h-16 rounded-sm bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
             <CheckCircle2 className="w-8 h-8" strokeWidth={1.5} />
           </div>
 
@@ -1715,9 +1712,9 @@ export default function Services() {
             </p>
           </div>
 
-          <div className="w-full bg-zinc-50 border border-zinc-100 rounded-2xl p-4 flex flex-col gap-3.5">
+          <div className="w-full bg-zinc-50 border border-zinc-100 rounded-md p-4 flex flex-col gap-3.5">
             <div className="flex flex-col items-center">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1">Позвонить напрямую</span>
+              <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1">Позвонить напрямую</span>
               <a href={`tel:${contentData.contacts.phone}`} className="text-sm sm:text-base font-bold text-zinc-950 hover:underline">
                 {contentData.contacts.phone}
               </a>
@@ -1727,7 +1724,7 @@ export default function Services() {
               href={contentData.contacts.buttons.telegram.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 bg-zinc-900 text-white font-semibold py-3 px-5 rounded-xl cursor-pointer w-full hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-[0.5px] text-xs sm:text-sm"
+              className="flex items-center justify-center gap-2 bg-zinc-900 text-white font-semibold py-3 px-5 rounded-sm cursor-pointer w-full hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-[0.5px] text-xs sm:text-sm"
             >
               <Send className="w-4 h-4" />
               <span>Написать в Telegram напрямую</span>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Send, MessageCircle, Calculator, Check, Copy, Clock, Shield } from 'lucide-react';
+import { Send, MessageCircle, Check, Copy, Clock, Shield } from 'lucide-react';
 import contentData from '../contentData';
 
 function buildMessage(topic) {
@@ -53,26 +53,18 @@ export default function Contacts() {
     }
   }, [maxOpensDirectChat, handleCopyMessage]);
 
-  const openCalculator = () => {
-    if (!activeIntent.calculatorServiceId) return;
-    window.dispatchEvent(
-      new CustomEvent('open-calculator', { detail: { serviceNumber: activeIntent.calculatorServiceId } })
-    );
-    document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  return (
+    return (
     <section
       id="contacts"
       className="contact-section min-h-screen h-screen flex flex-col justify-center px-6 md:px-12 lg:px-16 border-t border-zinc-100 bg-white overflow-hidden"
     >
-      <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 xl:gap-16 items-center">
+      <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 xl:gap-16 items-start">
         {/* Left: choice */}
         <div className="flex flex-col min-w-0">
           <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-3">
             Шаг 1 · Выберите задачу
           </p>
-          <h2 className="text-2xl sm:text-3xl xl:text-[2rem] font-bold tracking-tight text-zinc-900 mb-2 leading-tight">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-black mb-2 leading-tight">
             {contacts.title}
           </h2>
           <p className="text-[14px] sm:text-[15px] text-zinc-500 leading-relaxed mb-6 max-w-md">
@@ -87,7 +79,7 @@ export default function Contacts() {
                   key={intent.id}
                   type="button"
                   onClick={() => setActiveIntentId(intent.id)}
-                  className={`px-3.5 py-2 text-[13px] font-medium rounded-xl border transition-all duration-200 ${
+                  className={`px-3.5 py-2 text-[13px] font-medium rounded-sm border transition-all duration-200 ${
                     isActive
                       ? 'bg-zinc-900 text-white border-zinc-900 shadow-sm'
                       : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:text-zinc-900'
@@ -112,18 +104,18 @@ export default function Contacts() {
         {/* Right: result card */}
         <div
           key={activeIntent.id}
-          className="flex flex-col bg-gradient-to-b from-white to-zinc-50/80 border border-zinc-200/70 rounded-2xl p-5 sm:p-6 shadow-sm animate-fadeIn"
+          className="flex flex-col bg-gradient-to-b from-white to-zinc-50/30 border border-zinc-200/40 rounded-md p-5 sm:p-6 animate-fadeIn"
         >
           <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-4">
             Шаг 2 · Отправьте сообщение
           </p>
 
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-zinc-700 bg-zinc-100 px-2.5 py-1 rounded-lg">
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-zinc-700 bg-zinc-100 px-2.5 py-1 rounded-sm">
               <Clock className="w-3.5 h-3.5" />
               {activeIntent.timeline}
             </span>
-            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-zinc-700 bg-zinc-100 px-2.5 py-1 rounded-lg">
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-zinc-700 bg-zinc-100 px-2.5 py-1 rounded-sm">
               <Shield className="w-3.5 h-3.5" />
               {activeIntent.priceHint}
             </span>
@@ -159,7 +151,7 @@ export default function Contacts() {
                 )}
               </button>
             </div>
-            <div className="bg-white border border-zinc-200 rounded-xl px-4 py-3 text-[13px] text-zinc-700 leading-relaxed">
+            <div className="bg-white border border-zinc-200 rounded-sm px-4 py-3 text-[13px] text-zinc-700 leading-relaxed">
               {message}
             </div>
           </div>
@@ -169,7 +161,7 @@ export default function Contacts() {
               href={telegramHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-zinc-900 text-white font-semibold py-3 px-5 rounded-xl hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-[1px] text-sm"
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-zinc-900 text-white font-semibold py-3 px-5 rounded-sm hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-[1px] text-sm"
             >
               <Send className="w-4 h-4 shrink-0" />
               <span>{contacts.messengers.telegram.text}</span>
@@ -179,7 +171,7 @@ export default function Contacts() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleMaxClick}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-[#5B4FE8] text-white font-semibold py-3 px-5 rounded-xl hover:bg-[#4a3fd6] transition-all duration-200 hover:-translate-y-[1px] text-sm"
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-[#5B4FE8] text-white font-semibold py-3 px-5 rounded-sm hover:bg-[#4a3fd6] transition-all duration-200 hover:-translate-y-[1px] text-sm"
             >
               <MessageCircle className="w-4 h-4 shrink-0" />
               <span>{contacts.messengers.max.text}</span>
@@ -192,16 +184,7 @@ export default function Contacts() {
             </p>
           )}
 
-          {activeIntent.calculatorServiceId && (
-            <button
-              type="button"
-              onClick={openCalculator}
-              className="inline-flex items-center justify-center gap-2 w-full py-2.5 text-[13px] font-semibold text-zinc-600 hover:text-zinc-900 border border-zinc-200 rounded-xl hover:bg-zinc-50 transition-colors"
-            >
-              <Calculator className="w-4 h-4" />
-              <span>Сначала рассчитать стоимость</span>
-            </button>
-          )}
+          
         </div>
       </div>
     </section>

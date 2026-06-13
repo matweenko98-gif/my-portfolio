@@ -44,13 +44,23 @@ export default function App() {
       <Sidebar activeSection={activeSection} />
 
       {/* Scrollable Content on Right */}
-      <main className="flex-1 w-full lg:w-[calc(100%-260px)] lg:max-w-[calc(100%-260px)] lg:ml-[260px] min-h-screen flex flex-col bg-white min-w-0 overflow-x-clip">
-        <Hero />
-        <Services />
-        <Cases />
-        <Workflow />
-        <Reviews />
-        <Contacts />
+      <main className="relative flex-1 w-full lg:w-[calc(100%-260px)] lg:max-w-[calc(100%-260px)] lg:ml-[260px] min-h-screen flex flex-col bg-white min-w-0 overflow-x-clip">
+        {/* Background Coordinate Lines */}
+        <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
+          <div className="border-l border-neutral-200/30 h-full" />
+          <div className="border-l border-neutral-200/30 h-full" />
+          <div className="border-l border-neutral-200/30 h-full" />
+          <div className="border-l border-neutral-200/30 h-full" />
+        </div>
+
+        <div className="relative z-10 flex flex-col w-full">
+          <Hero />
+          <Services />
+          <Cases />
+          <Workflow />
+          <Reviews />
+          <Contacts />
+        </div>
       </main>
     </div>
   );
