@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Layers, Code, RefreshCw, Send, X, CheckCircle2, Layout, Files, FileText } from 'lucide-react';
+import { motion } from 'framer-motion';
 import contentData from '../contentData';
 import ProjectCart from './ProjectCart';
 import { flyChipToCart } from '../utils/flyToCart';
@@ -278,82 +279,86 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
     }
   };
 
+  const getTildaOptionButtonClass = (isSelected) => {
+    if (isSelected) {
+      return 'bg-white text-black border border-transparent font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
+    }
+    return 'bg-white/50 border border-transparent text-neutral-700 hover:text-black font-normal';
+  };
+
   return (
-    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-white text-xl font-normal tracking-tight border-b border-neutral-850 pb-3">
+    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-md p-5 sm:p-6 flex flex-col gap-6">
+      <div className="text-[#111111] text-xl font-normal tracking-tight border-b border-neutral-200 pb-3">
         Конфигуратор проекта
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
         <div className="space-y-6 h-full flex flex-col">
           <div className="flex flex-col gap-2">
-            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
               ШАГ 1: ТИП САЙТА И ДИЗАЙН-КОНЦЕПЦИЯ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
-              {siteTypeOptions.map((opt, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
+              {siteTypeOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('siteType', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
-                    siteType === opt.value,
-                    siteType === null && index === 0
+                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
+                    siteType === opt.value
                   )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-neutral-500 font-medium px-1">
+            <span className="text-neutral-500 text-xs font-light px-1">
               {activeSiteType?.description ?? siteTypeOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
               ШАГ 2: КОЛИЧЕСТВО СТРАНИЦ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
-              {pagesOptions.map((opt, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
+              {pagesOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('pagesCount', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
-                    pagesCount === opt.value,
-                    pagesCount === null && index === 0
+                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
+                    pagesCount === opt.value
                   )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-neutral-500 font-medium px-1">
+            <span className="text-neutral-500 text-xs font-light px-1">
               {activePages?.description ?? pagesOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
               ШАГ 3: ГОТОВНОСТЬ КОНТЕНТА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
-              {contentReadyOptions.map((opt, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
+              {contentReadyOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('contentReady', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
-                    contentReady === opt.value,
-                    contentReady === null && index === 0
+                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
+                    contentReady === opt.value
                   )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-neutral-500 font-medium px-1">
+            <span className="text-neutral-500 text-xs font-light px-1">
               {activeContentReady?.description ?? contentReadyOptions[0].description}
             </span>
           </div>
@@ -372,13 +377,14 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             bump={cartBump}
             badgeBump={badgeBump}
             highlightedSlot={highlightedSlot}
+            isLight={true}
           />
         </div>
       </div>
 
-      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-850">
+      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-200">
         <div className="flex flex-col gap-2">
-          <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+          <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
             Свободные пожелания
           </span>
           <textarea
@@ -386,13 +392,13 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Например: Нужна интеграция с CRM и личный кабинет..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-[#1A1A1A] border border-neutral-850 focus:border-neutral-700 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500 resize-none"
+            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-md px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
+            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -403,15 +409,15 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
-              className={`w-full bg-[#1A1A1A] border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
+              className={`w-full bg-white border ${
+                errors.name ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
+            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -422,9 +428,9 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setContact(e.target.value);
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
-              className={`w-full bg-[#1A1A1A] border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
+              className={`w-full bg-white border ${
+                errors.contact ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -435,7 +441,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50"
+            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-md transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -443,7 +449,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
+            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-md text-center"
           >
             Нужна консультация
           </a>
@@ -599,82 +605,86 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
     }
   };
 
+  const getTildaOptionButtonClass = (isSelected) => {
+    if (isSelected) {
+      return 'bg-white text-black border border-transparent font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
+    }
+    return 'bg-white/50 border border-transparent text-neutral-700 hover:text-black font-normal';
+  };
+
   return (
-    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-white text-xl font-normal tracking-tight border-b border-neutral-850 pb-3">
+    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-md p-5 sm:p-6 flex flex-col gap-6">
+      <div className="text-[#111111] text-xl font-normal tracking-tight border-b border-neutral-200 pb-3">
         Конфигуратор редизайна
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
         <div className="space-y-6 h-full flex flex-col">
           <div className="flex flex-col gap-2">
-            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
               ШАГ 1: ТЕКУЩИЕ ПРОБЛЕМЫ САЙТА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
-              {problemOptions.map((opt, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
+              {problemOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('problemType', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
-                    problemType === opt.value,
-                    problemType === null && index === 0
+                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
+                    problemType === opt.value
                   )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-neutral-500 font-medium px-1">
+            <span className="text-neutral-500 text-xs font-light px-1">
               {activeProblem?.description ?? problemOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
               ШАГ 2: ОБЪЕМ СТРАНИЦ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
-              {volumeOptions.map((opt, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
+              {volumeOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('volume', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
-                    volume === opt.value,
-                    volume === null && index === 0
+                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
+                    volume === opt.value
                   )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-neutral-500 font-medium px-1">
+            <span className="text-neutral-500 text-xs font-light px-1">
               {activeVolume?.description ?? volumeOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
               ШАГ 3: ГЛУБИНА ПЕРЕРАБОТКИ СМЫСЛОВ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
-              {depthOptions.map((opt, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
+              {depthOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('depth', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
-                    depth === opt.value,
-                    depth === null && index === 0
+                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
+                    depth === opt.value
                   )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-neutral-500 font-medium px-1">
+            <span className="text-neutral-500 text-xs font-light px-1">
               {activeDepth?.description ?? depthOptions[0].description}
             </span>
           </div>
@@ -693,13 +703,14 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             bump={cartBump}
             badgeBump={badgeBump}
             highlightedSlot={highlightedSlot}
+            isLight={true}
           />
         </div>
       </div>
 
-      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-850">
+      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-200">
         <div className="flex flex-col gap-2">
-          <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+          <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
             Дополнительные пожелания и ссылка на текущий сайт
           </span>
           <textarea
@@ -707,13 +718,13 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Укажите ссылку на текущий сайт и напишите пожелания..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-[#1A1A1A] border border-neutral-850 focus:border-neutral-700 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500 resize-none"
+            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-md px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
+            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -724,15 +735,15 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
-              className={`w-full bg-[#1A1A1A] border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
+              className={`w-full bg-white border ${
+                errors.name ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
+            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -743,9 +754,9 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setContact(e.target.value);
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
-              className={`w-full bg-[#1A1A1A] border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
+              className={`w-full bg-white border ${
+                errors.contact ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -756,7 +767,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50"
+            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-md transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -764,7 +775,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
+            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-md text-center"
           >
             Нужна консультация
           </a>
@@ -918,82 +929,86 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
     }
   };
 
+  const getTildaOptionButtonClass = (isSelected) => {
+    if (isSelected) {
+      return 'bg-white text-black border border-transparent font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
+    }
+    return 'bg-white/50 border border-transparent text-neutral-700 hover:text-black font-normal';
+  };
+
   return (
-    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-white text-xl font-normal tracking-tight border-b border-neutral-850 pb-3">
+    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-md p-5 sm:p-6 flex flex-col gap-6">
+      <div className="text-[#111111] text-xl font-normal tracking-tight border-b border-neutral-200 pb-3">
         Конфигуратор дизайна в Figma
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
         <div className="space-y-6 h-full flex flex-col">
           <div className="flex flex-col gap-2">
-            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
               ШАГ 1: ТИП ИНТЕРФЕЙСА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
-              {typeOptions.map((opt, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
+              {typeOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('designType', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
-                    designType === opt.value,
-                    designType === null && index === 0
+                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
+                    designType === opt.value
                   )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-neutral-500 font-medium px-1">
+            <span className="text-neutral-500 text-xs font-light px-1">
               {activeType?.description ?? typeOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
               ШАГ 2: КОЛИЧЕСТВО УНИКАЛЬНЫХ ЭКРАНОВ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
-              {complexityOptions.map((opt, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
+              {complexityOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('complexity', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
-                    complexity === opt.value,
-                    complexity === null && index === 0
+                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
+                    complexity === opt.value
                   )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-neutral-500 font-medium px-1">
+            <span className="text-neutral-500 text-xs font-light px-1">
               {activeComplexity?.description ?? complexityOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
               ШАГ 3: НАЛИЧИЕ ГОТОВОГО UI-КИТА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
-              {specOptions.map((opt, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
+              {specOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={(e) => handleOptionChange('specStatus', opt.value, e)}
-                  className={`text-center py-2.5 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getOptionButtonClass(
-                    specStatus === opt.value,
-                    specStatus === null && index === 0
+                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
+                    specStatus === opt.value
                   )}`}
                 >
                   {opt.label}
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-neutral-500 font-medium px-1">
+            <span className="text-neutral-500 text-xs font-light px-1">
               {activeSpec?.description ?? specOptions[0].description}
             </span>
           </div>
@@ -1012,13 +1027,14 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             bump={cartBump}
             badgeBump={badgeBump}
             highlightedSlot={highlightedSlot}
+            isLight={true}
           />
         </div>
       </div>
 
-      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-850">
+      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-200">
         <div className="flex flex-col gap-2">
-          <span className="text-white text-[10px] font-medium tracking-wider uppercase">
+          <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
             Описание проекта и ссылки на референсы
           </span>
           <textarea
@@ -1026,13 +1042,13 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Опишите ваши пожелания, стиль, референсы..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-[#1A1A1A] border border-neutral-850 focus:border-neutral-700 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500 resize-none"
+            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-md px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
+            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -1043,15 +1059,15 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
-              className={`w-full bg-[#1A1A1A] border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
+              className={`w-full bg-white border ${
+                errors.name ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
+            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -1062,9 +1078,9 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setContact(e.target.value);
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
-              className={`w-full bg-[#1A1A1A] border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
+              className={`w-full bg-white border ${
+                errors.contact ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -1075,7 +1091,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-5 rounded-sm transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-md transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -1083,7 +1099,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
+            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-md text-center"
           >
             Нужна консультация
           </a>
@@ -1652,8 +1668,37 @@ export default function Services() {
     return () => window.removeEventListener('open-calculator', handleOpenCalc);
   }, []);
 
+  const containerVariants = {
+    hidden: { opacity: 1 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.215, 0.610, 0.355, 1.000]
+      }
+    }
+  };
+
   return (
-    <section id="services" className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-neutral-800 bg-[#111111]">
+    <motion.section
+      id="services"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+      className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-neutral-800 bg-[#111111]"
+    >
       {/* Background Coordinate Lines */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
         <div className="border-l border-neutral-800/60 h-full" />
@@ -1662,29 +1707,44 @@ export default function Services() {
         <div className="border-l border-neutral-800/60 h-full" />
       </div>
       <div className="relative z-10">
-      <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-6">
-        {contentData.services.title}
-      </h2>
+      <div className="overflow-hidden mb-6">
+        <motion.h2
+          initial={{ y: "100%", opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+          className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-0"
+        >
+          {contentData.services.title}
+        </motion.h2>
+      </div>
       <p className="text-[15px] text-neutral-400 max-w-[640px] mb-12">
         {contentData.services.subtitle}
       </p>
 
-      <div className="relative z-10 flex flex-col gap-6">
+      <motion.div
+        className="relative z-10 flex flex-col gap-6"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
         {services.map((service) => (
-          <ServiceCard 
-            key={service.number} 
-            service={service} 
-            isCalcOpen={activeCalculator === service.number}
-            onToggleCalc={() => {
-              setActiveCalculator(prev => prev === service.number ? null : service.number);
-            }}
-            onSendSuccess={(message) => {
-              setSuccessModalContent(message);
-              setIsSuccessModalOpen(true);
-            }}
-          />
+          <motion.div key={service.number} variants={cardVariants}>
+            <ServiceCard 
+              service={service} 
+              isCalcOpen={activeCalculator === service.number}
+              onToggleCalc={() => {
+                setActiveCalculator(prev => prev === service.number ? null : service.number);
+              }}
+              onSendSuccess={(message) => {
+                setSuccessModalContent(message);
+                setIsSuccessModalOpen(true);
+              }}
+            />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       </div>
 
@@ -1743,6 +1803,6 @@ export default function Services() {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

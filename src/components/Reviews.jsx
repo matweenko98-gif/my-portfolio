@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import contentData from '../contentData';
 
 const SCROLL_ROTATIONS = 2.0;
@@ -153,14 +154,28 @@ export default function Reviews() {
       </div>
 
       <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden py-12 px-6 md:px-12 lg:px-16 relative z-10">
-        <div className="max-w-3xl mb-8 select-none">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tighter text-black mb-2 md:whitespace-nowrap">
-            {reviewsData.title}
-          </h2>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+          className="max-w-3xl mb-8 select-none"
+        >
+          <div className="overflow-hidden mb-2">
+            <motion.h2
+              initial={{ y: "100%", opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+              className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tighter text-black mb-0 md:whitespace-nowrap"
+            >
+              {reviewsData.title}
+            </motion.h2>
+          </div>
           <p className="text-[14.5px] text-zinc-500 max-w-[500px] leading-relaxed">
             {reviewsData.subtitle}
           </p>
-        </div>
+        </motion.div>
 
         <div
           ref={containerRef}

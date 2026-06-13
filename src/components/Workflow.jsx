@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { MessageSquare, Sparkles, Calendar, ShieldCheck } from 'lucide-react';
 import contentData from '../contentData';
 import { workflowContent } from '../content/workflowContent';
@@ -64,8 +65,37 @@ export default function Workflow() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 1 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.215, 0.610, 0.355, 1.000]
+      }
+    }
+  };
+
   return (
-    <section id="workflow" className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-neutral-800 bg-[#111111] w-full overflow-hidden">
+    <motion.section
+      id="workflow"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+      className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-neutral-800 bg-[#111111] w-full overflow-hidden"
+    >
       {/* Background Coordinate Lines */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
         <div className="border-l border-neutral-800/60 h-full" />
@@ -76,9 +106,17 @@ export default function Workflow() {
       <div className="relative z-10">
       {/* Title & Subtitle */}
       <div className="mb-10">
-        <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-2">
-          {workflowContent.title}
-        </h2>
+        <div className="overflow-hidden mb-2">
+          <motion.h2
+            initial={{ y: "100%", opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+            className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-0"
+          >
+            {workflowContent.title}
+          </motion.h2>
+        </div>
         <p className="text-[14px] text-neutral-400 max-w-[600px] leading-relaxed">
           {workflowContent.subtitle}
         </p>
@@ -178,20 +216,35 @@ export default function Workflow() {
       </div>
 
       {/* Standards Section */}
-      <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-10">
-        {contentData.workflow.standardsTitle}
-      </h2>
+      <div className="overflow-hidden mb-10">
+        <motion.h2
+          initial={{ y: "100%", opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+          className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-0"
+        >
+          {contentData.workflow.standardsTitle}
+        </motion.h2>
+      </div>
 
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <motion.div
+        className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+      >
         {standards.map((std, idx) => {
           const IconComponent = iconMap[std.iconName] || Sparkles;
           return (
-            <div
+            <motion.div
               key={idx}
+              variants={cardVariants}
               className="group border border-neutral-800 rounded-md p-6 bg-[#1A1A1A] flex flex-col gap-4 transition-all duration-500 ease-in-out will-change-transform lg:hover:-translate-y-1 lg:hover:shadow-lg lg:hover:border-neutral-700 lg:hover:bg-neutral-900/60 lg:min-h-[240px] lg:h-[240px] lg:p-8 lg:gap-0 lg:justify-between relative"
             >
               {/* Background Number Watermark */}
-              <div className="absolute top-6 right-8 text-6xl font-bold opacity-[0.03] select-none text-white pointer-events-none">
+              <div className="absolute top-6 right-8 text-7xl font-extralight opacity-[0.03] select-none text-white pointer-events-none">
                 0{idx + 1}
               </div>
 
@@ -220,11 +273,11 @@ export default function Workflow() {
                   {std.desc}
                 </p>
               </div>
-            </div>
+            </motion.div>
           );
         })}
+      </motion.div>
       </div>
-      </div>
-    </section>
+    </motion.section>
   );
 }

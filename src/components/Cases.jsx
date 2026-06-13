@@ -1,11 +1,41 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import contentData from '../contentData';
 
 export default function Cases() {
   const cases = contentData.cases.items;
 
+  const containerVariants = {
+    hidden: { opacity: 1 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.215, 0.610, 0.355, 1.000]
+      }
+    }
+  };
+
   return (
-    <section id="cases" className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100 bg-white">
+    <motion.section
+      id="cases"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+      className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100 bg-white"
+    >
       {/* Background Coordinate Lines */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
         <div className="border-l border-neutral-200/30 h-full" />
@@ -15,16 +45,31 @@ export default function Cases() {
       </div>
 
       <div className="relative z-10">
-        <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-black mb-10">
-          {contentData.cases.title}
-        </h2>
+        <div className="overflow-hidden mb-10">
+          <motion.h2
+            initial={{ y: "100%", opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+            className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-black mb-0"
+          >
+            {contentData.cases.title}
+          </motion.h2>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
           {cases.map((project, idx) => {
             const caseNumber = String(idx + 1).padStart(2, '0');
             return (
-              <article
+              <motion.article
                 key={idx}
+                variants={cardVariants}
                 className="bg-gray-50/40 border border-neutral-200/80 rounded-sm p-3 flex flex-col justify-between group cursor-pointer transition-all duration-500 ease-out hover:bg-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)]"
               >
                 <div>
@@ -82,11 +127,11 @@ export default function Cases() {
                   </a>
                 </div>
 
-              </article>
+              </motion.article>
           );
         })}
+      </motion.div>
       </div>
-      </div>
-    </section>
+    </motion.section>
   );
 }

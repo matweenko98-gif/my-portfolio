@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { Send, MessageCircle, Check, Copy, Clock, Shield } from 'lucide-react';
 import contentData from '../contentData';
 
@@ -54,8 +55,12 @@ export default function Contacts() {
   }, [maxOpensDirectChat, handleCopyMessage]);
 
     return (
-    <section
+    <motion.section
       id="contacts"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
       className="relative contact-section min-h-screen h-screen flex flex-col justify-center px-6 md:px-12 lg:px-16 border-t border-neutral-800 bg-[#111111] overflow-hidden"
     >
       {/* Background Coordinate Lines */}
@@ -72,9 +77,17 @@ export default function Contacts() {
           <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-3">
             Шаг 1 · Выберите задачу
           </p>
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-2 leading-tight">
-            {contacts.title}
-          </h2>
+          <div className="overflow-hidden mb-2">
+            <motion.h2
+              initial={{ y: "100%", opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+              className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-0 leading-tight"
+            >
+              {contacts.title}
+            </motion.h2>
+          </div>
           <p className="text-[14px] sm:text-[15px] text-neutral-450 leading-relaxed mb-6 max-w-md">
             {contacts.subtitle}
           </p>
@@ -196,6 +209,6 @@ export default function Contacts() {
         </div>
       </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

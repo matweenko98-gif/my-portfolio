@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import contentData from '../contentData';
 
 export default function Hero() {
@@ -11,8 +12,12 @@ export default function Hero() {
   };
 
   return (
-    <section
+    <motion.section
       id="hero"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
       className="relative min-h-screen flex flex-col justify-center pt-24 pb-16 lg:pb-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100 bg-white"
     >
       {/* Background Coordinate Lines */}
@@ -28,9 +33,17 @@ export default function Hero() {
 
         {/* ── Left column: monumental heading only ── */}
         <div className="md:col-span-3">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tighter text-black leading-[0.95] mb-0">
-            {contentData.hero.title}
-          </h1>
+          <div className="overflow-hidden">
+            <motion.h1
+              initial={{ y: "100%", opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+              className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tighter text-black leading-[0.95] mb-0"
+            >
+              {contentData.hero.title}
+            </motion.h1>
+          </div>
         </div>
 
         {/* ── Right column: status + description + actions + tags ── */}
@@ -83,6 +96,6 @@ export default function Hero() {
 
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
