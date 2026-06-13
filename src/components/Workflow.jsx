@@ -49,6 +49,21 @@ export default function Workflow() {
     containerRef.current.scrollLeft = scrollLeftState - walk;
   };
 
+  const handleWheel = (e) => {
+    if (containerRef.current) {
+      const container = containerRef.current;
+      const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+      const isAtStart = container.scrollLeft <= 0;
+
+      // If we are scrolling down and not at the end, or scrolling up and not at the start,
+      // scroll horizontally and prevent vertical page scroll.
+      if ((e.deltaY > 0 && !isAtEnd) || (e.deltaY < 0 && !isAtStart)) {
+        e.preventDefault();
+        container.scrollLeft += e.deltaY * 0.8;
+      }
+    }
+  };
+
   return (
     <section id="workflow" className="py-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100 w-full overflow-hidden">
       {/* Title & Subtitle */}
@@ -65,21 +80,19 @@ export default function Workflow() {
       <div className="flex p-1 bg-zinc-100/80 rounded-2xl border border-zinc-200 max-w-xl mb-12">
         <button
           onClick={() => setActiveTab('websites')}
-          className={`flex-1 py-3 px-4 text-[13px] font-medium transition-all duration-300 rounded-xl ${
-            activeTab === 'websites'
+          className={`flex-1 py-3 px-4 text-[13px] font-medium transition-all duration-300 rounded-xl ${activeTab === 'websites'
               ? 'bg-zinc-900 text-white shadow-sm'
               : 'text-zinc-600 hover:text-zinc-900'
-          }`}
+            }`}
         >
           {workflowContent.tabs.websites}
         </button>
         <button
           onClick={() => setActiveTab('aiApps')}
-          className={`flex-1 py-3 px-4 text-[13px] font-medium transition-all duration-300 rounded-xl ${
-            activeTab === 'aiApps'
+          className={`flex-1 py-3 px-4 text-[13px] font-medium transition-all duration-300 rounded-xl ${activeTab === 'aiApps'
               ? 'bg-zinc-900 text-white shadow-sm'
               : 'text-zinc-600 hover:text-zinc-900'
-          }`}
+            }`}
         >
           {workflowContent.tabs.aiApps}
         </button>
@@ -92,13 +105,15 @@ export default function Workflow() {
         onMouseLeave={handleMouseLeave}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
+        onWheel={handleWheel}
         className="w-full overflow-x-auto select-none scrollbar-none mb-20 cursor-grab active:cursor-grabbing"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <style dangerouslySetInnerHTML={{__html: `
+        <style dangerouslySetInnerHTML={{
+          __html: `
           .scrollbar-none::-webkit-scrollbar { display: none; }
         `}} />
-        <div key={activeTab} className="flex flex-row gap-6 pb-6 w-max min-w-full snap-x snap-mandatory">
+        <div key={activeTab} className="flex flex-row gap-6 pb-6 w-max min-w-full snap-x snap-mandatory lg:snap-none">
           {steps.map((step, idx) => {
             const stepResults = {
               websites: [
@@ -121,7 +136,7 @@ export default function Workflow() {
             return (
               <div
                 key={idx}
-                className="group bg-zinc-50/80 border border-zinc-100/50 rounded-2xl p-6 flex flex-col justify-between transition-all duration-300 lg:hover:-translate-y-1 lg:hover:bg-white lg:hover:shadow-md lg:hover:border-zinc-200/80 w-[290px] min-w-[290px] lg:w-[320px] lg:min-w-[320px] h-[270px] lg:h-[285px] shrink-0 snap-align-start relative animate-fadeIn"
+                className="group bg-zinc-50/80 border border-zinc-100/50 rounded-2xl p-6 flex flex-col justify-between transition-all duration-300 lg:hover:-translate-y-1 lg:hover:bg-white lg:hover:shadow-md lg:hover:border-zinc-200/80 w-[290px] min-w-[290px] lg:w-[320px] lg:min-w-[320px] h-[270px] lg:h-[285px] shrink-0 snap-align-start lg:snap-align-none relative animate-fadeIn"
                 style={{ animationDelay: `${idx * 60}ms` }}
               >
                 {/* Top Progress Line */}

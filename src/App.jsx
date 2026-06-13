@@ -44,7 +44,7 @@ export default function App() {
       <Sidebar activeSection={activeSection} />
 
       {/* Scrollable Content on Right */}
-      <main className="flex-1 lg:ml-[260px] min-h-screen flex flex-col bg-white">
+      <main className="flex-1 w-full lg:w-[calc(100%-260px)] lg:max-w-[calc(100%-260px)] lg:ml-[260px] min-h-screen flex flex-col bg-white min-w-0 overflow-x-clip">
         <Hero />
         <Services />
         <Cases />

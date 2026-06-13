@@ -1413,82 +1413,209 @@ function Calculator({ service, onSendSuccess, isCalcOpen }) {
   return <DefaultCalculator service={service} onSendSuccess={onSendSuccess} />;
 }
 
+function ServiceGraphic({ number }) {
+  if (number === '01') {
+    return (
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-2xl border border-zinc-200/30 flex flex-col justify-between p-4 overflow-hidden select-none">
+        {/* A mini-browser mockup */}
+        <div className="w-full bg-white border border-zinc-200/60 rounded-lg shadow-sm flex flex-col h-full overflow-hidden">
+          <div className="bg-zinc-50 border-b border-zinc-200/60 px-3 py-2 flex items-center gap-1.5 shrink-0">
+            <div className="w-2 h-2 rounded-full bg-zinc-300" />
+            <div className="w-2 h-2 rounded-full bg-zinc-300" />
+            <div className="w-2 h-2 rounded-full bg-zinc-300" />
+          </div>
+          <div className="p-3 flex-1 flex flex-col gap-2">
+            <div className="h-3 bg-zinc-100 rounded-md w-3/4 animate-pulse" />
+            <div className="h-2 bg-zinc-50 rounded-md w-1/2" />
+            <div className="mt-auto grid grid-cols-3 gap-2">
+              <div className="h-8 bg-zinc-50 rounded-md border border-dashed border-zinc-200 flex items-center justify-center text-[10px] text-zinc-400 font-medium">zero</div>
+              <div className="h-8 bg-zinc-50 rounded-md border border-dashed border-zinc-200 flex items-center justify-center text-[10px] text-zinc-400 font-medium">zero</div>
+              <div className="h-8 bg-zinc-50 rounded-md border border-dashed border-zinc-200 flex items-center justify-center text-[10px] text-zinc-400 font-medium">zero</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (number === '02') {
+    return (
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-2xl border border-zinc-200/30 flex items-center justify-center p-4 overflow-hidden select-none">
+        <div className="relative w-full h-full flex items-center justify-center gap-2">
+          {/* Left: Old site mockup */}
+          <div className="w-5/12 bg-white border border-zinc-100 rounded-lg shadow-sm p-2 rotate-[-4deg] opacity-60 scale-90 flex flex-col gap-1.5 animate-pulse">
+            <div className="h-2 bg-zinc-200 rounded w-4/5" />
+            <div className="h-1.5 bg-zinc-100 rounded w-3/5" />
+            <div className="h-8 bg-zinc-50 rounded border border-dashed border-zinc-200" />
+          </div>
+          {/* Arrow in middle */}
+          <div className="text-zinc-300 font-light text-base shrink-0">→</div>
+          {/* Right: New redesigned site mockup */}
+          <div className="w-5/12 bg-white border border-zinc-200 rounded-lg shadow-md p-2.5 rotate-[2deg] scale-100 flex flex-col gap-2 relative z-10">
+            <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 flex items-center justify-center text-[8px] text-white font-bold">✓</div>
+            <div className="h-2 bg-zinc-800 rounded w-4/5" />
+            <div className="h-1 bg-zinc-450 rounded w-2/5" />
+            <div className="h-8 bg-zinc-900 rounded flex items-center justify-center text-[9px] text-white font-bold">
+              10%
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (number === '03') {
+    return (
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-2xl border border-zinc-200/30 flex flex-col justify-between p-4 overflow-hidden select-none">
+        {/* A dashboard UI with code info */}
+        <div className="w-full bg-white border border-zinc-200/60 rounded-lg shadow-sm flex flex-col h-full overflow-hidden">
+          <div className="bg-zinc-50 border-b border-zinc-200/60 px-3 py-1.5 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[9px] text-zinc-500 font-mono">ai-agent.js</span>
+            </div>
+            <div className="w-2 h-2 rounded bg-zinc-200" />
+          </div>
+          <div className="p-3 flex-1 flex flex-col gap-2 justify-center">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500 text-xs shrink-0">⚡</div>
+              <div className="flex-1 flex flex-col gap-1">
+                <div className="h-2 bg-zinc-800 rounded w-1/3" />
+                <div className="h-1.5 bg-zinc-400 rounded w-2/3" />
+              </div>
+            </div>
+            <div className="border-t border-zinc-100 my-0.5" />
+            <div className="flex justify-between items-center text-[9px] text-zinc-500">
+              <span>Prompt processing...</span>
+              <span className="font-mono text-zinc-400">120ms</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (number === '04') {
+    return (
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-2xl border border-zinc-200/30 flex items-center justify-center p-4 overflow-hidden select-none">
+        <div className="w-full h-full bg-white border border-zinc-200/60 rounded-lg shadow-sm p-3 flex flex-col gap-2 relative">
+          {/* Visual designer vector mockup */}
+          <div className="flex items-center justify-between border-b border-zinc-100 pb-1.5">
+            <span className="text-[9px] text-zinc-400 font-mono">Figma Artboard</span>
+            <div className="flex gap-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-200" />
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-200" />
+            </div>
+          </div>
+          <div className="flex-1 relative flex items-center justify-center">
+            {/* Overlapping vector shapes */}
+            <div className="absolute w-10 h-10 rounded-full border border-indigo-500 bg-indigo-50/20 flex items-center justify-center">
+              <div className="w-1 h-1 bg-white border border-indigo-500 absolute -top-0.5 left-[17px]" />
+              <div className="w-1 h-1 bg-white border border-indigo-500 absolute -bottom-0.5 left-[17px]" />
+              <div className="w-1 h-1 bg-white border border-indigo-500 absolute -left-0.5 top-[17px]" />
+              <div className="w-1 h-1 bg-white border border-indigo-500 absolute -right-0.5 top-[17px]" />
+            </div>
+            <div className="absolute w-7 h-7 rotate-45 border border-dashed border-emerald-500 bg-emerald-50/10" />
+            
+            {/* cursor icon */}
+            <svg className="absolute w-3.5 h-3.5 text-indigo-600 top-1/2 left-1/2 fill-indigo-600 shadow-sm" viewBox="0 0 24 24">
+              <path d="M4.5 3v15.2l4.8-4.7 6.2 6.2 3.1-3.1-6.2-6.2 6.7-.4L4.5 3z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
 function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
   const IconComponent = ICON_MAP[service.number] || Layers;
 
-  const scrollToContacts = () => {
-    const el = document.getElementById('contacts');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <div id={`service-card-${service.number}`} className="border border-zinc-100 rounded-2xl p-6 sm:p-8 hover:border-zinc-200 transition-colors bg-white shadow-sm">
-      {/* Card Header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <span className="text-xs font-bold text-zinc-400 tracking-wider mt-1">{service.number}</span>
-        <div className="flex-1">
-          <div className="flex items-center gap-4 mb-3">
-            <div className="inline-flex items-center justify-center p-2.5 bg-zinc-50 rounded-xl border border-zinc-100/50">
-              <IconComponent className="w-5 h-5 text-zinc-900" />
-            </div>
-            <h3 className="text-lg font-semibold text-zinc-900">{service.title}</h3>
-          </div>
-          <p className="text-[14px] text-zinc-600 leading-relaxed max-w-[640px]">{service.brief}</p>
-        </div>
-      </div>
-
-      {/* Details (Clean Block/Bullet list) */}
-      <div className="pt-5 border-t border-zinc-100 flex flex-col gap-3">
-        {service.details.map((detail, idx) => {
-          const isDeadline = detail.label.toLowerCase().includes('срок');
-          return (
-            <div key={idx} className="flex items-start gap-3">
-              <span className="w-1.5 h-1.5 rounded-lg bg-zinc-300 mt-2 shrink-0" />
-              <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
-                <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider min-w-[140px] sm:min-w-[160px] block sm:inline">
-                  {detail.label}:
-                </span>
-                {detail.link ? (
-                  <a href={detail.link} className="text-zinc-900 hover:text-zinc-600 font-semibold underline underline-offset-2 text-[13.5px]">
-                    {detail.value}
-                  </a>
-                ) : (
-                  <span
-                    className={`text-[13.5px] leading-relaxed ${
-                      isDeadline ? 'font-semibold text-zinc-950' : 'text-zinc-600'
-                    }`}
-                  >
-                    {detail.value}
-                  </span>
-                )}
+    <div id={`service-card-${service.number}`} className="group border border-zinc-100 rounded-2xl p-6 sm:p-8 hover:border-zinc-200 transition-all bg-white shadow-sm duration-300">
+      {/* Two-column layout grid for header and parameters */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-stretch">
+        
+        {/* Left column (md:col-span-3) */}
+        <div className="md:col-span-3 flex flex-col justify-between h-full min-w-0">
+          <div>
+            <div className="flex items-start gap-4 mb-4">
+              <div className="inline-flex items-center justify-center p-2.5 bg-zinc-50 rounded-xl border border-zinc-100/50 shrink-0">
+                <IconComponent className="w-5 h-5 text-zinc-900" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-zinc-400 tracking-wider mb-0.5">{service.number}</span>
+                <h3 className="text-xl md:text-2xl font-light text-zinc-900 leading-tight">{service.title}</h3>
               </div>
             </div>
-          );
-        })}
-      </div>
+            
+            <p className="text-[14px] text-zinc-600 leading-relaxed max-w-[640px] mb-6">{service.brief}</p>
+            
+            {/* Mobile-only parameters (displayed statically, vertical stream) */}
+            <div className="block md:hidden space-y-4 border-t border-zinc-100 pt-5 mt-5">
+              {service.details.map((detail, idx) => (
+                <div key={idx} className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-bold tracking-wider uppercase text-gray-400">
+                    {detail.label}
+                  </span>
+                  <span className={`text-[13px] leading-relaxed ${
+                    detail.label.toLowerCase().includes('срок') ? 'font-semibold text-zinc-900' : 'text-zinc-600'
+                  }`}>
+                    {detail.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-zinc-100">
-        <button
-          onClick={onToggleCalc}
-          className={`text-xs font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer ${
-            isCalcOpen
-              ? 'bg-zinc-200 text-zinc-800 hover:bg-zinc-300'
-              : 'bg-zinc-900 text-white hover:bg-zinc-800'
-          }`}
-        >
-          {isCalcOpen 
-            ? 'Скрыть подробности' 
-            : service.number === '03' ? 'Посмотреть тарифы' : 'Рассчитать стоимость'}
-        </button>
-        <button
-          onClick={() => window.open('https://t.me/ksen_web', '_blank')}
-          className="border border-zinc-200 text-zinc-900 hover:bg-zinc-50 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
-        >
-          Рассказать о задаче
-        </button>
+          {/* Action Buttons (always visible at bottom of left column) */}
+          <div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-zinc-100">
+            <button
+              onClick={onToggleCalc}
+              className={`text-xs font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer ${
+                isCalcOpen
+                  ? 'bg-zinc-200 text-zinc-800 hover:bg-zinc-300'
+                  : 'bg-zinc-900 text-white hover:bg-zinc-800'
+              }`}
+            >
+              {isCalcOpen 
+                ? 'Скрыть подробности' 
+                : service.number === '03' ? 'Посмотреть тарифы' : 'Рассчитать стоимость'}
+            </button>
+            <button
+              onClick={() => window.open('https://t.me/ksen_web', '_blank')}
+              className="border border-zinc-200 text-zinc-900 hover:bg-zinc-50 text-xs font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
+            >
+              Рассказать о задаче
+            </button>
+          </div>
+        </div>
+
+        {/* Right column (md:col-span-2) - interactive bento zone on desktop */}
+        <div className="hidden md:block md:col-span-2 relative overflow-hidden w-full h-full min-h-[160px]">
+          
+          {/* Layer 1: Graphic Bento Placeholder (visible statically, fades on hover) */}
+          <div className="absolute inset-0 w-full h-full transition-all duration-500 opacity-100 group-hover:opacity-0 group-hover:scale-95">
+            <ServiceGraphic number={service.number} />
+          </div>
+
+          {/* Layer 2: Text Parameters (revealed on hover) */}
+          <div className="absolute inset-0 w-full h-full flex flex-col justify-center transition-all duration-500 opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100">
+            <div className="bg-zinc-50/50 border border-zinc-100 rounded-2xl p-5 h-full flex flex-col justify-center space-y-4">
+              {service.details.map((detail, idx) => (
+                <div key={idx} className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-bold tracking-wider uppercase text-gray-400">
+                    {detail.label}
+                  </span>
+                  <span className={`text-[13px] leading-relaxed ${
+                    detail.label.toLowerCase().includes('срок') ? 'font-semibold text-zinc-900' : 'text-zinc-600'
+                  }`}>
+                    {detail.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Smoothly Expanding Calculator Panel */}

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import contentData from '../contentData';
 
-const SCROLL_ROTATIONS = 2.5;
+const SCROLL_ROTATIONS = 2.0;
 const TRACK_COPIES = 3;
 
 const mobileLefts = {
@@ -163,69 +163,69 @@ export default function Reviews() {
               layout.map((review, idx) => {
                 const cardIndex = cycle * layout.length + idx;
                 return (
-                <div
-                  key={`${review.id}-${cycle}`}
-                  ref={(el) => { cardsRef.current[cardIndex] = el; }}
-                  className="absolute w-[280px] sm:w-[330px] transition-transform ease-out duration-75 will-change-transform hover:z-20"
-                  style={{
-                    left: review.left,
-                    top: review.trackY + cycle * cycleHeight,
-                  }}
-                >
-                  <div className="bg-white border border-zinc-200/40 rounded-2xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] transition-transform duration-200 ease-out hover:scale-[1.04] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] cursor-default">
-                  {review.imageUrl ? (
-                    <div className="relative w-full overflow-hidden rounded-xl border border-zinc-100 bg-zinc-50">
-                      <img
-                        src={review.imageUrl}
-                        alt={`Отзыв от ${review.name}`}
-                        className="w-full h-auto object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-2.5">
-                      <div className="flex items-center gap-3 relative pr-10">
-                        <div
-                          className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm flex-shrink-0"
-                          style={{
-                            background:
-                              review.avatarColor ||
-                              'linear-gradient(135deg, #7F00FF 0%, #E100FF 100%)',
-                          }}
-                        >
-                          {review.avatarInitials}
+                  <div
+                    key={`${review.id}-${cycle}`}
+                    ref={(el) => { cardsRef.current[cardIndex] = el; }}
+                    className="absolute w-[280px] sm:w-[330px] transition-transform ease-out duration-75 will-change-transform hover:z-20"
+                    style={{
+                      left: review.left,
+                      top: review.trackY + cycle * cycleHeight,
+                    }}
+                  >
+                    <div className="bg-white border border-zinc-200/40 rounded-2xl p-4 sm:p-5 shadow-[0_8px_30px_rgb(0,0,0,0.02)] transition-transform duration-200 ease-out hover:scale-[1.04] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] cursor-default">
+                      {review.imageUrl ? (
+                        <div className="relative w-full overflow-hidden rounded-xl border border-zinc-100 bg-zinc-50">
+                          <img
+                            src={review.imageUrl}
+                            alt={`Отзыв от ${review.name}`}
+                            className="w-full h-auto object-cover"
+                          />
                         </div>
+                      ) : (
+                        <div className="flex flex-col gap-2.5">
+                          <div className="flex items-center gap-3 relative pr-10">
+                            <div
+                              className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm flex-shrink-0"
+                              style={{
+                                background:
+                                  review.avatarColor ||
+                                  'linear-gradient(135deg, #7F00FF 0%, #E100FF 100%)',
+                              }}
+                            >
+                              {review.avatarInitials}
+                            </div>
 
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-xs sm:text-[13px] font-bold text-zinc-900 leading-tight truncate">
-                            {review.name}
-                          </span>
-                          <span className="text-[10px] sm:text-[11px] text-zinc-400 font-mono truncate">
-                            {review.username}
-                          </span>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-xs sm:text-[13px] font-bold text-zinc-900 leading-tight truncate">
+                                {review.name}
+                              </span>
+                              <span className="text-[10px] sm:text-[11px] text-zinc-400 font-mono truncate">
+                                {review.username}
+                              </span>
+                            </div>
+
+                            <span className="text-[10px] text-zinc-400 absolute top-0.5 right-0 font-medium">
+                              {review.time}
+                            </span>
+                          </div>
+
+                          <p className="text-xs sm:text-[13px] text-zinc-600 leading-relaxed font-medium">
+                            {review.text}
+                          </p>
+
+                          <div className="flex items-center justify-between text-[9.5px] text-zinc-400/80 font-medium border-t border-zinc-100/50 pt-2 mt-1 select-none">
+                            <span className="flex items-center gap-1">
+                              <svg className="w-3.5 h-3.5 text-sky-500 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                              </svg>
+                              <span>Сообщение подтверждено</span>
+                            </span>
+                            <span className="text-sky-500 font-bold tracking-tight text-[11px]">✓✓</span>
+                          </div>
                         </div>
-
-                        <span className="text-[10px] text-zinc-400 absolute top-0.5 right-0 font-medium">
-                          {review.time}
-                        </span>
-                      </div>
-
-                      <p className="text-xs sm:text-[13px] text-zinc-600 leading-relaxed font-medium">
-                        {review.text}
-                      </p>
-
-                      <div className="flex items-center justify-between text-[9.5px] text-zinc-400/80 font-medium border-t border-zinc-100/50 pt-2 mt-1 select-none">
-                        <span className="flex items-center gap-1">
-                          <svg className="w-3.5 h-3.5 text-sky-500 fill-current" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                          </svg>
-                          <span>Сообщение подтверждено</span>
-                        </span>
-                        <span className="text-sky-500 font-bold tracking-tight text-[11px]">✓✓</span>
-                      </div>
+                      )}
                     </div>
-                  )}
                   </div>
-                </div>
                 );
               })
             )}
