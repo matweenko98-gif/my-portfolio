@@ -89,9 +89,9 @@ const sendTelegramMessage = async (messageText) => {
 
 const SegmentedControl = ({ label, options, val, setVal }) => (
   <div className="flex flex-col gap-2">
-    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">{label}</span>
+    <span className="text-white text-[10px] font-medium tracking-wider uppercase">{label}</span>
     <div
-      className="grid gap-1.5 p-1 bg-zinc-100 rounded-md border border-zinc-200/30"
+      className="grid gap-1.5 p-1 bg-neutral-900/50 rounded-md border border-neutral-850"
       style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
     >
       {options.map((opt) => (
@@ -101,8 +101,8 @@ const SegmentedControl = ({ label, options, val, setVal }) => (
           onClick={() => setVal(opt.value)}
           className={`text-center py-2 px-1 sm:px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all ${
             val === opt.value
-              ? 'bg-white text-zinc-950 shadow-sm border border-zinc-200/20'
-              : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-250/40'
+              ? 'bg-white text-black shadow-sm'
+              : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
           }`}
         >
           {opt.label}
@@ -114,10 +114,11 @@ const SegmentedControl = ({ label, options, val, setVal }) => (
 
 function getOptionButtonClass(isSelected, isFirstHint) {
   if (isSelected) {
-    return 'bg-white text-zinc-950 shadow-sm border border-zinc-900';
+    return 'bg-white text-black shadow-sm border border-transparent';
   }
-  return 'text-zinc-500 border border-neutral-200/50 bg-transparent hover:border-neutral-300 hover:bg-zinc-150/30 hover:text-zinc-900';
+  return 'text-neutral-400 border border-neutral-850 bg-transparent hover:border-neutral-750 hover:bg-neutral-800 hover:text-white';
 }
+
 
 function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
   const [siteType, setSiteType] = useState(null);
@@ -278,18 +279,18 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
   };
 
   return (
-    <div className="bg-zinc-50/70 border border-zinc-100 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-sm font-semibold text-zinc-950 border-b border-zinc-200/50 pb-3">
+    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
+      <div className="text-white text-xl font-normal tracking-tight border-b border-neutral-850 pb-3">
         Конфигуратор проекта
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
         <div className="space-y-6 h-full flex flex-col">
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
               ШАГ 1: ТИП САЙТА И ДИЗАЙН-КОНЦЕПЦИЯ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
               {siteTypeOptions.map((opt, index) => (
                 <button
                   key={opt.value}
@@ -304,16 +305,16 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-zinc-400 font-medium px-1">
+            <span className="text-[11px] text-neutral-500 font-medium px-1">
               {activeSiteType?.description ?? siteTypeOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
               ШАГ 2: КОЛИЧЕСТВО СТРАНИЦ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
               {pagesOptions.map((opt, index) => (
                 <button
                   key={opt.value}
@@ -328,16 +329,16 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-zinc-400 font-medium px-1">
+            <span className="text-[11px] text-neutral-500 font-medium px-1">
               {activePages?.description ?? pagesOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
               ШАГ 3: ГОТОВНОСТЬ КОНТЕНТА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
               {contentReadyOptions.map((opt, index) => (
                 <button
                   key={opt.value}
@@ -352,7 +353,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-zinc-400 font-medium px-1">
+            <span className="text-[11px] text-neutral-500 font-medium px-1">
               {activeContentReady?.description ?? contentReadyOptions[0].description}
             </span>
           </div>
@@ -375,9 +376,9 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-5 pt-2 border-t border-zinc-200/50">
+      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-850">
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+          <span className="text-white text-[10px] font-medium tracking-wider uppercase">
             Свободные пожелания
           </span>
           <textarea
@@ -385,13 +386,13 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Например: Нужна интеграция с CRM и личный кабинет..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
+            className="w-full bg-[#1A1A1A] border border-neutral-850 focus:border-neutral-700 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500 resize-none"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
+            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -402,15 +403,15 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
-              className={`w-full bg-white border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              className={`w-full bg-[#1A1A1A] border ${
+                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
+            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -421,9 +422,9 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setContact(e.target.value);
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
-              className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              className={`w-full bg-[#1A1A1A] border ${
+                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -434,7 +435,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50"
+            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -442,7 +443,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-sm transition-all duration-200 text-center"
+            className="flex-1 border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
           >
             Нужна консультация
           </a>
@@ -599,18 +600,18 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
   };
 
   return (
-    <div className="bg-zinc-50/70 border border-zinc-100 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-sm font-semibold text-zinc-955 border-b border-zinc-200/50 pb-3">
+    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
+      <div className="text-white text-xl font-normal tracking-tight border-b border-neutral-850 pb-3">
         Конфигуратор редизайна
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
         <div className="space-y-6 h-full flex flex-col">
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
               ШАГ 1: ТЕКУЩИЕ ПРОБЛЕМЫ САЙТА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
               {problemOptions.map((opt, index) => (
                 <button
                   key={opt.value}
@@ -625,16 +626,16 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-zinc-400 font-medium px-1">
+            <span className="text-[11px] text-neutral-500 font-medium px-1">
               {activeProblem?.description ?? problemOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
               ШАГ 2: ОБЪЕМ СТРАНИЦ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
               {volumeOptions.map((opt, index) => (
                 <button
                   key={opt.value}
@@ -649,16 +650,16 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-zinc-400 font-medium px-1">
+            <span className="text-[11px] text-neutral-500 font-medium px-1">
               {activeVolume?.description ?? volumeOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
               ШАГ 3: ГЛУБИНА ПЕРЕРАБОТКИ СМЫСЛОВ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
               {depthOptions.map((opt, index) => (
                 <button
                   key={opt.value}
@@ -673,7 +674,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-zinc-400 font-medium px-1">
+            <span className="text-[11px] text-neutral-500 font-medium px-1">
               {activeDepth?.description ?? depthOptions[0].description}
             </span>
           </div>
@@ -696,9 +697,9 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-5 pt-2 border-t border-zinc-200/50">
+      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-850">
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+          <span className="text-white text-[10px] font-medium tracking-wider uppercase">
             Дополнительные пожелания и ссылка на текущий сайт
           </span>
           <textarea
@@ -706,13 +707,13 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Укажите ссылку на текущий сайт и напишите пожелания..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
+            className="w-full bg-[#1A1A1A] border border-neutral-850 focus:border-neutral-700 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500 resize-none"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
+            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -723,15 +724,15 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
-              className={`w-full bg-white border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              className={`w-full bg-[#1A1A1A] border ${
+                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
+            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -742,9 +743,9 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setContact(e.target.value);
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
-              className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              className={`w-full bg-[#1A1A1A] border ${
+                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -755,7 +756,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50"
+            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -763,7 +764,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-sm transition-all duration-200 text-center"
+            className="flex-1 border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
           >
             Нужна консультация
           </a>
@@ -918,18 +919,18 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
   };
 
   return (
-    <div className="bg-zinc-50/70 border border-zinc-100 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-sm font-semibold text-zinc-955 border-b border-zinc-200/50 pb-3">
+    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
+      <div className="text-white text-xl font-normal tracking-tight border-b border-neutral-850 pb-3">
         Конфигуратор дизайна в Figma
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
         <div className="space-y-6 h-full flex flex-col">
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
               ШАГ 1: ТИП ИНТЕРФЕЙСА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
               {typeOptions.map((opt, index) => (
                 <button
                   key={opt.value}
@@ -944,16 +945,16 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-zinc-400 font-medium px-1">
+            <span className="text-[11px] text-neutral-500 font-medium px-1">
               {activeType?.description ?? typeOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
               ШАГ 2: КОЛИЧЕСТВО УНИКАЛЬНЫХ ЭКРАНОВ
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
               {complexityOptions.map((opt, index) => (
                 <button
                   key={opt.value}
@@ -968,16 +969,16 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-zinc-400 font-medium px-1">
+            <span className="text-[11px] text-neutral-500 font-medium px-1">
               {activeComplexity?.description ?? complexityOptions[0].description}
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+            <span className="text-white text-[10px] font-medium tracking-wider uppercase">
               ШАГ 3: НАЛИЧИЕ ГОТОВОГО UI-КИТА
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-zinc-100 rounded-md border border-zinc-200/30">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-neutral-900/50 rounded-md border border-neutral-850">
               {specOptions.map((opt, index) => (
                 <button
                   key={opt.value}
@@ -992,7 +993,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 </button>
               ))}
             </div>
-            <span className="text-[11px] text-zinc-400 font-medium px-1">
+            <span className="text-[11px] text-neutral-500 font-medium px-1">
               {activeSpec?.description ?? specOptions[0].description}
             </span>
           </div>
@@ -1015,9 +1016,9 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-5 pt-2 border-t border-zinc-200/50">
+      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-850">
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium">
+          <span className="text-white text-[10px] font-medium tracking-wider uppercase">
             Описание проекта и ссылки на референсы
           </span>
           <textarea
@@ -1025,13 +1026,13 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Опишите ваши пожелания, стиль, референсы..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400 resize-none"
+            className="w-full bg-[#1A1A1A] border border-neutral-850 focus:border-neutral-700 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500 resize-none"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
+            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -1042,15 +1043,15 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
-              className={`w-full bg-white border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              className={`w-full bg-[#1A1A1A] border ${
+                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
+            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -1061,9 +1062,9 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                 setContact(e.target.value);
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
-              className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              className={`w-full bg-[#1A1A1A] border ${
+                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
+              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -1074,7 +1075,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-zinc-950 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-sm transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-5 rounded-sm transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -1082,7 +1083,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-white border border-zinc-200 text-zinc-950 hover:bg-zinc-100 text-sm font-semibold py-3 rounded-sm transition-all duration-200 text-center"
+            className="flex-1 border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
           >
             Нужна консультация
           </a>
@@ -1115,27 +1116,27 @@ function AICalculator({ service }) {
   ];
 
   return (
-    <div className="bg-zinc-50/70 border border-zinc-100 rounded-lg p-5 sm:p-6 flex flex-col gap-6 w-full">
-      <div className="text-sm font-semibold text-zinc-955 border-b border-zinc-200/50 pb-3 flex justify-between items-center flex-wrap gap-2">
+    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6 w-full">
+      <div className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2">
         <span>Тарифы и направления разработки</span>
-        <span className="text-[11px] font-semibold text-zinc-500 bg-zinc-100 border border-zinc-200/30 px-2.5 py-1 rounded-lg">
+        <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-lg">
           Срок: Рассчитывается индивидуально
         </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {products.map((p, idx) => (
-          <div key={idx} className="bg-white border border-zinc-200/60 rounded-md p-4 flex flex-col justify-between hover:shadow-sm hover:border-zinc-300 transition-all duration-300">
+          <div key={idx} className="bg-[#1A1A1A] border border-neutral-850 rounded-md p-4 flex flex-col justify-between hover:shadow-sm hover:border-neutral-750 transition-all duration-300">
             <div>
-              <h4 className="text-sm font-bold text-zinc-900 mb-1">{p.title}</h4>
-              <span className="inline-block text-xs font-extrabold text-zinc-955 bg-zinc-50 border border-zinc-100 rounded-lg px-2.5 py-1 mb-3">
+              <h4 className="text-sm font-bold text-white mb-1">{p.title}</h4>
+              <span className="inline-block text-xs font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1 mb-3">
                 {p.price}
               </span>
-              <p className="text-[11px] sm:text-xs text-zinc-500 leading-relaxed mb-4">{p.desc}</p>
+              <p className="text-[11px] sm:text-xs text-neutral-450 leading-relaxed mb-4">{p.desc}</p>
             </div>
-            <ul className="space-y-2 border-t border-zinc-150/50 pt-3">
+            <ul className="space-y-2 border-t border-neutral-850 pt-3">
               {p.features.map((f, i) => (
-                <li key={i} className="flex items-start gap-2 text-[10.5px] text-zinc-650 leading-tight">
+                <li key={i} className="flex items-start gap-2 text-[10.5px] text-neutral-350 leading-tight">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
                   <span>{f}</span>
                 </li>
@@ -1145,15 +1146,15 @@ function AICalculator({ service }) {
         ))}
       </div>
 
-      <div className="pt-4 border-t border-zinc-200/50 flex flex-col items-center gap-3">
-        <p className="text-xs text-zinc-500 font-medium text-center">
+      <div className="pt-4 border-t border-neutral-850 flex flex-col items-center gap-3">
+        <p className="text-xs text-neutral-450 font-medium text-center">
           Разработка сложных цифровых продуктов требует детального обсуждения технического задания и архитектуры.
         </p>
         <a
           href={TELEGRAM_CONSULT_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-zinc-950 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
         >
           <Send className="w-4 h-4" />
           <span>Обсудить проект в Telegram</span>
@@ -1273,8 +1274,8 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
   };
 
   return (
-    <div className="bg-zinc-50/70 border border-zinc-100 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-sm font-semibold text-zinc-950 border-b border-zinc-200/50 pb-3">
+    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
+      <div className="text-white text-xl font-normal tracking-tight border-b border-neutral-850 pb-3">
         Конфигуратор проекта
       </div>
 
@@ -1285,17 +1286,17 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
             const yesChoice = opt.choices[1];
             return (
               <div key={opt.id} className="flex flex-col gap-1.5">
-                <label className="flex items-start gap-3 p-3.5 bg-white border border-zinc-200/40 rounded-sm hover:border-zinc-300 cursor-pointer transition-all">
+                <label className="flex items-start gap-3 p-3.5 bg-[#1A1A1A] border border-neutral-850 rounded-sm hover:border-neutral-750 cursor-pointer transition-all">
                   <input
                     type="checkbox"
                     checked={isChecked}
                     onChange={(e) => handleOptionChange(opt.id, e.target.checked ? 'yes' : 'no')}
-                    className="w-4 h-4 text-zinc-900 border-zinc-300 rounded focus:ring-zinc-900 focus:ring-offset-0 focus:outline-none mt-0.5"
+                    className="w-4 h-4 text-[#FF5B23] bg-neutral-900 border-neutral-800 rounded focus:ring-0 focus:outline-none mt-0.5"
                   />
                   <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-zinc-850">{opt.label}</span>
+                    <span className="text-xs font-semibold text-white">{opt.label}</span>
                     {yesChoice.price > 0 && (
-                      <span className="text-[10px] text-zinc-500 font-semibold mt-0.5">
+                      <span className="text-[10px] text-neutral-400 font-semibold mt-0.5">
                         +{formatPrice(yesChoice.price)} ₽ {yesChoice.days > 0 ? `• +${yesChoice.days} ${getDaysWord(yesChoice.days)}` : ''}
                       </span>
                     )}
@@ -1318,13 +1319,13 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
       </div>
 
       {/* Поля ввода контактов */}
-      <div className="flex flex-col gap-4 pt-4 border-t border-zinc-200/50">
-        <div className="text-xs font-semibold text-zinc-950">
+      <div className="flex flex-col gap-4 pt-4 border-t border-neutral-850">
+        <div className="text-xs font-semibold text-white">
           Контактные данные для расчета
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
+            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
               Ваше имя *
             </label>
             <input
@@ -1335,15 +1336,15 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
               }}
-              className={`w-full bg-white border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
-              } rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              className={`w-full bg-[#1A1A1A] border ${
+                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
+              } rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
 
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1.5">
+            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
               Телефон или Telegram *
             </label>
             <input
@@ -1354,9 +1355,9 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
                 setContact(e.target.value);
                 if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
               }}
-              className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-200/60 focus:ring-zinc-950 focus:border-zinc-950'
-              } rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-1 transition-all text-zinc-900 placeholder-zinc-400`}
+              className={`w-full bg-[#1A1A1A] border ${
+                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
+              } rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -1364,11 +1365,11 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
       </div>
 
       {/* Итоговая стоимость и кнопки */}
-      <div className="pt-4 border-t border-zinc-200/50 flex flex-col gap-4">
-        <div className="text-[13px] text-zinc-600 leading-relaxed font-medium bg-zinc-100/50 border border-zinc-200/20 rounded-md px-4 py-2.5">
-          Примерная стоимость: <span className="font-semibold text-zinc-950 text-sm">от {formatPrice(price)} руб.</span>
-          <span className="mx-2 text-zinc-350">•</span>
-          Сроки: <span className="font-semibold text-zinc-950 text-sm">от {days} {getDaysWord(days)}</span>
+      <div className="pt-4 border-t border-neutral-850 flex flex-col gap-4">
+        <div className="text-[13px] text-neutral-350 leading-relaxed font-medium bg-neutral-900/40 border border-neutral-800 rounded-md px-4 py-2.5">
+          Примерная стоимость: <span className="font-semibold text-[#E0FB4A] text-sm">от {formatPrice(price)} ₽</span>
+          <span className="mx-2 text-neutral-600">•</span>
+          Сроки: <span className="font-semibold text-white text-sm">от {days} {getDaysWord(days)}</span>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-2">
@@ -1376,7 +1377,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-semibold py-3 px-5 rounded-sm transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
+            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-5 rounded-sm transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -1384,7 +1385,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 border border-zinc-200 text-zinc-650 hover:bg-zinc-100/60 text-xs font-semibold py-3 px-5 rounded-sm transition-all duration-200 text-center"
+            className="flex-1 border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-xs font-semibold py-3 px-5 rounded-sm text-center"
           >
             Нужна консультация
           </a>
@@ -1413,21 +1414,21 @@ function Calculator({ service, onSendSuccess, isCalcOpen }) {
 function ServiceGraphic({ number }) {
   if (number === '01') {
     return (
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-md border border-zinc-200/20 flex flex-col justify-between p-4 overflow-hidden select-none">
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#262626] to-[#1E1E1E]/50 rounded-md border border-white/5 flex flex-col justify-between p-4 overflow-hidden select-none">
         {/* A mini-browser mockup */}
-        <div className="w-full bg-white border border-zinc-200/60 rounded-md shadow-sm flex flex-col h-full overflow-hidden">
-          <div className="bg-zinc-50 border-b border-zinc-200/60 px-3 py-2 flex items-center gap-1.5 shrink-0">
-            <div className="w-2 h-2 rounded-full bg-zinc-300" />
-            <div className="w-2 h-2 rounded-full bg-zinc-300" />
-            <div className="w-2 h-2 rounded-full bg-zinc-300" />
+        <div className="w-full bg-[#111111] border border-neutral-800/50 rounded-md shadow-sm flex flex-col h-full overflow-hidden">
+          <div className="bg-[#1A1A1A] border-b border-neutral-800/50 px-3 py-2 flex items-center gap-1.5 shrink-0">
+            <div className="w-2 h-2 rounded-full bg-neutral-700" />
+            <div className="w-2 h-2 rounded-full bg-neutral-700" />
+            <div className="w-2 h-2 rounded-full bg-neutral-700" />
           </div>
           <div className="p-3 flex-1 flex flex-col gap-2">
-            <div className="h-3 bg-zinc-100 rounded-md w-3/4 animate-pulse" />
-            <div className="h-2 bg-zinc-50 rounded-md w-1/2" />
+            <div className="h-3 bg-neutral-800 rounded-md w-3/4 animate-pulse" />
+            <div className="h-2 bg-neutral-850 rounded-md w-1/2" />
             <div className="mt-auto grid grid-cols-3 gap-2">
-              <div className="h-8 bg-zinc-50 rounded-md border border-dashed border-zinc-200 flex items-center justify-center text-[10px] text-zinc-400 font-medium">zero</div>
-              <div className="h-8 bg-zinc-50 rounded-md border border-dashed border-zinc-200 flex items-center justify-center text-[10px] text-zinc-400 font-medium">zero</div>
-              <div className="h-8 bg-zinc-50 rounded-md border border-dashed border-zinc-200 flex items-center justify-center text-[10px] text-zinc-400 font-medium">zero</div>
+              <div className="h-8 bg-[#1A1A1A] rounded-md border border-dashed border-neutral-800/60 flex items-center justify-center text-[10px] text-neutral-500 font-medium">zero</div>
+              <div className="h-8 bg-[#1A1A1A] rounded-md border border-dashed border-neutral-800/60 flex items-center justify-center text-[10px] text-neutral-500 font-medium">zero</div>
+              <div className="h-8 bg-[#1A1A1A] rounded-md border border-dashed border-neutral-800/60 flex items-center justify-center text-[10px] text-neutral-500 font-medium">zero</div>
             </div>
           </div>
         </div>
@@ -1436,22 +1437,22 @@ function ServiceGraphic({ number }) {
   }
   if (number === '02') {
     return (
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-md border border-zinc-200/30 flex items-center justify-center p-4 overflow-hidden select-none">
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#262626] to-[#1E1E1E]/50 rounded-md border border-white/5 flex items-center justify-center p-4 overflow-hidden select-none">
         <div className="relative w-full h-full flex items-center justify-center gap-2">
           {/* Left: Old site mockup */}
-          <div className="w-5/12 bg-white border border-zinc-100 rounded-sm shadow-sm p-2 rotate-[-4deg] opacity-60 scale-90 flex flex-col gap-1.5 animate-pulse">
-            <div className="h-2 bg-zinc-200 rounded w-4/5" />
-            <div className="h-1.5 bg-zinc-100 rounded w-3/5" />
-            <div className="h-8 bg-zinc-50 rounded border border-dashed border-zinc-200" />
+          <div className="w-5/12 bg-[#141414] border border-neutral-800/60 rounded-sm shadow-sm p-2 rotate-[-4deg] opacity-60 scale-90 flex flex-col gap-1.5 animate-pulse">
+            <div className="h-2 bg-neutral-800 rounded w-4/5" />
+            <div className="h-1.5 bg-neutral-850 rounded w-3/5" />
+            <div className="h-8 bg-[#111111] rounded border border-dashed border-neutral-800/60" />
           </div>
           {/* Arrow in middle */}
-          <div className="text-zinc-300 font-light text-base shrink-0">→</div>
+          <div className="text-neutral-600 font-light text-base shrink-0">→</div>
           {/* Right: New redesigned site mockup */}
-          <div className="w-5/12 bg-white border border-zinc-200 rounded-sm shadow-md p-2.5 rotate-[2deg] scale-100 flex flex-col gap-2 relative z-10">
-            <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 flex items-center justify-center text-[8px] text-white font-bold">✓</div>
-            <div className="h-2 bg-zinc-800 rounded w-4/5" />
-            <div className="h-1 bg-zinc-450 rounded w-2/5" />
-            <div className="h-8 bg-zinc-900 rounded flex items-center justify-center text-[9px] text-white font-bold">
+          <div className="w-5/12 bg-[#1A1A1A] border border-neutral-800/60 rounded-sm shadow-md p-2.5 rotate-[2deg] scale-100 flex flex-col gap-2 relative z-10">
+            <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#FF5B23] flex items-center justify-center text-[8px] text-white font-bold">✓</div>
+            <div className="h-2 bg-neutral-800 rounded w-4/5" />
+            <div className="h-1 bg-neutral-850 rounded w-2/5" />
+            <div className="h-8 bg-[#FF5B23] text-white rounded flex items-center justify-center text-[9px] font-bold">
               10%
             </div>
           </div>
@@ -1461,28 +1462,28 @@ function ServiceGraphic({ number }) {
   }
   if (number === '03') {
     return (
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-md border border-zinc-200/20 flex flex-col justify-between p-4 overflow-hidden select-none">
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#262626] to-[#1E1E1E]/50 rounded-md border border-white/5 flex flex-col justify-between p-4 overflow-hidden select-none">
         {/* A dashboard UI with code info */}
-        <div className="w-full bg-white border border-zinc-200/60 rounded-md shadow-sm flex flex-col h-full overflow-hidden">
-          <div className="bg-zinc-50 border-b border-zinc-200/60 px-3 py-1.5 flex items-center justify-between shrink-0">
+        <div className="w-full bg-[#111111] border border-neutral-800/50 rounded-md shadow-sm flex flex-col h-full overflow-hidden">
+          <div className="bg-[#1A1A1A] border-b border-neutral-800/50 px-3 py-1.5 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[9px] text-zinc-500 font-mono">ai-agent.js</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E0FB4A] animate-pulse" />
+              <span className="text-[9px] text-neutral-400 font-mono">ai-agent.js</span>
             </div>
-            <div className="w-2 h-2 rounded bg-zinc-200" />
+            <div className="w-2 h-2 rounded bg-neutral-700" />
           </div>
           <div className="p-3 flex-1 flex flex-col gap-2 justify-center">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500 text-xs shrink-0">⚡</div>
+              <div className="w-6 h-6 rounded-lg bg-[#FF5B23]/10 border border-[#FF5B23]/30 flex items-center justify-center text-[#FF5B23] text-xs shrink-0">⚡</div>
               <div className="flex-1 flex flex-col gap-1">
-                <div className="h-2 bg-zinc-800 rounded w-1/3" />
-                <div className="h-1.5 bg-zinc-400 rounded w-2/3" />
+                <div className="h-2 bg-neutral-800 rounded w-1/3" />
+                <div className="h-1.5 bg-neutral-850 rounded w-2/3" />
               </div>
             </div>
-            <div className="border-t border-zinc-100 my-0.5" />
-            <div className="flex justify-between items-center text-[9px] text-zinc-500">
+            <div className="border-t border-neutral-800/60 my-0.5" />
+            <div className="flex justify-between items-center text-[9px] text-neutral-500">
               <span>Prompt processing...</span>
-              <span className="font-mono text-zinc-400">120ms</span>
+              <span className="font-mono text-neutral-400">120ms</span>
             </div>
           </div>
         </div>
@@ -1491,25 +1492,25 @@ function ServiceGraphic({ number }) {
   }
   if (number === '04') {
     return (
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-50 to-zinc-100/30 rounded-md border border-zinc-200/30 flex items-center justify-center p-4 overflow-hidden select-none">
-        <div className="w-full h-full bg-white border border-zinc-200/60 rounded-md shadow-sm p-3 flex flex-col gap-2 relative">
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#262626] to-[#1E1E1E]/50 rounded-md border border-white/5 flex items-center justify-center p-4 overflow-hidden select-none">
+        <div className="w-full h-full bg-[#111111] border border-neutral-800/50 rounded-md shadow-sm p-3 flex flex-col gap-2 relative">
           {/* Visual designer vector mockup */}
-          <div className="flex items-center justify-between border-b border-zinc-100 pb-1.5">
-            <span className="text-[9px] text-zinc-400 font-mono">Figma Artboard</span>
+          <div className="flex items-center justify-between border-b border-neutral-800/50 pb-1.5">
+            <span className="text-[9px] text-neutral-400 font-mono">Figma Artboard</span>
             <div className="flex gap-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-zinc-200" />
-              <span className="w-1.5 h-1.5 rounded-full bg-zinc-200" />
+              <span className="w-1.5 h-1.5 rounded-full bg-neutral-700" />
+              <span className="w-1.5 h-1.5 rounded-full bg-neutral-700" />
             </div>
           </div>
           <div className="flex-1 relative flex items-center justify-center">
             {/* Overlapping vector shapes */}
-            <div className="absolute w-10 h-10 rounded-full border border-indigo-500 bg-indigo-50/20 flex items-center justify-center">
-              <div className="w-1 h-1 bg-white border border-indigo-500 absolute -top-0.5 left-[17px]" />
-              <div className="w-1 h-1 bg-white border border-indigo-500 absolute -bottom-0.5 left-[17px]" />
-              <div className="w-1 h-1 bg-white border border-indigo-500 absolute -left-0.5 top-[17px]" />
-              <div className="w-1 h-1 bg-white border border-indigo-500 absolute -right-0.5 top-[17px]" />
+            <div className="absolute w-10 h-10 rounded-full border border-indigo-500 bg-indigo-950/20 flex items-center justify-center">
+              <div className="w-1 h-1 bg-[#1A1A1A] border border-indigo-500 absolute -top-0.5 left-[17px]" />
+              <div className="w-1 h-1 bg-[#1A1A1A] border border-indigo-500 absolute -bottom-0.5 left-[17px]" />
+              <div className="w-1 h-1 bg-[#1A1A1A] border border-indigo-500 absolute -left-0.5 top-[17px]" />
+              <div className="w-1 h-1 bg-[#1A1A1A] border border-indigo-500 absolute -right-0.5 top-[17px]" />
             </div>
-            <div className="absolute w-7 h-7 rotate-45 border border-dashed border-emerald-500 bg-emerald-50/10" />
+            <div className="absolute w-7 h-7 rotate-45 border border-dashed border-emerald-500 bg-emerald-950/10" />
             
             {/* cursor icon */}
             <svg className="absolute w-3.5 h-3.5 text-indigo-600 top-1/2 left-1/2 fill-indigo-600 shadow-sm" viewBox="0 0 24 24">
@@ -1527,7 +1528,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
   const IconComponent = ICON_MAP[service.number] || Layers;
 
   return (
-    <div id={`service-card-${service.number}`} className="group border border-zinc-100 rounded-md p-6 sm:p-8 hover:border-zinc-200/40 transition-all bg-white duration-300">
+    <div id={`service-card-${service.number}`} className="group border border-neutral-800 rounded-md p-6 sm:p-8 hover:border-neutral-600 hover:scale-[1.015] hover:shadow-2xl transition-all bg-[#1A1A1A] duration-300">
       {/* Two-column layout grid for header and parameters */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-stretch">
         
@@ -1535,26 +1536,26 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
         <div className="md:col-span-3 flex flex-col justify-between h-full min-w-0">
           <div>
             <div className="flex items-start gap-4 mb-4">
-              <div className="inline-flex items-center justify-center p-2.5 bg-zinc-50 rounded-sm border border-zinc-100/50 shrink-0">
-                <IconComponent className="w-5 h-5 text-zinc-900" />
+              <div className="inline-flex items-center justify-center p-2.5 bg-neutral-900/30 rounded-sm border border-neutral-800 shrink-0">
+                <IconComponent className="w-5 h-5 text-neutral-400" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-medium tracking-wider text-gray-400 uppercase mb-0.5">[ Услуга {service.number} ]</span>
-                <h3 className="text-xl md:text-2xl font-light tracking-tight text-black leading-tight">{service.title}</h3>
+                <span className="text-[10px] font-semibold tracking-wider text-[#E0FB4A] uppercase mb-0.5">[ Услуга {service.number} ]</span>
+                <h3 className="text-xl md:text-2xl font-light tracking-tight text-white leading-tight">{service.title}</h3>
               </div>
             </div>
             
-            <p className="text-[14px] text-zinc-600 leading-relaxed max-w-[640px] mb-6">{service.brief}</p>
+            <p className="text-[14px] text-neutral-400 leading-relaxed max-w-[640px] mb-6">{service.brief}</p>
             
             {/* Mobile-only parameters (displayed statically, vertical stream) */}
-            <div className="block md:hidden space-y-4 border-t border-zinc-100 pt-5 mt-5">
+            <div className="block md:hidden space-y-4 border-t border-neutral-800 pt-5 mt-5">
               {service.details.map((detail, idx) => (
                 <div key={idx} className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-medium tracking-wider uppercase text-gray-400">
+                  <span className="text-[10px] font-medium tracking-wider uppercase text-neutral-500">
                     {detail.label}
                   </span>
                   <span className={`text-[13px] leading-relaxed ${
-                    detail.label.toLowerCase().includes('срок') ? 'font-semibold text-zinc-900' : 'text-zinc-600'
+                    detail.label.toLowerCase().includes('срок') ? 'font-semibold text-white' : 'text-neutral-400'
                   }`}>
                     {detail.value}
                   </span>
@@ -1564,13 +1565,13 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
           </div>
 
           {/* Action Buttons (always visible at bottom of left column) */}
-          <div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-zinc-100">
+          <div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-neutral-800">
             <button
               onClick={onToggleCalc}
               className={`text-xs font-semibold py-2.5 px-5 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer ${
                 isCalcOpen
-                  ? 'bg-zinc-200 text-zinc-800 hover:bg-zinc-300'
-                  : 'bg-zinc-900 text-white hover:bg-zinc-800'
+                  ? 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+                  : 'bg-[#FF5B23] text-white hover:bg-[#e04f1e]'
               }`}
             >
               {isCalcOpen 
@@ -1579,7 +1580,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
             </button>
             <button
               onClick={() => window.open('https://t.me/ksen_web', '_blank')}
-              className="border border-zinc-200 text-zinc-900 hover:bg-zinc-50 text-xs font-semibold py-2.5 px-5 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
+              className="border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-xs font-semibold py-2.5 px-5 rounded-sm hover:-translate-y-[0.5px] cursor-pointer"
             >
               Рассказать о задаче
             </button>
@@ -1596,14 +1597,14 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
 
           {/* Layer 2: Text Parameters (revealed on hover) */}
           <div className="absolute inset-0 w-full h-full flex flex-col justify-center transition-all duration-500 opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100">
-            <div className="bg-zinc-50/50 border border-zinc-100 rounded-md p-5 h-full flex flex-col justify-center space-y-4">
+            <div className="bg-[#1E1E1E]/50 border border-neutral-800 rounded-md p-5 h-full flex flex-col justify-center space-y-4">
               {service.details.map((detail, idx) => (
                 <div key={idx} className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-medium tracking-wider uppercase text-gray-400">
+                  <span className="text-[10px] font-medium tracking-wider uppercase text-neutral-500">
                     {detail.label}
                   </span>
                   <span className={`text-[13px] leading-relaxed ${
-                    detail.label.toLowerCase().includes('срок') ? 'font-semibold text-zinc-900' : 'text-zinc-600'
+                    detail.label.toLowerCase().includes('срок') ? 'font-semibold text-white' : 'text-neutral-400'
                   }`}>
                     {detail.value}
                   </span>
@@ -1618,7 +1619,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
       {/* Smoothly Expanding Calculator Panel */}
       <div
         className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isCalcOpen ? 'max-h-[1500px] opacity-100 mt-6 pt-6 border-t border-zinc-100' : 'max-h-0 opacity-0 pointer-events-none'
+          isCalcOpen ? 'max-h-[1500px] opacity-100 mt-6 pt-6 border-t border-neutral-800' : 'max-h-0 opacity-0 pointer-events-none'
         }`}
       >
         <Calculator service={service} onSendSuccess={onSendSuccess} isCalcOpen={isCalcOpen} />
@@ -1652,15 +1653,23 @@ export default function Services() {
   }, []);
 
   return (
-    <section id="services" className="py-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100">
-      <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-black mb-6">
+    <section id="services" className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-neutral-800 bg-[#111111]">
+      {/* Background Coordinate Lines */}
+      <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
+        <div className="border-l border-neutral-800/60 h-full" />
+        <div className="border-l border-neutral-800/60 h-full" />
+        <div className="border-l border-neutral-800/60 h-full" />
+        <div className="border-l border-neutral-800/60 h-full" />
+      </div>
+      <div className="relative z-10">
+      <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-6">
         {contentData.services.title}
       </h2>
-      <p className="text-[15px] text-zinc-500 max-w-[640px] mb-12">
+      <p className="text-[15px] text-neutral-400 max-w-[640px] mb-12">
         {contentData.services.subtitle}
       </p>
 
-      <div className="flex flex-col gap-6">
+      <div className="relative z-10 flex flex-col gap-6">
         {services.map((service) => (
           <ServiceCard 
             key={service.number} 
@@ -1677,14 +1686,16 @@ export default function Services() {
         ))}
       </div>
 
+      </div>
+
       {/* ===== ОКНО УСПЕХА (SUCCESS MODAL) ===== */}
       <div 
-        className={`fixed inset-0 bg-zinc-950/40 backdrop-blur-sm z-[999] flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${
+        className={`fixed inset-0 bg-zinc-950/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${
           isSuccessModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
         <div 
-          className={`bg-white border border-zinc-100 rounded-md p-6 sm:p-8 max-w-[440px] w-full shadow-xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
+          className={`bg-[#1A1A1A] border border-neutral-800 rounded-md p-6 sm:p-8 max-w-[440px] w-full shadow-xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
             isSuccessModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
           }`}
         >
@@ -1694,37 +1705,37 @@ export default function Services() {
               setIsSuccessModalOpen(false);
               setSuccessModalContent(null);
             }}
-            className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-900 transition-colors cursor-pointer"
+            className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors cursor-pointer"
             aria-label="Закрыть"
           >
             <X className="w-5 h-5" />
           </button>
 
           {/* Иконка успеха */}
-          <div className="w-16 h-16 rounded-sm bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+          <div className="w-16 h-16 rounded-sm bg-emerald-950/30 border border-emerald-900/50 flex items-center justify-center text-emerald-600">
             <CheckCircle2 className="w-8 h-8" strokeWidth={1.5} />
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-zinc-950 mb-2">Заявка успешно отправлена!</h3>
+            <h3 className="text-lg font-bold text-white mb-2">Заявка успешно отправлена!</h3>
             <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed">
               {successModalContent || 'Спасибо! Расчет стоимости или запрос на консультацию получен. Я свяжусь с вами в ближайшее время для обсуждения деталей.'}
             </p>
           </div>
 
-          <div className="w-full bg-zinc-50 border border-zinc-100 rounded-md p-4 flex flex-col gap-3.5">
+          <div className="w-full bg-[#1A1A1A] border border-neutral-800 rounded-md p-4 flex flex-col gap-3.5">
             <div className="flex flex-col items-center">
-              <span className="text-[10px] uppercase tracking-wider text-gray-400 font-medium mb-1">Позвонить напрямую</span>
-              <a href={`tel:${contentData.contacts.phone}`} className="text-sm sm:text-base font-bold text-zinc-950 hover:underline">
+              <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-medium mb-1">Позвонить напрямую</span>
+              <a href={`tel:${contentData.contacts.phone}`} className="text-sm sm:text-base font-bold text-white hover:underline">
                 {contentData.contacts.phone}
               </a>
             </div>
-            <div className="border-t border-zinc-200/50 w-full"></div>
+            <div className="border-t border-neutral-850 w-full"></div>
             <a
               href={contentData.contacts.buttons.telegram.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 bg-zinc-900 text-white font-semibold py-3 px-5 rounded-sm cursor-pointer w-full hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-[0.5px] text-xs sm:text-sm"
+              className="flex items-center justify-center gap-2 bg-[#FF5B23] text-white font-semibold py-3 px-5 rounded-sm cursor-pointer w-full hover:bg-[#e04f1e] transition-all duration-200 hover:-translate-y-[0.5px] text-xs sm:text-sm"
             >
               <Send className="w-4 h-4" />
               <span>Написать в Telegram напрямую</span>

@@ -13,10 +13,18 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="min-h-screen flex flex-col justify-center pt-24 pb-16 lg:pb-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100"
+      className="relative min-h-screen flex flex-col justify-center pt-24 pb-16 lg:pb-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100 bg-white"
     >
+      {/* Background Coordinate Lines */}
+      <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
+        <div className="border-l border-neutral-200/30 h-full" />
+        <div className="border-l border-neutral-200/30 h-full" />
+        <div className="border-l border-neutral-200/30 h-full" />
+        <div className="border-l border-neutral-200/30 h-full" />
+      </div>
+
       {/* Two-column magazine layout */}
-      <div className="w-full grid grid-cols-1 md:grid-cols-5 gap-10 md:gap-12 items-start pt-4 md:pt-8">
+      <div className="relative z-10 w-full grid grid-cols-1 md:grid-cols-5 gap-10 md:gap-12 items-start pt-4 md:pt-8">
 
         {/* ── Left column: monumental heading only ── */}
         <div className="md:col-span-3">
@@ -45,14 +53,14 @@ export default function Hero() {
             <a
               href={`#${contentData.hero.buttons.primary.targetId}`}
               onClick={(e) => handleScrollTo(e, contentData.hero.buttons.primary.targetId)}
-              className="inline-flex items-center justify-center bg-zinc-900 text-white font-medium py-3 px-6 rounded-sm hover:bg-zinc-800 transition-all duration-200 text-sm w-full sm:w-auto tracking-tight"
+              className="inline-flex items-center justify-center bg-[#FF5B23] text-white font-medium py-3 px-6 rounded-sm hover:bg-[#e04f1e] transition-all duration-200 text-sm w-full sm:w-auto tracking-tight"
             >
               {contentData.hero.buttons.primary.text}
             </a>
             <a
               href={`#${contentData.hero.buttons.secondary.targetId}`}
               onClick={(e) => handleScrollTo(e, contentData.hero.buttons.secondary.targetId)}
-              className="inline-flex items-center justify-center bg-white text-zinc-900 border border-zinc-200/60 font-medium py-3 px-6 rounded-sm hover:bg-zinc-50 transition-all duration-200 text-sm w-full sm:w-auto tracking-tight"
+              className="inline-flex items-center justify-center bg-white text-zinc-900 border border-[#FF5B23]/70 hover:border-[#FF5B23] font-medium py-3 px-6 rounded-sm hover:bg-[#FF5B23]/5 transition-colors duration-200 text-sm w-full sm:w-auto tracking-tight"
             >
               {contentData.hero.buttons.secondary.text}
             </a>

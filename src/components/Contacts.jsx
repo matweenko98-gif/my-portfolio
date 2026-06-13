@@ -56,18 +56,26 @@ export default function Contacts() {
     return (
     <section
       id="contacts"
-      className="contact-section min-h-screen h-screen flex flex-col justify-center px-6 md:px-12 lg:px-16 border-t border-zinc-100 bg-white overflow-hidden"
+      className="relative contact-section min-h-screen h-screen flex flex-col justify-center px-6 md:px-12 lg:px-16 border-t border-neutral-800 bg-[#111111] overflow-hidden"
     >
-      <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 xl:gap-16 items-start">
+      {/* Background Coordinate Lines */}
+      <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
+        <div className="border-l border-neutral-800/60 h-full" />
+        <div className="border-l border-neutral-800/60 h-full" />
+        <div className="border-l border-neutral-800/60 h-full" />
+        <div className="border-l border-neutral-800/60 h-full" />
+      </div>
+      <div className="relative z-10 w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 xl:gap-16 items-start">
         {/* Left: choice */}
         <div className="flex flex-col min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-3">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-3">
             Шаг 1 · Выберите задачу
           </p>
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-black mb-2 leading-tight">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-2 leading-tight">
             {contacts.title}
           </h2>
-          <p className="text-[14px] sm:text-[15px] text-zinc-500 leading-relaxed mb-6 max-w-md">
+          <p className="text-[14px] sm:text-[15px] text-neutral-450 leading-relaxed mb-6 max-w-md">
             {contacts.subtitle}
           </p>
 
@@ -81,8 +89,8 @@ export default function Contacts() {
                   onClick={() => setActiveIntentId(intent.id)}
                   className={`px-3.5 py-2 text-[13px] font-medium rounded-sm border transition-all duration-200 ${
                     isActive
-                      ? 'bg-zinc-900 text-white border-zinc-900 shadow-sm'
-                      : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:text-zinc-900'
+                      ? 'bg-[#E0FB4A] text-[#111111] border-[#E0FB4A] shadow-sm font-semibold'
+                      : 'bg-transparent text-neutral-400 border-neutral-800 hover:border-neutral-700 hover:text-white'
                   }`}
                 >
                   {intent.label}
@@ -93,7 +101,7 @@ export default function Contacts() {
 
           <ul className="flex flex-col gap-2.5 mb-6">
             {contacts.trustPoints.map((point) => (
-              <li key={point} className="flex items-center gap-2 text-[13px] text-zinc-500">
+              <li key={point} className="flex items-center gap-2 text-[13px] text-neutral-450">
                 <Check className="w-4 h-4 text-emerald-500 shrink-0" strokeWidth={2.5} />
                 <span>{point}</span>
               </li>
@@ -104,18 +112,18 @@ export default function Contacts() {
         {/* Right: result card */}
         <div
           key={activeIntent.id}
-          className="flex flex-col bg-gradient-to-b from-white to-zinc-50/30 border border-zinc-200/40 rounded-md p-5 sm:p-6 animate-fadeIn"
+          className="flex flex-col bg-[#1A1A1A] border border-neutral-800 rounded-md p-5 sm:p-6 animate-fadeIn"
         >
-          <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-4">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-4">
             Шаг 2 · Отправьте сообщение
           </p>
 
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-zinc-700 bg-zinc-100 px-2.5 py-1 rounded-sm">
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-white bg-neutral-800 border border-neutral-750 px-2.5 py-1 rounded-sm">
               <Clock className="w-3.5 h-3.5" />
               {activeIntent.timeline}
             </span>
-            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-zinc-700 bg-zinc-100 px-2.5 py-1 rounded-sm">
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-white bg-neutral-800 border border-neutral-750 px-2.5 py-1 rounded-sm">
               <Shield className="w-3.5 h-3.5" />
               {activeIntent.priceHint}
             </span>
@@ -123,8 +131,8 @@ export default function Contacts() {
 
           <ul className="flex flex-col gap-2 mb-5">
             {activeIntent.benefits.map((benefit) => (
-              <li key={benefit} className="flex items-start gap-2 text-[13px] text-zinc-600 leading-snug">
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 mt-1.5 shrink-0" />
+              <li key={benefit} className="flex items-start gap-2 text-[13px] text-neutral-350 leading-snug">
+                <span className="w-1.5 h-1.5 rounded-full bg-neutral-600 mt-1.5 shrink-0" />
                 <span>{benefit}</span>
               </li>
             ))}
@@ -132,11 +140,11 @@ export default function Contacts() {
 
           <div className="mb-5">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[12px] font-semibold text-zinc-500">Готовый текст сообщения</span>
+              <span className="text-[12px] font-semibold text-neutral-450">Готовый текст сообщения</span>
               <button
                 type="button"
                 onClick={handleCopyMessage}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 transition-colors"
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-450 hover:text-white transition-colors"
               >
                 {copied ? (
                   <>
@@ -151,7 +159,7 @@ export default function Contacts() {
                 )}
               </button>
             </div>
-            <div className="bg-white border border-zinc-200 rounded-sm px-4 py-3 text-[13px] text-zinc-700 leading-relaxed">
+            <div className="bg-neutral-900 border border-neutral-850 rounded-sm px-4 py-3 text-[13px] text-neutral-300 leading-relaxed">
               {message}
             </div>
           </div>
@@ -161,7 +169,7 @@ export default function Contacts() {
               href={telegramHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-zinc-900 text-white font-semibold py-3 px-5 rounded-sm hover:bg-zinc-800 transition-all duration-200 hover:-translate-y-[1px] text-sm"
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-black hover:bg-neutral-100 font-semibold py-3 px-5 rounded-sm transition-all duration-200 hover:-translate-y-[1px] text-sm border border-neutral-800"
             >
               <Send className="w-4 h-4 shrink-0" />
               <span>{contacts.messengers.telegram.text}</span>
@@ -171,7 +179,7 @@ export default function Contacts() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleMaxClick}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-[#5B4FE8] text-white font-semibold py-3 px-5 rounded-sm hover:bg-[#4a3fd6] transition-all duration-200 hover:-translate-y-[1px] text-sm"
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-black hover:bg-neutral-100 font-semibold py-3 px-5 rounded-sm transition-all duration-200 hover:-translate-y-[1px] text-sm border border-neutral-800"
             >
               <MessageCircle className="w-4 h-4 shrink-0" />
               <span>{contacts.messengers.max.text}</span>
@@ -179,13 +187,14 @@ export default function Contacts() {
           </div>
 
           {maxOpensDirectChat && (
-            <p className="text-[11px] text-zinc-400 text-center mb-2">
+            <p className="text-[11px] text-neutral-500 text-center mb-2">
               Текст сообщения скопируется автоматически — вставьте его в чат MAX
             </p>
           )}
 
           
         </div>
+      </div>
       </div>
     </section>
   );

@@ -51,25 +51,25 @@ export default function ProjectCart({
   return (
     <div
       ref={cartRef}
-      className={`project-cart flex flex-col h-full rounded-md border border-zinc-200/30 bg-zinc-50/80 overflow-hidden transition-transform duration-300 ${bump ? 'project-cart--bump' : ''
+      className={`project-cart flex flex-col h-full rounded-md border border-neutral-800 bg-[#1A1A1A] overflow-hidden transition-transform duration-300 ${bump ? 'project-cart--bump' : ''
         }`}
     >
       <div className="px-4 pt-4 pb-2 shrink-0">
-        <p className="text-[12px] text-zinc-500 leading-relaxed">{hintText}</p>
+        <p className="text-[12px] text-neutral-450 leading-relaxed">{hintText}</p>
       </div>
 
       <div className="flex-1 relative flex items-center justify-center px-6 min-h-0">
         {showArrowHint && filledCount < totalCount && (
-          <div className="project-cart-hint absolute bottom-2 left-4 flex items-center gap-1.5 text-[10px] font-semibold text-zinc-400">
+          <div className="project-cart-hint absolute bottom-2 left-4 flex items-center gap-1.5 text-[10px] font-semibold text-neutral-500">
             <span className="inline-block animate-pulse">←</span>
             <span>Выберите опцию</span>
           </div>
         )}
 
         <div ref={cartIconRef} className="relative flex items-center justify-center mt-6">
-          <ShoppingBag className="w-24 h-24 sm:w-[6.5rem] sm:h-[6.5rem] text-zinc-800 transition-all duration-300" strokeWidth={1.0} />
+          <ShoppingBag className="w-24 h-24 sm:w-[6.5rem] sm:h-[6.5rem] text-neutral-400 transition-all duration-300" strokeWidth={1.0} />
           <span
-            className={`absolute -top-1 -right-3 min-w-[26px] h-[26px] px-1.5 flex items-center justify-center rounded-full bg-zinc-900 text-white text-[11px] font-bold shadow-md transition-transform duration-300 ${badgeBump ? 'project-cart-badge-bump' : ''
+            className={`absolute -top-1 -right-3 min-w-[26px] h-[26px] px-1.5 flex items-center justify-center rounded-full bg-[#E0FB4A] text-[#111111] text-[11px] font-extrabold shadow-md transition-transform duration-300 ${badgeBump ? 'project-cart-badge-bump' : ''
               }`}
           >
             {filledCount}
@@ -89,32 +89,32 @@ export default function ProjectCart({
               ref={(el) => registerSlotRef?.(item.id, el)}
               className={`flex-1 flex items-center justify-center gap-1.5 min-h-[40px] rounded-sm border transition-all duration-300 ${isCollected
                   ? isHighlighted
-                    ? 'bg-white border-zinc-400 shadow-sm scale-[1.03]'
-                    : 'bg-white border-zinc-200/90 shadow-sm'
-                  : 'border-dashed border-zinc-200/80 bg-white/30'
+                    ? 'bg-neutral-900 border-[#E0FB4A] shadow-sm scale-[1.03]'
+                    : 'bg-[#1A1A1A] border-neutral-700 shadow-sm'
+                  : 'border-dashed border-neutral-800 bg-neutral-900/20'
                 }`}
             >
               {isCollected ? (
                 <>
-                  <span className="w-5 h-5 rounded-sm bg-zinc-100 border border-zinc-200 flex items-center justify-center text-[10px] font-bold text-zinc-700 shrink-0">
+                  <span className="w-5 h-5 rounded-sm bg-neutral-800 border border-neutral-750 flex items-center justify-center text-[10px] font-bold text-neutral-300 shrink-0">
                     {item.step}
                   </span>
-                  {Icon && <Icon className="w-4 h-4 text-zinc-600 shrink-0" strokeWidth={1.5} />}
+                  {Icon && <Icon className="w-4 h-4 text-neutral-450 shrink-0" strokeWidth={1.5} />}
                 </>
               ) : (
-                <span className="text-[10px] font-medium text-zinc-300">{item.step}</span>
+                <span className="text-[10px] font-medium text-neutral-600">{item.step}</span>
               )}
             </div>
           );
         })}
       </div>
 
-      <div className="border-t border-zinc-200/30 bg-white px-4 py-3.5 shrink-0">
-        <div className="flex items-center gap-2 text-[12px] text-zinc-500 mb-2">
+      <div className="border-t border-neutral-850 bg-[#1e1e1e]/40 px-4 py-3.5 shrink-0">
+        <div className="flex items-center gap-2 text-[12px] text-neutral-450 mb-2">
           <Clock className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
           <span>
             Срок:{' '}
-            <span className="font-semibold text-zinc-800">
+            <span className="font-semibold text-white">
               {isComplete ? `от ${days} ${getDaysWord(days)}` : '—'}
             </span>
           </span>
@@ -123,8 +123,8 @@ export default function ProjectCart({
           className={`flex items-baseline justify-between gap-2 transition-transform duration-300 ${priceBump ? 'project-cart-price-bump' : ''
             }`}
         >
-          <span className="text-[12px] font-medium text-zinc-500">Итого</span>
-          <span className="text-base font-bold text-zinc-900 tracking-tight">
+          <span className="text-[12px] font-medium text-neutral-450">Итого</span>
+          <span className="text-base font-bold text-[#E0FB4A] tracking-tight">
             {isComplete ? `от ${formatPrice(price)} ₽` : '—'}
           </span>
         </div>

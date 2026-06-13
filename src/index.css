@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-accent-button: #FF5B23;
+  --color-accent-graphic: #E0FB4A;
+  --color-bg-light: #FFFFFF;
+  --color-bg-dark: #111111;
+  --color-text-main: #111111;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

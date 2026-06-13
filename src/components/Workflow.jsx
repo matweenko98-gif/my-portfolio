@@ -65,24 +65,32 @@ export default function Workflow() {
   };
 
   return (
-    <section id="workflow" className="py-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100 w-full overflow-hidden">
+    <section id="workflow" className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-neutral-800 bg-[#111111] w-full overflow-hidden">
+      {/* Background Coordinate Lines */}
+      <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
+        <div className="border-l border-neutral-800/60 h-full" />
+        <div className="border-l border-neutral-800/60 h-full" />
+        <div className="border-l border-neutral-800/60 h-full" />
+        <div className="border-l border-neutral-800/60 h-full" />
+      </div>
+      <div className="relative z-10">
       {/* Title & Subtitle */}
       <div className="mb-10">
-        <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-black mb-2">
+        <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-2">
           {workflowContent.title}
         </h2>
-        <p className="text-[14px] text-zinc-500 max-w-[600px] leading-relaxed">
+        <p className="text-[14px] text-neutral-400 max-w-[600px] leading-relaxed">
           {workflowContent.subtitle}
         </p>
       </div>
 
       {/* Tabs Switcher Panel in minimalist premium Apple style */}
-      <div className="flex p-1 bg-zinc-100/80 rounded-md border border-zinc-200/30 w-full mb-12">
+      <div className="flex p-1 bg-neutral-900/50 rounded-md border border-neutral-850 w-full mb-12">
         <button
           onClick={() => setActiveTab('websites')}
           className={`flex-1 py-3 px-4 text-[13px] font-medium transition-all duration-300 rounded-sm font-sans ${activeTab === "websites"
-              ? 'bg-zinc-900 text-white shadow-sm'
-              : 'text-zinc-600 hover:text-zinc-900'
+              ? 'bg-[#E0FB4A] text-[#111111] shadow-sm font-semibold'
+              : 'text-neutral-400 hover:text-white'
             }`}
         >
           {workflowContent.tabs.websites}
@@ -90,8 +98,8 @@ export default function Workflow() {
         <button
           onClick={() => setActiveTab('aiApps')}
           className={`flex-1 py-3 px-4 text-[13px] font-medium transition-all duration-300 rounded-sm font-sans ${activeTab === "aiApps"
-              ? 'bg-zinc-900 text-white shadow-sm'
-              : 'text-zinc-600 hover:text-zinc-900'
+              ? 'bg-[#E0FB4A] text-[#111111] shadow-sm font-semibold'
+              : 'text-neutral-400 hover:text-white'
             }`}
         >
           {workflowContent.tabs.aiApps}
@@ -136,31 +144,31 @@ export default function Workflow() {
             return (
               <div
                 key={idx}
-                className="group bg-zinc-50/80 border border-zinc-100/50 rounded-md p-6 flex flex-col justify-between transition-all duration-300 lg:hover:-translate-y-1 lg:hover:bg-white lg:hover:shadow-md lg:hover:border-zinc-200/80 w-[290px] min-w-[290px] lg:w-[320px] lg:min-w-[320px] h-[270px] lg:h-[285px] shrink-0 snap-align-start lg:snap-align-none relative animate-fadeIn"
+                className="group bg-[#1A1A1A] border border-neutral-800 rounded-md p-6 flex flex-col justify-between transition-all duration-300 lg:hover:-translate-y-1 lg:hover:bg-neutral-900/60 lg:hover:border-neutral-700 w-[290px] min-w-[290px] lg:w-[320px] lg:min-w-[320px] h-[270px] lg:h-[285px] shrink-0 snap-align-start lg:snap-align-none relative animate-fadeIn"
                 style={{ animationDelay: `${idx * 60}ms` }}
               >
                 {/* Top Progress Line */}
-                <div className="w-full h-[3px] bg-zinc-200/60 rounded-full transition-colors duration-300 lg:group-hover:bg-zinc-900" />
+                <div className="w-full h-[3px] bg-neutral-800 rounded-full transition-colors duration-300 lg:group-hover:bg-[#E0FB4A]" />
 
                 {/* Card Header */}
                 <div className="flex justify-between items-center w-full mt-4">
-                  <span className="text-[10px] font-medium tracking-wider text-gray-400 uppercase transition-colors duration-300 lg:group-hover:text-black">
+                  <span className="text-[10px] font-bold tracking-wider text-[#E0FB4A] uppercase">
                     [ ЭТАП {step.number} ]
                   </span>
                 </div>
 
                 {/* Title & Description Body */}
                 <div className="flex-1 flex flex-col justify-start mt-3">
-                  <h3 className="text-[16px] font-light tracking-tight text-black mb-1.5 leading-snug">
+                  <h3 className="text-[16px] font-light tracking-tight text-white mb-1.5 leading-snug">
                     {step.title}
                   </h3>
-                  <p className="text-[12.5px] text-zinc-500 leading-relaxed line-clamp-3 lg:line-clamp-4">
+                  <p className="text-[12.5px] text-neutral-400 leading-relaxed line-clamp-3 lg:line-clamp-4">
                     {step.desc}
                   </p>
                 </div>
 
                 {/* Result Badge */}
-                <div className="mt-auto py-1 px-2.5 bg-zinc-50 border border-zinc-200/20 rounded-sm text-[10px] tracking-wider uppercase font-medium text-gray-400 self-start select-none whitespace-nowrap">
+                <div className="mt-auto py-1 px-2.5 bg-neutral-900 border border-neutral-800 rounded-sm text-[10px] tracking-wider uppercase font-medium text-neutral-400 self-start select-none whitespace-nowrap">
                   {stepResult}
                 </div>
               </div>
@@ -170,51 +178,52 @@ export default function Workflow() {
       </div>
 
       {/* Standards Section */}
-      <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-black mb-10">
+      <h2 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-10">
         {contentData.workflow.standardsTitle}
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4">
         {standards.map((std, idx) => {
           const IconComponent = iconMap[std.iconName] || Sparkles;
           return (
             <div
               key={idx}
-              className="group border border-zinc-100 rounded-md p-6 bg-white flex flex-col gap-4 transition-all duration-500 ease-in-out will-change-transform lg:hover:-translate-y-1 lg:hover:shadow-md lg:hover:border-zinc-200/80 lg:hover:bg-gradient-to-b lg:hover:from-white lg:hover:to-zinc-50/80 lg:min-h-[240px] lg:h-[240px] lg:p-8 lg:gap-0 lg:justify-between relative"
+              className="group border border-neutral-800 rounded-md p-6 bg-[#1A1A1A] flex flex-col gap-4 transition-all duration-500 ease-in-out will-change-transform lg:hover:-translate-y-1 lg:hover:shadow-lg lg:hover:border-neutral-700 lg:hover:bg-neutral-900/60 lg:min-h-[240px] lg:h-[240px] lg:p-8 lg:gap-0 lg:justify-between relative"
             >
               {/* Background Number Watermark */}
-              <div className="absolute top-6 right-8 text-6xl font-bold opacity-[0.06] select-none text-zinc-900 pointer-events-none">
+              <div className="absolute top-6 right-8 text-6xl font-bold opacity-[0.03] select-none text-white pointer-events-none">
                 0{idx + 1}
               </div>
 
               {/* Icon Container */}
-              <div className="inline-flex items-center justify-center bg-zinc-50 border border-zinc-100/50 rounded-sm transition-all duration-500 ease-in-out w-10 h-10 lg:w-12 lg:h-12 lg:group-hover:bg-white lg:group-hover:border-zinc-200/80 shrink-0">
-                <IconComponent className="w-5 h-5 lg:w-6 lg:h-6 text-zinc-900 transition-colors duration-500" />
+              <div className="inline-flex items-center justify-center bg-neutral-900 border border-neutral-800 rounded-sm transition-all duration-500 ease-in-out w-10 h-10 lg:w-12 lg:h-12 lg:group-hover:bg-[#1A1A1A] lg:group-hover:border-neutral-700 shrink-0">
+                <IconComponent className="w-5 h-5 lg:w-6 lg:h-6 text-white transition-colors duration-500" />
               </div>
 
               {/* Bottom Text Block */}
               <div className="flex flex-col w-full mt-4 lg:mt-0">
                 {/* Divider Line */}
-                <hr className="border-zinc-100 w-full mb-4 opacity-60" />
+                <hr className="border-neutral-800 w-full mb-4 opacity-60" />
 
                 {/* Title + Plus Flex Line */}
                 <div className="flex justify-between items-center w-full mb-1">
-                  <h3 className="text-xl md:text-2xl font-light tracking-tight text-black leading-tight">
+                  <h3 className="text-xl md:text-2xl font-light tracking-tight text-white leading-tight">
                     {std.title}
                   </h3>
-                  <span className="text-zinc-400 opacity-60 text-lg transition-transform duration-500 ease-in-out lg:group-hover:rotate-45 shrink-0 ml-2 select-none">
+                  <span className="text-neutral-500 opacity-80 text-lg transition-transform duration-500 ease-in-out lg:group-hover:rotate-45 shrink-0 ml-2 select-none">
                     +
                   </span>
                 </div>
 
                 {/* Description Paragraph */}
-                <p className="text-[13px] text-zinc-500 leading-relaxed transition-all duration-500 ease-in-out lg:max-h-0 lg:opacity-0 lg:overflow-hidden lg:group-hover:max-h-[120px] lg:group-hover:opacity-100 lg:group-hover:mt-2">
+                <p className="text-[13px] text-neutral-450 leading-relaxed transition-all duration-500 ease-in-out lg:max-h-0 lg:opacity-0 lg:overflow-hidden lg:group-hover:max-h-[120px] lg:group-hover:opacity-100 lg:group-hover:mt-2">
                   {std.desc}
                 </p>
               </div>
             </div>
           );
         })}
+      </div>
       </div>
     </section>
   );

@@ -144,7 +144,15 @@ export default function Reviews() {
       className="relative border-b border-zinc-100 bg-white"
       style={{ height: '180vh' }}
     >
-      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden py-12 px-6 md:px-12 lg:px-16">
+      {/* Background Coordinate Lines */}
+      <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
+        <div className="border-l border-neutral-200/30 h-full" />
+        <div className="border-l border-neutral-200/30 h-full" />
+        <div className="border-l border-neutral-200/30 h-full" />
+        <div className="border-l border-neutral-200/30 h-full" />
+      </div>
+
+      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden py-12 px-6 md:px-12 lg:px-16 relative z-10">
         <div className="max-w-3xl mb-8 select-none">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tighter text-black mb-2 md:whitespace-nowrap">
             {reviewsData.title}
