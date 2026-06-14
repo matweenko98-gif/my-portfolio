@@ -6,6 +6,10 @@
  * При редактировании обязательно сохраняйте синтаксис JavaScript (кавычки, запятые и скобки).
  */
 import avatarImg from '../images.svg/avatar.jpg';
+import case1Img from '../images.svg/keis.png/1 med.png.png';
+import case2Img from '../images.svg/keis.png/2 lager.png.png';
+import case3Img from '../images.svg/keis.png/3 market.png.png';
+import case4Img from '../images.svg/keis.png/4 tartaletka.png.png';
 
 const contentData = {
   // Данные для Sidebar (левая фиксированная панель)
@@ -245,29 +249,30 @@ const contentData = {
       {
         name: "Веб-приложение для медицинского центра",
         tags: ["UX/UI", "Next.js", "Медицина"],
-        imageMain: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80",
-        imageHover: "https://images.unsplash.com/photo-1504813184591-015578c77e5f?auto=format&fit=crop&w=800&q=80",
-        link: "#"
+        imageMain: case1Img,
+        imageHover: case1Img,
+        link: "#",
+        inDevelopment: true
       },
       {
         name: "Многостраничный сайт для детского лагеря Oasis Camp",
         tags: ["Tilda", "Дизайн", "Анимация"],
-        imageMain: "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=800&q=80",
-        imageHover: "https://images.unsplash.com/photo-1532347922424-c652d9b7208e?auto=format&fit=crop&w=800&q=80",
+        imageMain: case2Img,
+        imageHover: case2Img,
         link: "#"
       },
       {
         name: "Корпоративный сайт для агентства EMSOFT",
         tags: ["UX/UI", "Webflow", "Разработка"],
-        imageMain: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80",
-        imageHover: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+        imageMain: case3Img,
+        imageHover: case3Img,
         link: "#"
       },
       {
         name: "Landing для продажи онлайн-книги «Мир тарталеток»",
         tags: ["Tilda", "Маркетинг", "E-commerce"],
-        imageMain: "https://images.unsplash.com/photo-1519869325930-281384150729?auto=format&fit=crop&w=800&q=80",
-        imageHover: "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=800&q=80",
+        imageMain: case4Img,
+        imageHover: case4Img,
         link: "#"
       }
     ]
@@ -473,7 +478,7 @@ const contentData = {
   contacts: {
     title: "Давайте обсудим ваш проект",
     subtitle: "Выберите задачу — подготовлю текст сообщения, вам останется только отправить его в мессенджер.",
-    phone: "+7 (999) 000-00-00",
+    phone: "+375 25 914 09 59",
     trustPoints: [
       "Отвечаю в течение 1 рабочего дня",
       "Первичный анализ — бесплатно",

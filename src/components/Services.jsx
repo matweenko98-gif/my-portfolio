@@ -1635,7 +1635,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
       {/* Smoothly Expanding Calculator Panel */}
       <div
         className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isCalcOpen ? 'max-h-[1500px] opacity-100 mt-6 pt-6 border-t border-neutral-800' : 'max-h-0 opacity-0 pointer-events-none'
+          isCalcOpen ? 'max-h-[2500px] opacity-100 mt-6 pt-6 border-t border-neutral-800' : 'max-h-0 opacity-0 pointer-events-none'
         }`}
       >
         <Calculator service={service} onSendSuccess={onSendSuccess} isCalcOpen={isCalcOpen} />

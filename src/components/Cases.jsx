@@ -27,6 +27,46 @@ export default function Cases() {
     }
   };
 
+  const overlayVariants = {
+    hidden: { 
+      opacity: 0,
+      backdropFilter: "blur(0px)",
+      WebkitBackdropFilter: "blur(0px)"
+    },
+    visible: { 
+      opacity: 0,
+      backdropFilter: "blur(0px)",
+      WebkitBackdropFilter: "blur(0px)",
+      transition: {
+        duration: 0.4,
+        ease: "easeInOut"
+      }
+    },
+    hover: { 
+      opacity: 1,
+      backdropFilter: "blur(3px)",
+      WebkitBackdropFilter: "blur(3px)",
+      transition: {
+        duration: 0.6,
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  const textVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 0, scale: 0.95 },
+    hover: { 
+      opacity: 1, 
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        delay: 0.1,
+        ease: "easeOut"
+      }
+    }
+  };
+
   return (
     <motion.section
       id="cases"
@@ -70,7 +110,8 @@ export default function Cases() {
               <motion.article
                 key={idx}
                 variants={cardVariants}
-                className="bg-gray-50/40 border border-neutral-200/80 rounded-sm p-3 flex flex-col justify-between group cursor-pointer transition-all duration-500 ease-out hover:bg-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)]"
+                whileHover="hover"
+                className="bg-gray-50/40 border border-neutral-200/80 rounded-sm p-3 flex flex-col justify-between group cursor-pointer transition-all duration-500 ease-out hover:bg-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)] relative overflow-hidden"
               >
                 <div>
                   {/* Внутренний таб-индекс */}
@@ -88,23 +129,31 @@ export default function Cases() {
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
 
-                    {/* Слой 3: Стеклянные баджи (Видимы всегда, в нижнем левом углу) */}
+                    {/* Временная заглушка "В разработке" при наведении */}
+                    {project.inDevelopment && (
+                      <motion.div
+                        variants={overlayVariants}
+                        className="absolute inset-0 bg-zinc-950/60 pointer-events-none group-hover:pointer-events-auto flex items-center justify-center z-20"
+                      >
+                        <motion.span
+                          variants={textVariants}
+                          className="text-white text-[11px] font-bold tracking-widest uppercase px-3.5 py-2 border border-white/10 bg-zinc-900/90 rounded-sm shadow-md"
+                        >
+                          Кейс в разработке...
+                        </motion.span>
+                      </motion.div>
+                    )}
+
+                    {/* Слой 3: Лаймовые баджи (Видимы всегда, в нижнем левом углу) */}
                     <div className="absolute bottom-3 left-3 flex flex-row flex-wrap gap-1.5 z-10">
-                      {project.tags.map((tag, tIdx) => {
-                        const isFirst = tIdx === 0;
-                        return (
-                          <span
-                            key={tIdx}
-                            className={`backdrop-blur-md text-[10px] px-2.5 py-1 rounded-sm shadow-sm tracking-wide uppercase font-medium ${
-                              isFirst
-                                ? 'bg-[#E0FB4A]/90 border border-[#E0FB4A]/30 text-zinc-950 font-semibold'
-                                : 'bg-white/10 border border-white/20 text-white'
-                            }`}
-                          >
-                            {tag}
-                          </span>
-                        );
-                      })}
+                      {project.tags.map((tag, tIdx) => (
+                        <span
+                          key={tIdx}
+                          className="bg-[#E0FB4A] border border-[#E0FB4A]/30 text-zinc-950 text-[10px] px-2.5 py-1 rounded-sm shadow-sm tracking-wide uppercase font-semibold"
+                        >
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>

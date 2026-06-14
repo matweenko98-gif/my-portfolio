@@ -23,6 +23,7 @@ export default function Contacts() {
   const { contacts } = contentData;
   const [activeIntentId, setActiveIntentId] = useState(contacts.intents[0].id);
   const [copied, setCopied] = useState(false);
+  const [phoneCopied, setPhoneCopied] = useState(false);
 
   const activeIntent = useMemo(
     () => contacts.intents.find((item) => item.id === activeIntentId) ?? contacts.intents[0],
@@ -47,6 +48,28 @@ export default function Contacts() {
       setCopied(false);
     }
   }, [message]);
+
+  const handleCopyPhone = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(contacts.phone);
+      setPhoneCopied(true);
+      setTimeout(() => setPhoneCopied(false), 2000);
+    } catch {
+      try {
+        const tempInput = document.createElement("textarea");
+        tempInput.value = contacts.phone;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        setPhoneCopied(true);
+        setTimeout(() => setPhoneCopied(false), 2000);
+      } catch (e) {
+        setPhoneCopied(true);
+        setTimeout(() => setPhoneCopied(false), 2000);
+      }
+    }
+  }, [contacts.phone]);
 
   const handleMaxClick = useCallback(async () => {
     if (maxOpensDirectChat) {
@@ -74,7 +97,7 @@ export default function Contacts() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 xl:gap-16 items-start">
         {/* Left: choice */}
         <div className="flex flex-col min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-3">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#E0FB4A] mb-3">
             Шаг 1 · Выберите задачу
           </p>
           <div className="overflow-hidden mb-2">
@@ -112,22 +135,47 @@ export default function Contacts() {
             })}
           </div>
 
-          <ul className="flex flex-col gap-2.5 mb-6">
-            {contacts.trustPoints.map((point) => (
-              <li key={point} className="flex items-center gap-2 text-[13px] text-neutral-450">
-                <Check className="w-4 h-4 text-emerald-500 shrink-0" strokeWidth={2.5} />
-                <span>{point}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="mt-14 w-full">
+            <div className="border-t border-white/10 w-full" />
+            <div className="pt-10">
+              <ul className="flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap items-start sm:items-center gap-y-2.5 gap-x-6 lg:gap-x-8 mb-6 lg:w-[180%] lg:max-w-none relative z-0">
+                {contacts.trustPoints.map((point) => (
+                  <li key={point} className="inline-flex items-center gap-2 text-[13px] text-neutral-450 whitespace-nowrap shrink-0">
+                    <Check className="w-4 h-4 text-emerald-500 shrink-0" strokeWidth={2.5} />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Интерактивный номер телефона с логикой копирования */}
+          <div className="mt-24 lg:mt-32 mb-6 flex flex-col items-start relative z-0">
+            <button
+              type="button"
+              onClick={handleCopyPhone}
+              className="text-left bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/phone flex items-start"
+            >
+              <span className="text-3xl sm:text-5xl md:text-7xl lg:text-[90px] xl:text-[100px] font-extralight tracking-tighter text-white group-hover/phone:text-[#E0FB4A] transition-colors duration-300 leading-none select-all whitespace-nowrap">
+                {contacts.phone}
+              </span>
+              <span className="ml-3 sm:ml-4 mt-1 lg:mt-2 shrink-0 text-neutral-500 group-hover/phone:text-white transition-colors duration-300">
+                {phoneCopied ? (
+                  <Check className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-[#E0FB4A]" />
+                ) : (
+                  <Copy className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
+                )}
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Right: result card */}
         <div
           key={activeIntent.id}
-          className="flex flex-col bg-[#1A1A1A] border border-neutral-800 rounded-md p-5 sm:p-6 animate-fadeIn"
+          className="flex flex-col bg-[#282828] border border-neutral-600/60 rounded-md p-5 sm:p-6 animate-fadeIn relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
         >
-          <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-4">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-white mb-4">
             Шаг 2 · Отправьте сообщение
           </p>
 
