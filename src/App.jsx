@@ -15,7 +15,7 @@ export default function App() {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       const sections = contentData.sidebar.navigation.map(item => item.id);
-      
+
       // Calculate which section is currently centered/active in the viewport
       let currentSection = 'hero';
       for (const sectionId of sections) {

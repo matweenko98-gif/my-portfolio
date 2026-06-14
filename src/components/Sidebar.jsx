@@ -76,8 +76,8 @@ export default function Sidebar({ activeSection }) {
                     href={`#${item.id}`}
                     onClick={(e) => handleLinkClick(e, item.id)}
                     className={`block px-0 py-2 xl:py-2.5 text-[13px] xl:text-[14px] transition-colors duration-200 ${isActive
-                        ? 'text-black font-medium'
-                        : 'text-neutral-400 hover:text-black font-normal'
+                      ? 'text-black font-medium'
+                      : 'text-neutral-400 hover:text-black font-normal'
                       }`}
                   >
                     {item.label}
