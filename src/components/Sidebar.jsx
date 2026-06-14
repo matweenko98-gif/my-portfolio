@@ -92,11 +92,16 @@ export default function Sidebar({ activeSection }) {
         <div className="shrink-0 mt-auto border-t border-neutral-100/60 pt-4 sidebar-footer">
           <a
             href={contentData.sidebar.socialLinks.telegram}
-            className="text-[13px] font-normal text-neutral-500 hover:text-black transition-colors whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 group cursor-pointer text-[13px] font-normal text-[#111111] whitespace-nowrap"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Telegram →
+            <span className="border-b border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+              Связь в Telegram
+            </span>
+            <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              ↗
+            </span>
           </a>
         </div>
       </aside>

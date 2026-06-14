@@ -1133,7 +1133,7 @@ function AICalculator({ service }) {
 
   return (
     <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6 w-full">
-      <div className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2">
+      <div id="tariffs-heading" className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
         <span>Тарифы и направления разработки</span>
         <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-lg">
           Срок: Рассчитывается индивидуально
@@ -1142,18 +1142,18 @@ function AICalculator({ service }) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {products.map((p, idx) => (
-          <div key={idx} className="bg-[#1A1A1A] border border-neutral-850 rounded-md p-4 flex flex-col justify-between hover:shadow-sm hover:border-neutral-750 transition-all duration-300">
+          <div key={idx} className="bg-[#1A1A1A] border border-neutral-850 rounded-md p-5 flex flex-col justify-between hover:shadow-sm hover:border-neutral-750 transition-all duration-300">
             <div>
-              <h4 className="text-sm font-bold text-white mb-1">{p.title}</h4>
-              <span className="inline-block text-xs font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1 mb-3">
+              <h4 className="text-base sm:text-lg font-bold text-white mb-1.5">{p.title}</h4>
+              <span className="inline-block text-xs sm:text-sm font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1 mb-3.5">
                 {p.price}
               </span>
-              <p className="text-[11px] sm:text-xs text-neutral-450 leading-relaxed mb-4">{p.desc}</p>
+              <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-5">{p.desc}</p>
             </div>
-            <ul className="space-y-2 border-t border-neutral-850 pt-3">
+            <ul className="space-y-2.5 border-t border-neutral-850 pt-4">
               {p.features.map((f, i) => (
-                <li key={i} className="flex items-start gap-2 text-[10.5px] text-neutral-350 leading-tight">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
+                <li key={i} className="flex items-start gap-2 text-xs sm:text-[13px] text-neutral-300 leading-relaxed">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
                   <span>{f}</span>
                 </li>
               ))}
@@ -1654,19 +1654,30 @@ export default function Services() {
     const handleOpenCalc = (e) => {
       const targetNumber = e.detail?.serviceNumber || '01';
       setActiveCalculator(targetNumber);
-      
-      // Delay scroll to allow the calculator height to expand and DOM to update
-      setTimeout(() => {
-        const target = document.getElementById(`service-card-${targetNumber}`);
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
     };
     
     window.addEventListener('open-calculator', handleOpenCalc);
     return () => window.removeEventListener('open-calculator', handleOpenCalc);
   }, []);
+
+  useEffect(() => {
+    if (activeCalculator) {
+      const timer = setTimeout(() => {
+        if (activeCalculator === '03') {
+          const target = document.getElementById('tariffs-heading');
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        } else {
+          const target = document.getElementById(`service-card-${activeCalculator}`);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [activeCalculator]);
 
   const containerVariants = {
     hidden: { opacity: 1 },
