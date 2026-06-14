@@ -52,7 +52,7 @@ export default function ProjectCart({
   return (
     <div
       ref={cartRef}
-      className={`project-cart flex flex-col h-full rounded-md border ${
+      className={`project-cart flex flex-col h-full rounded-sm border ${
         isLight ? 'border-neutral-200/40 bg-neutral-100 shadow-sm' : 'border-neutral-800 bg-[#1A1A1A]'
       } overflow-hidden transition-transform duration-300 ${bump ? 'project-cart--bump' : ''}`}
     >

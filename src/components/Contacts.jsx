@@ -139,7 +139,7 @@ export default function Contacts() {
                     className={`px-3.5 py-2 text-[13px] font-medium rounded-sm border transition-all duration-200 ${
                       isActive
                         ? 'bg-[#E0FB4A] text-[#111111] border-[#E0FB4A] shadow-sm font-semibold'
-                        : 'bg-transparent text-neutral-400 border-neutral-800 hover:border-neutral-700 hover:text-white'
+                        : 'bg-transparent text-neutral-400 border-neutral-600 hover:border-neutral-750 hover:text-white'
                     }`}
                   >
                     {intent.label}
@@ -187,7 +187,7 @@ export default function Contacts() {
           {/* ── Col RIGHT: Step 2 card — mobile order-2 ── */}
           <div
             key={activeIntent.id}
-            className="flex flex-col bg-[#282828] border border-neutral-600/60 rounded-md p-5 sm:p-6 animate-fadeIn relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.4)] order-2 lg:order-none"
+            className="flex flex-col bg-[#282828] border border-neutral-600/60 rounded-md p-5 sm:p-6 animate-fadeIn relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.4)] order-2 lg:order-none mt-6 lg:mt-0"
           >
             <p className="text-[11px] font-bold uppercase tracking-widest text-white mb-4">
               Шаг 2 · Отправьте сообщение
@@ -284,7 +284,7 @@ export default function Contacts() {
           </div>
 
           {/* ── Mobile only: phone — order-4 ── */}
-          <div className="lg:hidden order-4 flex flex-col items-start pb-2">
+          <div className="lg:hidden order-4 flex flex-col items-start pb-2 mt-8">
             <button
               type="button"
               onClick={handleCopyPhone}

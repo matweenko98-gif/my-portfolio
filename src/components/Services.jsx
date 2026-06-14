@@ -92,7 +92,7 @@ const SegmentedControl = ({ label, options, val, setVal }) => (
   <div className="flex flex-col gap-2">
     <span className="text-white text-[10px] font-medium tracking-wider uppercase">{label}</span>
     <div
-      className="grid gap-1.5 p-1 bg-neutral-900/50 rounded-md border border-neutral-850"
+      className="grid gap-1.5 p-1 bg-neutral-900/50 rounded-sm border border-neutral-850"
       style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
     >
       {options.map((opt) => (
@@ -105,6 +105,7 @@ const SegmentedControl = ({ label, options, val, setVal }) => (
               ? 'bg-white text-black shadow-sm'
               : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
           }`}
+          style={{ borderWidth: '0.4px', borderColor: val === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
         >
           {opt.label}
         </button>
@@ -281,13 +282,13 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
 
   const getTildaOptionButtonClass = (isSelected) => {
     if (isSelected) {
-      return 'bg-white text-black border border-transparent font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
+      return 'bg-white text-black font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
     }
-    return 'bg-white/50 border border-transparent text-neutral-700 hover:text-black font-normal';
+    return 'bg-white/50 text-neutral-700 hover:text-black font-normal';
   };
 
   return (
-    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-md p-5 sm:p-6 flex flex-col gap-6">
+    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-sm p-5 sm:p-6 flex flex-col gap-6">
       <div className="text-[#111111] text-xl font-normal tracking-tight border-b border-neutral-200 pb-3">
         Конфигуратор проекта
       </div>
@@ -307,6 +308,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                   className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
                     siteType === opt.value
                   )}`}
+                  style={{ borderWidth: '0.4px', borderColor: siteType === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
                 >
                   {opt.label}
                 </button>
@@ -330,6 +332,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                   className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
                     pagesCount === opt.value
                   )}`}
+                  style={{ borderWidth: '0.4px', borderColor: pagesCount === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
                 >
                   {opt.label}
                 </button>
@@ -353,6 +356,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
                   className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
                     contentReady === opt.value
                   )}`}
+                  style={{ borderWidth: '0.4px', borderColor: contentReady === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
                 >
                   {opt.label}
                 </button>
@@ -392,7 +396,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Например: Нужна интеграция с CRM и личный кабинет..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-md px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
+            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-sm px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
           />
         </div>
 
@@ -411,7 +415,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
               }}
               className={`w-full bg-white border ${
                 errors.name ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
+              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
@@ -430,7 +434,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
               }}
               className={`w-full bg-white border ${
                 errors.contact ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
+              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -441,7 +445,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-md transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
+            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -449,7 +453,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-md text-center"
+            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
           >
             Нужна консультация
           </a>
@@ -607,13 +611,13 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
 
   const getTildaOptionButtonClass = (isSelected) => {
     if (isSelected) {
-      return 'bg-white text-black border border-transparent font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
+      return 'bg-white text-black font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
     }
-    return 'bg-white/50 border border-transparent text-neutral-700 hover:text-black font-normal';
+    return 'bg-white/50 text-neutral-700 hover:text-black font-normal';
   };
 
   return (
-    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-md p-5 sm:p-6 flex flex-col gap-6">
+    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-sm p-5 sm:p-6 flex flex-col gap-6">
       <div className="text-[#111111] text-xl font-normal tracking-tight border-b border-neutral-200 pb-3">
         Конфигуратор редизайна
       </div>
@@ -633,6 +637,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                   className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
                     problemType === opt.value
                   )}`}
+                  style={{ borderWidth: '0.4px', borderColor: problemType === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
                 >
                   {opt.label}
                 </button>
@@ -656,6 +661,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                   className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
                     volume === opt.value
                   )}`}
+                  style={{ borderWidth: '0.4px', borderColor: volume === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
                 >
                   {opt.label}
                 </button>
@@ -679,6 +685,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
                   className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
                     depth === opt.value
                   )}`}
+                  style={{ borderWidth: '0.4px', borderColor: depth === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
                 >
                   {opt.label}
                 </button>
@@ -718,7 +725,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Укажите ссылку на текущий сайт и напишите пожелания..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-md px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
+            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-sm px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
           />
         </div>
 
@@ -737,7 +744,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
               }}
               className={`w-full bg-white border ${
                 errors.name ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
+              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
@@ -756,7 +763,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
               }}
               className={`w-full bg-white border ${
                 errors.contact ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
+              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -767,7 +774,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-md transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
+            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -775,7 +782,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-md text-center"
+            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
           >
             Нужна консультация
           </a>
@@ -931,13 +938,13 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
 
   const getTildaOptionButtonClass = (isSelected) => {
     if (isSelected) {
-      return 'bg-white text-black border border-transparent font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
+      return 'bg-white text-black font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
     }
-    return 'bg-white/50 border border-transparent text-neutral-700 hover:text-black font-normal';
+    return 'bg-white/50 text-neutral-700 hover:text-black font-normal';
   };
 
   return (
-    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-md p-5 sm:p-6 flex flex-col gap-6">
+    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-sm p-5 sm:p-6 flex flex-col gap-6">
       <div className="text-[#111111] text-xl font-normal tracking-tight border-b border-neutral-200 pb-3">
         Конфигуратор дизайна в Figma
       </div>
@@ -957,6 +964,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                   className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
                     designType === opt.value
                   )}`}
+                  style={{ borderWidth: '0.4px', borderColor: designType === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
                 >
                   {opt.label}
                 </button>
@@ -980,6 +988,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                   className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
                     complexity === opt.value
                   )}`}
+                  style={{ borderWidth: '0.4px', borderColor: complexity === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
                 >
                   {opt.label}
                 </button>
@@ -1003,6 +1012,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
                   className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
                     specStatus === opt.value
                   )}`}
+                  style={{ borderWidth: '0.4px', borderColor: specStatus === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
                 >
                   {opt.label}
                 </button>
@@ -1042,7 +1052,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             placeholder="Опишите ваши пожелания, стиль, референсы..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-md px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
+            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-sm px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
           />
         </div>
 
@@ -1061,7 +1071,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
               }}
               className={`w-full bg-white border ${
                 errors.name ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
+              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
           </div>
@@ -1080,7 +1090,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
               }}
               className={`w-full bg-white border ${
                 errors.contact ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
+              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
             />
             {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
           </div>
@@ -1091,7 +1101,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             type="button"
             disabled={loading}
             onClick={handleSubmit}
-            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-md transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
+            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
           >
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
@@ -1099,7 +1109,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             href={TELEGRAM_CONSULT_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-md text-center"
+            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
           >
             Нужна консультация
           </a>
@@ -1132,20 +1142,20 @@ function AICalculator({ service }) {
   ];
 
   return (
-    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6 w-full">
+    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-sm p-5 sm:p-6 flex flex-col gap-6 w-full">
       <div id="tariffs-heading" className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
         <span>Тарифы и направления разработки</span>
-        <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-lg">
+        <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-sm">
           Срок: Рассчитывается индивидуально
         </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {products.map((p, idx) => (
-          <div key={idx} className="bg-[#1A1A1A] border border-neutral-850 rounded-md p-5 flex flex-col justify-between hover:shadow-sm hover:border-neutral-750 transition-all duration-300">
+          <div key={idx} className="bg-[#1A1A1A] border border-neutral-850 rounded-sm p-5 flex flex-col justify-between hover:shadow-sm hover:border-neutral-750 transition-all duration-300">
             <div>
               <h4 className="text-base sm:text-lg font-bold text-white mb-1.5">{p.title}</h4>
-              <span className="inline-block text-xs sm:text-sm font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1 mb-3.5">
+              <span className="inline-block text-xs sm:text-sm font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-sm px-2.5 py-1 mb-3.5">
                 {p.price}
               </span>
               <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-5">{p.desc}</p>
@@ -1565,7 +1575,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
             
             {/* Mobile-only parameters (displayed statically, vertical stream) */}
             <div className="block md:hidden space-y-4 border-t border-neutral-800 pt-5 mt-5">
-              {service.details.map((detail, idx) => (
+              {service.details.filter((detail) => detail.label.toLowerCase() !== 'идеально для').map((detail, idx) => (
                 <div key={idx} className="flex flex-col gap-0.5">
                   <span className="text-[10px] font-medium tracking-wider uppercase text-neutral-500">
                     {detail.label}
@@ -1614,7 +1624,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
           {/* Layer 2: Text Parameters (revealed on hover) */}
           <div className="absolute inset-0 w-full h-full flex flex-col justify-center transition-all duration-500 opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100">
             <div className="bg-[#1E1E1E]/50 border border-neutral-800 rounded-md p-5 h-full flex flex-col justify-center space-y-4">
-              {service.details.map((detail, idx) => (
+              {service.details.filter((detail) => detail.label.toLowerCase() !== 'идеально для').map((detail, idx) => (
                 <div key={idx} className="flex flex-col gap-0.5">
                   <span className="text-[10px] font-medium tracking-wider uppercase text-neutral-500">
                     {detail.label}

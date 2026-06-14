@@ -93,7 +93,7 @@ export default function Sidebar({ activeSection }) {
         initial={{ opacity: 0, filter: "blur(12px)", scale: 0.99 }}
         animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-        className="sidebar-desktop hidden lg:flex fixed top-0 left-0 w-[260px] h-screen max-h-screen overflow-hidden flex-col border-r border-zinc-100/60 bg-white z-100 p-5 xl:p-6"
+        className="sidebar-desktop hidden lg:flex fixed top-0 left-0 w-[260px] h-screen max-h-screen overflow-hidden flex-col border-r border-zinc-200 bg-white z-100 p-5 xl:p-6"
       >
         {/* Profile */}
         <div className="shrink-0 mb-6 xl:mb-8 sidebar-profile">

@@ -13,6 +13,7 @@ const iconMap = {
 
 export default function Workflow() {
   const [activeTab, setActiveTab] = useState('websites');
+  const [expandedStep, setExpandedStep] = useState(null);
   const standards = contentData.workflow.standards;
 
   const steps = activeTab === 'websites' ? workflowContent.websiteSteps : workflowContent.aiAppsSteps;
@@ -182,7 +183,8 @@ export default function Workflow() {
             return (
               <div
                 key={idx}
-                className="group bg-[#1A1A1A] border border-neutral-800 rounded-md p-6 flex flex-col justify-between transition-all duration-300 lg:hover:-translate-y-1 lg:hover:bg-neutral-900/60 lg:hover:border-neutral-700 w-[290px] min-w-[290px] lg:w-[320px] lg:min-w-[320px] h-[270px] lg:h-[285px] shrink-0 snap-align-start lg:snap-align-none relative animate-fadeIn"
+                onClick={() => setExpandedStep(prev => prev === idx ? null : idx)}
+                className={`group bg-[#1A1A1A] border border-neutral-800 rounded-md p-6 flex flex-col justify-between transition-all duration-300 lg:hover:-translate-y-1 lg:hover:bg-neutral-900/60 lg:hover:border-neutral-700 w-[290px] min-w-[290px] lg:w-[320px] lg:min-w-[320px] h-auto min-h-[290px] lg:h-[285px] shrink-0 snap-align-start lg:snap-align-none relative animate-fadeIn cursor-pointer`}
                 style={{ animationDelay: `${idx * 60}ms` }}
               >
                 {/* Top Progress Line */}
@@ -196,17 +198,17 @@ export default function Workflow() {
                 </div>
 
                 {/* Title & Description Body */}
-                <div className="flex-1 flex flex-col justify-start mt-3">
+                <div className="flex-1 flex flex-col justify-start mt-3 mb-4">
                   <h3 className="text-[16px] font-light tracking-tight text-white mb-1.5 leading-snug">
                     {step.title}
                   </h3>
-                  <p className="text-[12.5px] text-neutral-400 leading-relaxed line-clamp-3 lg:line-clamp-4">
+                  <p className={`text-[12.5px] text-neutral-400 leading-relaxed ${expandedStep === idx ? 'line-clamp-none lg:line-clamp-4' : 'line-clamp-3 lg:line-clamp-4'}`}>
                     {step.desc}
                   </p>
                 </div>
 
                 {/* Result Badge */}
-                <div className="mt-auto py-1 px-2.5 bg-neutral-900 border border-neutral-800 rounded-sm text-[10px] tracking-wider uppercase font-medium text-neutral-400 self-start select-none whitespace-nowrap">
+                <div className="mt-auto py-1 px-2.5 bg-neutral-900 border border-neutral-800 rounded-sm text-[10px] tracking-wider uppercase font-medium text-neutral-400 self-start select-none whitespace-normal break-words sm:whitespace-nowrap lg:whitespace-normal xl:whitespace-nowrap">
                   {stepResult}
                 </div>
               </div>

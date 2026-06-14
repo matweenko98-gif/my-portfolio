@@ -172,3 +172,18 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Case template: floating feature image shadow */
+.case-feature-shadow {
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.case-feature-shadow:hover {
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.1),
+    0 12px 32px rgba(0, 0, 0, 0.06);
+}

@@ -245,9 +245,17 @@ const contentData = {
   // Данные для Cases (результаты проектов)
   cases: {
     title: "Результаты и кейсы",
+    // Первые 4 кейса отображаются всегда. Остальные — скрыты за кнопкой «Показать еще».
+    // Поле `date` — скрытое, используется только для сортировки в будущей админке.
+    // Порядок отображения определяется порядком в массиве, а не датой.
+    // Поле `description` — краткая аннотация для архивной строки внизу секции.
     items: [
       {
         name: "Веб-приложение для медицинского центра",
+        // date: скрытое поле — только для будущей сортировки в админке, нигде не выводится
+        date: "2025-11-20",
+        // description: 4–8 слов, краткая суть проекта для архивного списка
+        description: "Онлайн-запись, личный кабинет и телемедицина",
         tags: ["UX/UI", "Next.js", "Медицина"],
         imageMain: case1Img,
         imageHover: case1Img,
@@ -256,6 +264,8 @@ const contentData = {
       },
       {
         name: "Многостраничный сайт для детского лагеря Oasis Camp",
+        date: "2025-09-05",
+        description: "Полный редизайн сайта лагеря на Tilda с анимациями",
         tags: ["Tilda", "Дизайн", "Анимация"],
         imageMain: case2Img,
         imageHover: case2Img,
@@ -263,6 +273,8 @@ const contentData = {
       },
       {
         name: "Корпоративный сайт для агентства EMSOFT",
+        date: "2025-06-18",
+        description: "UX/UI и разработка корпоративного сайта на Webflow",
         tags: ["UX/UI", "Webflow", "Разработка"],
         imageMain: case3Img,
         imageHover: case3Img,
@@ -270,10 +282,34 @@ const contentData = {
       },
       {
         name: "Landing для продажи онлайн-книги «Мир тарталеток»",
+        date: "2025-04-02",
+        description: "Продающий лендинг с интеграцией платёжного сервиса",
         tags: ["Tilda", "Маркетинг", "E-commerce"],
         imageMain: case4Img,
         imageHover: case4Img,
         link: "#"
+      },
+      // ── Заглушки (скрыты по умолчанию, показываются по кнопке «Показать еще») ──
+      {
+        name: "Редизайн интернет-магазина товаров для спорта",
+        date: "2025-02-14",
+        description: "Полный редизайн каталога и корзины, рост конверсии",
+        tags: ["UX/UI", "Редизайн", "E-commerce"],
+        // Заглушка: нет реального изображения, используем inline SVG через data URI
+        imageMain: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23f4f4f4'/%3E%3Crect x='340' y='260' width='120' height='80' rx='4' fill='%23e0e0e0'/%3E%3Ccircle cx='400' cy='270' r='20' fill='%23d0d0d0'/%3E%3Crect x='360' y='295' width='80' height='6' rx='3' fill='%23d0d0d0'/%3E%3Crect x='370' y='308' width='60' height='4' rx='2' fill='%23e0e0e0'/%3E%3C/svg%3E",
+        imageHover: null,
+        link: "#",
+        inDevelopment: true
+      },
+      {
+        name: "Платформа для онлайн-курсов в сфере дизайна",
+        date: "2024-12-01",
+        description: "MVP платформы с личными кабинетами и видеоплеером",
+        tags: ["React", "MVP", "EdTech"],
+        imageMain: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23f4f4f4'/%3E%3Crect x='320' y='250' width='160' height='100' rx='4' fill='%23e0e0e0'/%3E%3Cpolygon points='380,275 380,325 430,300' fill='%23d0d0d0'/%3E%3Crect x='340' y='360' width='120' height='5' rx='2.5' fill='%23e0e0e0'/%3E%3Crect x='340' y='372' width='80' height='4' rx='2' fill='%23ebebeb'/%3E%3C/svg%3E",
+        imageHover: null,
+        link: "#",
+        inDevelopment: true
       }
     ]
   },
