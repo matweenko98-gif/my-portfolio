@@ -49,7 +49,7 @@ export default function Sidebar({ activeSection }) {
           </svg>
         </button>
         
-        <div className="flex flex-col items-center gap-4 w-full px-8 my-auto">
+        <div className="flex flex-col items-start gap-1 w-full px-8 my-auto">
           {menuItems.map((item, idx) => {
             const num = String(idx + 1).padStart(2, '0');
             return (
@@ -57,12 +57,12 @@ export default function Sidebar({ activeSection }) {
                 key={item.id}
                 href={`#${item.id}`}
                 onClick={(e) => handleLinkClick(e, item.id)}
-                className="group flex flex-col items-center py-2 w-full text-center"
+                className="group flex items-center gap-3 py-2.5 w-full"
               >
-                <span className="text-[10px] font-bold tracking-widest text-[#FF5B23] uppercase mb-1">
-                  [ {num} ]
+                <span className="text-[10px] font-medium tracking-widest text-[#FF5B23] uppercase shrink-0 w-8 text-right">
+                  {num}
                 </span>
-                <span className="text-2xl font-black text-zinc-950 hover:text-black tracking-tight transition-colors">
+                <span className="text-xl font-medium text-zinc-900 hover:text-black tracking-tight transition-colors">
                   {item.label}
                 </span>
               </a>
