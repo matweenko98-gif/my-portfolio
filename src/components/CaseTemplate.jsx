@@ -923,7 +923,7 @@ export default function CaseTemplate() {
           Блок 6: Ключевые десктопные экраны (Desktop Horizontal Scroll)
           ══════════════════════════════════════════════════════════ */}
           <section id="case-showcase" className="py-20 md:py-28 bg-white border-b border-neutral-100 overflow-hidden">
-            <div className="flex items-center justify-between px-6 md:px-12 lg:px-16 mb-10">
+            <div className="flex flex-col md:flex-row justify-between md:items-end px-6 md:px-12 lg:px-16 mb-6 md:mb-10 gap-4">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
                   Ключевые экраны
@@ -933,7 +933,7 @@ export default function CaseTemplate() {
                 </h2>
               </div>
               {/* Navigation controls */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-start md:self-auto">
                 <button
                   onClick={() => scrollDesktop('left')}
                   className="w-10 h-10 rounded-sm border border-neutral-200 hover:border-neutral-400 flex items-center justify-center text-neutral-600 hover:text-black transition-colors bg-white shadow-sm cursor-pointer"
@@ -986,7 +986,7 @@ export default function CaseTemplate() {
           Блок 7: Мобильная версия (Mobile Responsive Carousel)
           ══════════════════════════════════════════════════════════ */}
           <section id="case-mobile-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b border-neutral-100 overflow-hidden">
-            <div className="flex items-center justify-between px-6 md:px-12 lg:px-16 mb-10">
+            <div className="flex flex-col md:flex-row justify-between md:items-end px-6 md:px-12 lg:px-16 mb-6 md:mb-10 gap-4">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
                   Адаптивность
@@ -996,7 +996,7 @@ export default function CaseTemplate() {
                 </h2>
               </div>
               {/* Navigation controls */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-start md:self-auto">
                 <button
                   onClick={() => scrollMobile('left')}
                   className="w-10 h-10 rounded-sm border border-neutral-200 hover:border-neutral-400 flex items-center justify-center text-neutral-600 hover:text-black transition-colors bg-white shadow-sm cursor-pointer"
