@@ -59,9 +59,23 @@ function parseMarkdown(mdText) {
 export default function LegalPage({ type }) {
   const mdContent = type === 'privacy' ? privacyPolicyMd : termsMd;
 
-  // Scroll to top when component mounts or type changes
+  // Scroll to top and set page metadata when component mounts or type changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    if (type === 'privacy') {
+      document.title = "Политика конфиденциальности | Матвеенко Ксения Александровна";
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        metaDescription.setAttribute('content', 'Политика конфиденциальности персональных данных — Матвеенко Ксения Александровна.');
+      }
+    } else {
+      document.title = "Пользовательское соглашение | Правила использования сайта";
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        metaDescription.setAttribute('content', 'Пользовательское соглашение и правила использования сайта.');
+      }
+    }
   }, [type]);
 
   return (

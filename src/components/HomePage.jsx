@@ -15,6 +15,12 @@ export default function HomePage() {
   const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
+    document.title = "Ксения Матвеенко — Дизайн-студия & Разработка премиальных сайтов";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Создание высококлассных сайтов, интерфейсов и UX/UI дизайна с упором на чистую эстетику и техническое совершенство.');
+    }
+
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       const sections = contentData.sidebar.navigation.map(item => item.id);
