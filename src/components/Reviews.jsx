@@ -36,7 +36,7 @@ function buildTrackLayout(items, isMobile, gap) {
       columnStaggers: [0],
     };
   } else {
-    const columnLefts = ['5%', '38%', '71%'];
+    const columnLefts = ['calc(50% - 543px)', 'calc(50% - 165px)', 'calc(50% + 213px)'];
     const columnStaggers = [-125, 55, -55]; // Side columns staggered higher
     const gapVal = gap || 48;
     const cardWidth = 330; // standard width on desktop
@@ -226,7 +226,7 @@ export default function Reviews() {
 
         <div
           ref={containerRef}
-          className="relative w-full h-[58vh] overflow-hidden rounded-md border border-zinc-100 bg-zinc-50/20"
+          className="relative w-full h-[58vh] overflow-hidden rounded-md border border-zinc-200 bg-zinc-50/20"
         >
           <div ref={trackRef} className="relative w-full will-change-transform">
             {Array.from({ length: TRACK_COPIES }, (_, cycle) =>
@@ -249,7 +249,7 @@ export default function Reviews() {
                     <img
                       src={review.imageUrl}
                       alt={`Отзыв ${review.id}`}
-                      className="w-[85vw] sm:w-auto sm:max-w-[320px] md:max-w-[360px] h-auto object-contain rounded-md shadow-[0_4px_20px_rgb(0,0,0,0.02)] transition-transform duration-200 ease-out hover:scale-[1.04] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] cursor-default border border-zinc-200/30 bg-white"
+                      className="w-[85vw] sm:w-auto sm:max-w-[320px] md:w-[330px] h-auto object-contain rounded-md shadow-[0_4px_20px_rgb(0,0,0,0.02)] transition-transform duration-200 ease-out hover:scale-[1.04] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] cursor-default border border-zinc-200/30 bg-white"
                     />
                   </div>
                 );
