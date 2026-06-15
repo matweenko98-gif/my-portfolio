@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import CaseTemplate from './components/CaseTemplate';
 import AdminWorkspace from './components/AdminWorkspace';
+import LegalPage from './components/LegalPage';
 
 export default function App() {
   return (
@@ -10,6 +11,8 @@ export default function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/case/:id" element={<CaseTemplate />} />
       <Route path="/admin-keis" element={<AdminWorkspace />} />
+      <Route path="/privacy-policy" element={<LegalPage type="privacy" />} />
+      <Route path="/terms" element={<LegalPage type="terms" />} />
     </Routes>
   );
 }

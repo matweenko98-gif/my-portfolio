@@ -163,7 +163,7 @@ function CaseContacts() {
             </div>
 
             {/* Phone — desktop only */}
-            <div className="hidden lg:flex mt-24 lg:mt-32 mb-6 flex-col items-start relative z-0">
+            <div className="hidden lg:flex mt-16 lg:mt-20 mb-6 flex-col items-start relative z-0">
               <button
                 type="button"
                 onClick={handleCopyPhone}

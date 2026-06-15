@@ -114,15 +114,24 @@
   min-height: 100dvh;
   height: 100vh;
   height: 100dvh;
+  padding-top: 6rem;
+  padding-bottom: 4rem;
 }
 
-@media (max-height: 760px) {
+@media (min-width: 1024px) {
+  .contact-section {
+    padding-top: 8rem;
+    padding-bottom: 6rem;
+  }
+}
+
+@media (max-height: 850px) {
   .contact-section {
     height: auto;
     min-height: 100vh;
     min-height: 100dvh;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding-top: 5rem;
+    padding-bottom: 4rem;
   }
 }
 
