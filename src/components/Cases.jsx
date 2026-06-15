@@ -241,6 +241,7 @@ export default function Cases() {
                           <img
                             src={image}
                             alt={title}
+                            loading="lazy"
                             className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out ${
                               !isInDev ? 'group-hover:scale-105' : ''
                             }`}

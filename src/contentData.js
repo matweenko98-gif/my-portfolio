@@ -34,7 +34,7 @@ const contentData = {
       { id: "contacts", label: "Обсудить проект" }
     ],
     socialLinks: {
-      telegram: "https://t.me/"
+      telegram: "https://t.me/ksen_web"
     }
   },
 

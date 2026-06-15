@@ -29,10 +29,10 @@ export default function Hero() {
       </div>
 
       {/* Two-column magazine layout */}
-      <div className="relative z-10 w-full grid grid-cols-1 md:grid-cols-5 gap-10 md:gap-12 items-start pt-4 md:pt-8">
+      <div className="relative z-10 w-full grid grid-cols-1 xl:grid-cols-5 gap-10 xl:gap-12 items-start pt-4 xl:pt-8">
 
         {/* ── Left column: monumental heading only ── */}
-        <div className="md:col-span-3">
+        <div className="xl:col-span-3">
           <div className="overflow-hidden">
             <motion.h1
               initial={{ y: "100%", opacity: 0 }}
@@ -47,7 +47,7 @@ export default function Hero() {
         </div>
 
         {/* ── Right column: status + description + actions + tags ── */}
-        <div className="md:col-span-2 md:border-l md:border-neutral-100 md:pl-8 flex flex-col gap-6">
+        <div className="xl:col-span-2 xl:border-l xl:border-neutral-100 xl:pl-8 flex flex-col gap-6">
 
           {/* Status marker — no background, pure text */}
           <p className="text-[10px] font-medium tracking-wider uppercase text-neutral-400 leading-relaxed">
