@@ -106,18 +106,24 @@ export default function Sidebar({ activeSection }) {
 
         {/* Navigation Menu */}
         <nav className="flex-1 min-h-0 flex flex-col justify-start py-1">
-          <ul className="flex flex-col gap-0 sidebar-nav">
+          <ul className="flex flex-col gap-0 sidebar-nav pl-0 list-none m-0">
             {menuItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
-                <li key={item.id}>
+                <li key={item.id} className="relative flex items-center list-none">
+                  <span
+                    className={`absolute left-0 w-1.5 h-1.5 rounded-full bg-[#FF5B23] transition-all duration-300 ${
+                      isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'
+                    }`}
+                  />
                   <a
                     href={`#${item.id}`}
                     onClick={(e) => handleLinkClick(e, item.id)}
-                    className={`block px-0 py-2 xl:py-2.5 text-[13px] xl:text-[14px] transition-colors duration-200 ${isActive
-                      ? 'text-black font-medium'
-                      : 'text-neutral-400 hover:text-black font-normal'
-                      }`}
+                    className={`block pl-4 py-2 xl:py-2.5 text-[13px] xl:text-[14px] transition-colors duration-200 no-underline ${
+                      isActive
+                        ? 'text-black font-medium'
+                        : 'text-neutral-500 hover:text-black font-normal'
+                    }`}
                   >
                     {item.label}
                   </a>

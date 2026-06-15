@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Send, MessageCircle, Check, Copy, Clock, Shield } from 'lucide-react';
@@ -135,11 +135,10 @@ function CaseContacts() {
                     key={intent.id}
                     type="button"
                     onClick={() => setActiveIntentId(intent.id)}
-                    className={`px-3.5 py-2 text-[13px] font-medium rounded-sm border transition-all duration-200 ${
-                      isActive
+                    className={`px-3.5 py-2 text-[13px] font-medium rounded-sm border transition-all duration-200 ${isActive
                         ? 'bg-[#E0FB4A] text-[#111111] border-[#E0FB4A] shadow-sm font-semibold'
                         : 'bg-transparent text-neutral-400 border-neutral-600 hover:border-neutral-750 hover:text-white'
-                    }`}
+                      }`}
                   >
                     {intent.label}
                   </button>
@@ -186,7 +185,7 @@ function CaseContacts() {
           {/* ── Col RIGHT: Step 2 card ── */}
           <div
             key={activeIntent.id}
-            className="flex flex-col bg-[#282828] border border-neutral-600/60 rounded-md p-5 sm:p-6 animate-fadeIn relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.4)] order-2 lg:order-none mt-6 lg:mt-0"
+            className="flex flex-col bg-[#282828] border border-neutral-600/60 rounded-sm p-5 sm:p-6 animate-fadeIn relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.4)] order-2 lg:order-none mt-6 lg:mt-0"
           >
             <p className="text-[11px] font-bold uppercase tracking-widest text-white mb-4">
               Шаг 2 · Отправьте сообщение
@@ -317,9 +316,10 @@ function CaseSidebar({ activeSection }) {
 
   const caseSections = [
     { id: 'case-about', label: 'О проекте' },
-    { id: 'case-ux', label: 'Логика (UX)' },
-    { id: 'case-ui', label: 'Концепция (UI)' },
-    { id: 'case-showcase', label: 'Ключевые экраны' }
+    { id: 'case-process', label: 'Процесс' },
+    { id: 'case-challenge', label: 'Задача' },
+    { id: 'case-showcase', label: 'Десктоп' },
+    { id: 'case-mobile-showcase', label: 'Мобильные' }
   ];
 
   const handleLinkClick = (e, id) => {
@@ -363,7 +363,7 @@ function CaseSidebar({ activeSection }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        
+
         <div className="flex flex-col items-start gap-1 w-full px-8 my-auto">
           {/* На главную */}
           <Link
@@ -441,7 +441,7 @@ function CaseSidebar({ activeSection }) {
       >
         {/* Profile */}
         <div className="shrink-0 mb-5 xl:mb-6 sidebar-profile">
-          <div className="w-16 h-16 xl:w-20 xl:h-20 rounded-md overflow-hidden mb-4 border border-zinc-200/30 bg-zinc-50">
+          <div className="w-16 h-16 xl:w-20 xl:h-20 rounded-sm overflow-hidden mb-4 border border-zinc-200/30 bg-zinc-50">
             <img src={profile.avatarUrl} alt={profile.altText} className="w-full h-full object-cover" />
           </div>
           <h2 className="text-base xl:text-lg font-medium text-black mb-0.5 leading-tight tracking-tight">{profile.name}</h2>
@@ -455,7 +455,7 @@ function CaseSidebar({ activeSection }) {
             <li>
               <Link
                 to="/"
-                className="block px-0 py-2 xl:py-2.5 text-[13px] xl:text-[14px] text-neutral-450 hover:text-black font-normal transition-colors duration-200 no-underline"
+                className="block px-0 py-2 xl:py-2.5 text-[13px] xl:text-[14px] text-neutral-500 hover:text-black font-normal transition-colors duration-200 no-underline"
               >
                 На главную
               </Link>
@@ -470,18 +470,16 @@ function CaseSidebar({ activeSection }) {
               return (
                 <li key={item.id} className="relative flex items-center list-none">
                   <span
-                    className={`absolute left-0 w-1.5 h-1.5 rounded-full bg-[#FF5B23] transition-all duration-300 ${
-                      isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'
-                    }`}
+                    className={`absolute left-0 w-1.5 h-1.5 rounded-full bg-[#FF5B23] transition-all duration-300 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'
+                      }`}
                   />
                   <a
                     href={`#${item.id}`}
                     onClick={(e) => handleLinkClick(e, item.id)}
-                    className={`block pl-4 py-2 xl:py-2.5 text-[13px] xl:text-[14px] transition-colors duration-200 no-underline ${
-                      isActive
+                    className={`block pl-4 py-2 xl:py-2.5 text-[13px] xl:text-[14px] transition-colors duration-200 no-underline ${isActive
                         ? 'text-black font-medium'
-                        : 'text-neutral-450 hover:text-black font-normal'
-                    }`}
+                        : 'text-neutral-500 hover:text-black font-normal'
+                      }`}
                   >
                     {item.label}
                   </a>
@@ -497,7 +495,7 @@ function CaseSidebar({ activeSection }) {
               <a
                 href="#case-contacts"
                 onClick={(e) => handleLinkClick(e, 'case-contacts')}
-                className="block px-0 py-2 xl:py-2.5 text-[13px] xl:text-[14px] text-neutral-450 hover:text-black font-normal transition-colors duration-200 no-underline"
+                className="block px-0 py-2 xl:py-2.5 text-[13px] xl:text-[14px] text-neutral-500 hover:text-black font-normal transition-colors duration-200 no-underline"
               >
                 Обсудить проект
               </a>
@@ -526,6 +524,30 @@ function CaseSidebar({ activeSection }) {
   );
 }
 
+const marqueeStyle = `
+  @keyframes marquee-ltr {
+    0% { transform: translate3d(-50%, 0, 0); }
+    100% { transform: translate3d(0, 0, 0); }
+  }
+  @keyframes marquee-rtl {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+  }
+  .animate-marquee-ltr {
+    animation: marquee-ltr 35s linear infinite;
+  }
+  .animate-marquee-rtl {
+    animation: marquee-rtl 35s linear infinite;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
+
 // ══════════════════════════════════════════════════════════════════════════════
 // CASE TEMPLATE — Главный компонент
 // ══════════════════════════════════════════════════════════════════════════════
@@ -534,6 +556,31 @@ export default function CaseTemplate() {
   const navigate = useNavigate();
   const data = mockCaseData; // В будущем: загрузка по id из API/админки
   const [activeSection, setActiveSection] = useState('case-about');
+
+  const desktopScrollRef = useRef(null);
+  const mobileScrollRef = useRef(null);
+
+  const scrollDesktop = (direction) => {
+    const container = desktopScrollRef.current;
+    if (container) {
+      const scrollAmount = container.clientWidth * 0.75;
+      container.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const scrollMobile = (direction) => {
+    const container = mobileScrollRef.current;
+    if (container) {
+      const scrollAmount = container.clientWidth * 0.75;
+      container.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Scroll to top when entering case page
   useEffect(() => {
@@ -544,7 +591,7 @@ export default function CaseTemplate() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
-      const sections = ['case-about', 'case-ux', 'case-ui', 'case-showcase'];
+      const sections = ['case-about', 'case-process', 'case-challenge', 'case-showcase', 'case-mobile-showcase'];
 
       let currentSection = 'case-about';
       for (const sectionId of sections) {
@@ -587,334 +634,479 @@ export default function CaseTemplate() {
       >
         <div className="relative z-10 flex flex-col w-full">
 
-      {/* ══════════════════════════════════════════════════════════
-          1. HERO — крупный заголовок + полноэкранное изображение
+          {/* ══════════════════════════════════════════════════════════
+          Блок 1: Главный экран (Hero)
           ══════════════════════════════════════════════════════════ */}
-      <motion.section
-        {...sectionReveal}
-        className="relative bg-white"
-      >
-        {/* Back navigation button — fixed top-left */}
-        <div className="absolute top-6 left-6 md:left-12 z-20">
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-zinc-200 text-zinc-900 hover:text-black hover:border-zinc-400 rounded-sm text-[12px] font-medium transition-colors bg-white shadow-sm cursor-pointer"
+          <motion.section
+            {...sectionReveal}
+            className="relative bg-white"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Назад</span>
-          </button>
-        </div>
-
-        <div className="pt-24 pb-12 px-6 md:px-12 lg:px-16">
-          {/* Subtitle label */}
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#FF5B23] mb-5">
-            [ Кейс ]
-          </p>
-
-          {/* Main title */}
-          <div className="overflow-hidden mb-4">
-            <motion.h1
-              initial={{ y: "100%", opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
-              className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-tighter text-black leading-[0.92]"
-            >
-              {data.title}
-            </motion.h1>
-          </div>
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-zinc-500 font-light max-w-2xl mb-0"
-          >
-            {data.subtitle}
-          </motion.p>
-        </div>
-
-        {/* Hero image — full width */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, ease: [0.215, 0.610, 0.355, 1.000], delay: 0.15 }}
-          className="w-full px-6 md:px-12 lg:px-16 pb-12"
-        >
-          <div className="w-full overflow-hidden rounded-sm">
-            <img
-              src={data.heroImage}
-              alt={data.title}
-              className="w-full h-auto object-cover"
-            />
-          </div>
-        </motion.div>
-      </motion.section>
-
-
-      {/* ══════════════════════════════════════════════════════════
-          2. META PANEL — 4 плашки
-          ══════════════════════════════════════════════════════════ */}
-      <motion.section
-        {...sectionReveal}
-        className="border-t border-b border-zinc-100 bg-white"
-      >
-        <div className="grid grid-cols-2 md:grid-cols-4">
-          {[
-            { label: "Сфера", value: data.meta.sphere },
-            { label: "Тип проекта", value: data.meta.type },
-            { label: "Стек", value: data.meta.stack },
-            { label: "Год", value: data.meta.year }
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className={`px-6 md:px-12 lg:px-16 py-8 ${
-                idx < 3 ? 'border-r border-zinc-100' : ''
-              } ${idx < 2 ? 'border-b md:border-b-0 border-zinc-100' : idx === 2 ? 'border-b md:border-b-0 border-zinc-100' : ''}`}
-            >
-              <span className="block text-[10px] font-semibold uppercase tracking-widest text-zinc-400 mb-2">
-                {item.label}
-              </span>
-              <span className="block text-[15px] font-medium text-zinc-900 tracking-tight">
-                {item.value}
-              </span>
-            </div>
-          ))}
-        </div>
-      </motion.section>
-
-
-      {/* ══════════════════════════════════════════════════════════
-          3. О ПРОЕКТЕ
-          ══════════════════════════════════════════════════════════ */}
-      <motion.section
-        {...sectionReveal}
-        id="case-about"
-        className="py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white"
-      >
-        <div className="max-w-4xl">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-5">
-            {data.about.title}
-          </p>
-          <p className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed text-zinc-700 tracking-tight">
-            {data.about.text}
-          </p>
-        </div>
-      </motion.section>
-
-
-      {/* ══════════════════════════════════════════════════════════
-          4. UX (Смыслы) — текст + скриншот прототипа
-          ══════════════════════════════════════════════════════════ */}
-      <motion.section
-        {...sectionReveal}
-        id="case-ux"
-        className="py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white border-t border-zinc-100"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-[#E0FB4A] bg-zinc-900 inline-block px-3 py-1.5 rounded-sm mb-6">
-              UX · Смыслы
-            </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-black mb-6 leading-tight">
-              {data.ux.title}
-            </h2>
-            <p className="text-[15px] md:text-[16px] leading-relaxed text-zinc-600 max-w-lg">
-              {data.ux.text}
-            </p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
-          >
-            <img
-              src={data.ux.image}
-              alt={data.ux.title}
-              className="w-full h-auto rounded-sm shadow-[0_8px_40px_rgba(0,0,0,0.08)]"
-            />
-          </motion.div>
-        </div>
-      </motion.section>
-
-
-      {/* ══════════════════════════════════════════════════════════
-          5. UI (Визуальная концепция) — приглушённый фон
-          ══════════════════════════════════════════════════════════ */}
-      <motion.section
-        {...sectionReveal}
-        id="case-ui"
-        className="py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-[#FAFAFA] border-t border-zinc-100"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
-            className="order-2 lg:order-1"
-          >
-            <img
-              src={data.ui.image}
-              alt={data.ui.title}
-              className="w-full h-auto rounded-sm shadow-[0_8px_40px_rgba(0,0,0,0.06)] border border-zinc-100"
-            />
-          </motion.div>
-          <div className="order-1 lg:order-2">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-900 bg-[#E0FB4A] inline-block px-3 py-1.5 rounded-sm mb-6">
-              UI · Визуал
-            </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-black mb-6 leading-tight">
-              {data.ui.title}
-            </h2>
-            <p className="text-[15px] md:text-[16px] leading-relaxed text-zinc-600 max-w-lg">
-              {data.ui.text}
-            </p>
-          </div>
-        </div>
-      </motion.section>
-
-
-      {/* ══════════════════════════════════════════════════════════
-          6. SHOWCASE — шахматная верстка ключевых фич
-          ══════════════════════════════════════════════════════════ */}
-      <section id="case-showcase" className="py-20 md:py-28 bg-white border-t border-zinc-100">
-        <div className="px-6 md:px-12 lg:px-16 mb-12">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-4">
-            Ключевые экраны
-          </p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-black">
-            Решения в деталях
-          </h2>
-        </div>
-
-        <div className="flex flex-col gap-20 md:gap-28">
-          {data.features.map((feature, idx) => {
-            const isEven = idx % 2 === 0;
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
-                className={`grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center px-6 md:px-12 lg:px-16 ${
-                  isEven ? '' : 'lg:direction-rtl'
-                }`}
+            {/* Back navigation button — fixed top-left */}
+            <div className="absolute top-6 left-6 md:left-12 z-20">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-zinc-200 text-zinc-900 hover:text-black hover:border-zinc-400 rounded-sm text-[12px] font-medium transition-colors bg-white shadow-sm cursor-pointer no-underline"
               >
-                {/* Text */}
-                <div className={`${isEven ? 'lg:order-1' : 'lg:order-2'}`}>
-                  <span className="text-[10px] font-semibold tracking-wider text-[#FF5B23] uppercase mb-3 block">
-                    [ 0{idx + 1} ]
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Назад на главную</span>
+              </Link>
+            </div>
+
+            <div className="pt-24 pb-12 px-6 md:px-12 lg:px-16">
+              {/* Subtitle label */}
+              <p className="text-[11px] font-bold uppercase tracking-widest text-[#FF5B23] mb-5">
+                [ Кейс ]
+              </p>
+
+              {/* Main title */}
+              <div className="overflow-hidden mb-4">
+                <motion.h1
+                  initial={{ y: "100%", opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
+                  className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light tracking-tighter text-black leading-[1.1]"
+                >
+                  {data.title}
+                </motion.h1>
+              </div>
+
+              {/* Subtitle */}
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-lg md:text-xl text-zinc-500 font-light max-w-2xl mb-0"
+              >
+                {data.subtitle}
+              </motion.p>
+            </div>
+
+            {/* Hero image placeholder — full width */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, ease: [0.215, 0.610, 0.355, 1.000], delay: 0.15 }}
+              className="w-full px-6 md:px-12 lg:px-16 pb-12"
+            >
+              <div className="w-full aspect-[16/7] md:aspect-[21/9] bg-neutral-100 border border-neutral-200/60 rounded-sm flex items-center justify-center text-neutral-400 text-xs font-medium tracking-widest uppercase">
+                Главный экран проекта
+              </div>
+            </motion.div>
+          </motion.section>
+
+          {/* ══════════════════════════════════════════════════════════
+          Блок 2: Мета-данные и краткое описание
+          ══════════════════════════════════════════════════════════ */}
+          <motion.section
+            {...sectionReveal}
+            className="border-t border-b border-neutral-200/60 bg-white"
+          >
+            <div className="grid grid-cols-2 md:grid-cols-4">
+              {[
+                { label: "Сфера", value: data.meta.sphere },
+                { label: "Тип проекта", value: data.meta.type },
+                { label: "Стек", value: data.meta.stack },
+                { label: "Год", value: data.meta.year }
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`px-6 md:px-12 lg:px-16 py-8 ${idx < 3 ? 'border-r border-neutral-200/60' : ''
+                    } ${idx < 2 ? 'border-b md:border-b-0 border-neutral-200/60' : idx === 2 ? 'border-b md:border-b-0 border-neutral-200/60' : ''}`}
+                >
+                  <span className="block text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
+                    {item.label}
                   </span>
-                  <h3 className="text-2xl md:text-3xl lg:text-4xl font-light tracking-tight text-black mb-4 leading-tight">
-                    {feature.title}
-                  </h3>
-                  <p className="text-[15px] leading-relaxed text-zinc-600 max-w-md">
-                    {feature.text}
+                  <span className="block text-[14px] md:text-[15px] font-medium text-black tracking-tight">
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
+          <motion.section
+            {...sectionReveal}
+            id="case-about"
+            className="py-16 px-6 md:px-12 lg:px-16 bg-white"
+          >
+            <div className="max-w-4xl">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-5">
+                Описание проекта
+              </p>
+              <p className="text-base md:text-lg text-neutral-700 font-light leading-relaxed tracking-tight">
+                {data.about.text}
+              </p>
+            </div>
+          </motion.section>
+
+          {/* ══════════════════════════════════════════════════════════
+          Блок 3: Процесс работы (Design Process)
+          ══════════════════════════════════════════════════════════ */}
+          <section id="case-process" className="py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white border-t border-neutral-100">
+            <div className="mb-12">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-4">
+                Дизайн-процесс
+              </p>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-black">
+                Этапы реализации
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                {
+                  num: "01",
+                  title: "Исследование",
+                  icon: <Clock className="w-5 h-5 text-[#FF5B23]" />,
+                  desc: "Глубинные интервью, анализ конкурентов, разработка пользовательских сценариев и ментальных карт проекта.",
+                  tags: ["Интервью", "Бенчмаркинг", "User Flow"]
+                },
+                {
+                  num: "02",
+                  title: "Стратегия",
+                  icon: <Shield className="w-5 h-5 text-[#FF5B23]" />,
+                  desc: "Определение структуры проекта, создание функциональных интерактивных прототипов и согласование структуры.",
+                  tags: ["Wireframes", "Архитектура", "ТЗ"]
+                },
+                {
+                  num: "03",
+                  title: "Решение",
+                  icon: <Check className="w-5 h-5 text-[#FF5B23]" />,
+                  desc: "Сборка дизайн-системы, визуальный стиль интерфейса, адаптивная верстка макетов и подготовка под Hand-off разработчикам.",
+                  tags: ["UI Дизайн", "Дизайн-система", "Figma"]
+                }
+              ].map((step, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.15 }}
+                  className="bg-neutral-50/30 border border-neutral-200/60 rounded-sm p-6 flex flex-col justify-between hover:border-neutral-300 transition-colors duration-300"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      {/* Icon in circle */}
+                      <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center">
+                        {step.icon}
+                      </div>
+                      {/* Step number */}
+                      <span className="text-[11px] font-bold text-neutral-300 tracking-wider">
+                        {step.num}
+                      </span>
+                    </div>
+
+                    <h3 className="text-lg md:text-xl font-medium text-black mb-3">
+                      {step.title}
+                    </h3>
+
+                    <p className="text-[13px] leading-relaxed text-neutral-500 mb-6">
+                      {step.desc}
+                    </p>
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {step.tags.map((tag, tIdx) => (
+                      <span
+                        key={tIdx}
+                        className="bg-neutral-100 text-neutral-600 text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* ══════════════════════════════════════════════════════════
+          Блок 4: Бесконечный панорамный шоукейс
+          ══════════════════════════════════════════════════════════ */}
+          <section id="case-marquee-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b border-neutral-100 overflow-hidden relative">
+            <style>{marqueeStyle}</style>
+
+            <div className="px-6 md:px-12 lg:px-16 mb-12">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-4">
+                Шоукейс интерфейсов
+              </p>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-black">
+                Панорамный обзор
+              </h2>
+            </div>
+
+            <div className="flex flex-col gap-6 w-full overflow-hidden">
+              {/* Row 1: Left to Right */}
+              <div className="relative w-full flex overflow-hidden">
+                <div className="flex gap-6 w-max animate-marquee-ltr">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={`ltr-1-${idx}`} className="w-[300px] md:w-[400px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm flex flex-col justify-between p-4 text-neutral-400 text-[10px] font-medium tracking-widest uppercase">
+                      <span>ЭКРАН {idx + 1}</span>
+                      <span className="self-end">16:9 PLACEHOLDER</span>
+                    </div>
+                  ))}
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={`ltr-2-${idx}`} className="w-[300px] md:w-[400px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm flex flex-col justify-between p-4 text-neutral-400 text-[10px] font-medium tracking-widest uppercase">
+                      <span>ЭКРАН {idx + 1}</span>
+                      <span className="self-end">16:9 PLACEHOLDER</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Row 2: Right to Left */}
+              <div className="relative w-full flex overflow-hidden">
+                <div className="flex gap-6 w-max animate-marquee-rtl">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={`rtl-1-${idx}`} className="w-[300px] md:w-[400px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm flex flex-col justify-between p-4 text-neutral-400 text-[10px] font-medium tracking-widest uppercase">
+                      <span>ЭКРАН {idx + 5}</span>
+                      <span className="self-end">16:9 PLACEHOLDER</span>
+                    </div>
+                  ))}
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div key={`rtl-2-${idx}`} className="w-[300px] md:w-[400px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm flex flex-col justify-between p-4 text-neutral-400 text-[10px] font-medium tracking-widest uppercase">
+                      <span>ЭКРАН {idx + 5}</span>
+                      <span className="self-end">16:9 PLACEHOLDER</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ══════════════════════════════════════════════════════════
+          Блок 5: Задача и Решение (The Challenge)
+          ══════════════════════════════════════════════════════════ */}
+          <section id="case-challenge" className="py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white border-b border-neutral-100">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+              <div className="lg:col-span-4">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-[#FF5B23] mb-4">
+                  [ Испытание ]
+                </p>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-black leading-tight">
+                  Задача & Решение
+                </h2>
+              </div>
+
+              <div className="lg:col-span-8 flex flex-col justify-between">
+                <div className="text-base md:text-lg text-neutral-600 font-light leading-relaxed tracking-tight mb-8">
+                  <p className="mb-6">
+                    Основная сложность заключалась в интеграции многочисленных медицинских протоколов онлайн-записи и обеспечении полной конфиденциальности медицинских данных. Система должна была выдерживать высокие пиковые нагрузки на ресепшн клиники в утренние часы.
+                  </p>
+                  <p>
+                    Мы спроектировали защищенный контур для обмена файлами анализов и разработали гибкую систему слотов, которая обновляется в реальном времени. В результате время записи сократилось в 4 раза, а количество ошибок при ручном бронировании снизилось на 92%.
                   </p>
                 </div>
 
-                {/* Image with floating shadow */}
-                <div className={`${isEven ? 'lg:order-2' : 'lg:order-1'}`}>
-                  <motion.img
-                    src={feature.image}
-                    alt={feature.title}
-                    whileHover={{ y: -4 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full h-auto rounded-sm case-feature-shadow"
-                  />
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
+                {data.liveUrl && data.liveUrl !== "" && data.liveUrl !== "#" && (
+                  <div>
+                    <a
+                      href={data.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FF5B23] text-white hover:bg-[#e04f1e] rounded-sm text-[13px] font-semibold transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md no-underline"
+                    >
+                      <span>Смотреть live</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
 
-
-      {/* ══════════════════════════════════════════════════════════
-          7. OUTRO — полноэкранный финальный рендер
+          {/* ══════════════════════════════════════════════════════════
+          Блок 6: Ключевые десктопные экраны (Desktop Horizontal Scroll)
           ══════════════════════════════════════════════════════════ */}
-      <motion.section
-        {...sectionReveal}
-        className="bg-[#FAFAFA] border-t border-zinc-100"
-      >
-        <div className="px-6 md:px-12 lg:px-16 py-16 md:py-24">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-4">
-            Финальный результат
-          </p>
-        </div>
-        <div className="w-full px-6 md:px-12 lg:px-16 pb-0">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, ease: [0.215, 0.610, 0.355, 1.000] }}
-            className="w-full overflow-hidden rounded-t-md"
-          >
-            <img
-              src={data.outro.image}
-              alt="Финальный рендер проекта"
-              className="w-full h-auto object-cover"
-            />
-          </motion.div>
-        </div>
-      </motion.section>
+          <section id="case-showcase" className="py-20 md:py-28 bg-white border-b border-neutral-100 overflow-hidden">
+            <div className="flex items-center justify-between px-6 md:px-12 lg:px-16 mb-10">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
+                  Ключевые экраны
+                </p>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-black">
+                  Решения в деталях
+                </h2>
+              </div>
+              {/* Navigation controls */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => scrollDesktop('left')}
+                  className="w-10 h-10 rounded-sm border border-neutral-200 hover:border-neutral-400 flex items-center justify-center text-neutral-600 hover:text-black transition-colors bg-white shadow-sm cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => scrollDesktop('right')}
+                  className="w-10 h-10 rounded-sm border border-neutral-200 hover:border-neutral-400 flex items-center justify-center text-neutral-600 hover:text-black transition-colors bg-white shadow-sm cursor-pointer"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Desktop Horizontal Scroll */}
+            <div
+              ref={desktopScrollRef}
+              className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pl-6 md:pl-12 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pb-6 scroll-pl-6 md:scroll-pl-12 lg:scroll-pl-16 scroll-pr-6 md:scroll-pr-12 lg:scroll-pr-16"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {data.features.map((feature, idx) => (
+                <div
+                  key={idx}
+                  className="w-[85vw] md:w-[45%] lg:w-[44%] shrink-0 snap-start"
+                >
+                  {/* Text */}
+                  <div className="mb-5">
+                    <span className="text-[10px] font-semibold tracking-wider text-[#FF5B23] uppercase mb-2 block">
+                      [ 0{idx + 1} ]
+                    </span>
+                    <h3 className="text-xl md:text-2xl font-light tracking-tight text-black mb-3 leading-tight">
+                      {feature.title}
+                    </h3>
+                    <p className="text-[14px] md:text-[15px] leading-relaxed text-zinc-600">
+                      {feature.text}
+                    </p>
+                  </div>
+
+                  {/* Image in 16:9 Aspect Ratio (represented as grey placeholder) */}
+                  <div className="w-full aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm flex items-center justify-center text-neutral-400 text-[10px] font-semibold tracking-widest uppercase">
+                    Десктопный скриншот 0{idx + 1}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ══════════════════════════════════════════════════════════
+          Блок 7: Мобильная версия (Mobile Responsive Carousel)
+          ══════════════════════════════════════════════════════════ */}
+          <section id="case-mobile-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b border-neutral-100 overflow-hidden">
+            <div className="flex items-center justify-between px-6 md:px-12 lg:px-16 mb-10">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
+                  Адаптивность
+                </p>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-black">
+                  Мобильная версия
+                </h2>
+              </div>
+              {/* Navigation controls */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => scrollMobile('left')}
+                  className="w-10 h-10 rounded-sm border border-neutral-200 hover:border-neutral-400 flex items-center justify-center text-neutral-600 hover:text-black transition-colors bg-white shadow-sm cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => scrollMobile('right')}
+                  className="w-10 h-10 rounded-sm border border-neutral-200 hover:border-neutral-400 flex items-center justify-center text-neutral-600 hover:text-black transition-colors bg-white shadow-sm cursor-pointer"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Horizontal Carousel */}
+            <div
+              ref={mobileScrollRef}
+              className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pl-6 md:pl-12 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pb-6 scroll-pl-6 md:scroll-pl-12 lg:scroll-pl-16 scroll-pr-6 md:scroll-pr-12 lg:scroll-pr-16"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {[
+                { title: "Запись в клинику", label: "Календарь" },
+                { title: "Профиль специалиста", label: "Детали" },
+                { title: "Личный кабинет", label: "Пациент" },
+                { title: "Медицинская карта", label: "История" },
+                { title: "Телемед чат", label: "Консультация" }
+              ].map((screen, idx) => (
+                <div
+                  key={idx}
+                  className="w-[60vw] sm:w-[40vw] md:w-[25vw] lg:w-[18vw] shrink-0 snap-start"
+                >
+                  {/* Text */}
+                  <div className="mb-4">
+                    <span className="text-[9px] font-semibold text-[#FF5B23] tracking-widest uppercase block mb-1">
+                      [ {screen.label} ]
+                    </span>
+                    <h3 className="text-sm font-medium text-black leading-tight">
+                      {screen.title}
+                    </h3>
+                  </div>
+
+                  {/* Aspect Ratio 9:19 (smartphone) */}
+                  <div className="w-full aspect-[9/19] bg-neutral-100 border border-neutral-200/60 rounded-sm flex flex-col justify-between p-4 text-neutral-400 text-[9px] font-medium tracking-widest uppercase relative">
+                    <div className="flex justify-between items-center w-full">
+                      <span>Экран 0{idx + 1}</span>
+                      <div className="w-4 h-1.5 rounded-full bg-neutral-200/70" />
+                    </div>
+
+                    <span className="self-center">9:19 PLACEHOLDER</span>
+
+                    <div className="w-8 h-8 rounded-full border border-neutral-200/70 self-center flex items-center justify-center text-[8px] select-none">
+                      ○
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
 
 
-      {/* ══════════════════════════════════════════════════════════
+          {/* ══════════════════════════════════════════════════════════
           9. НАВИГАЦИЯ — возврат + следующий кейс
           ══════════════════════════════════════════════════════════ */}
-      <section className="bg-white border-t border-zinc-100/50">
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Back to home */}
-          <Link
-            to="/"
-            className="group flex items-center gap-4 px-6 md:px-12 lg:px-16 py-10 md:py-14 border-b md:border-b-0 md:border-r border-zinc-100 transition-colors duration-300 hover:bg-zinc-50 no-underline"
-          >
-            <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-zinc-900 transition-colors duration-300 shrink-0" />
-            <div>
-              <span className="block text-[10px] font-semibold uppercase tracking-widest text-zinc-400 mb-1">
-                Назад
-              </span>
-              <span className="block text-lg md:text-xl font-light tracking-tight text-zinc-900">
-                На главную
-              </span>
-            </div>
-          </Link>
+          <section className="bg-white border-t border-zinc-300">
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              {/* Back to home */}
+              <Link
+                to="/"
+                className="group flex items-center gap-4 px-6 md:px-12 lg:px-16 py-10 md:py-14 border-b md:border-b-0 md:border-r border-zinc-300 bg-zinc-50/50 hover:bg-zinc-100/60 transition-colors duration-300 no-underline"
+              >
+                <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-zinc-900 transition-colors duration-300 shrink-0" />
+                <div>
+                  <span className="block text-[10px] font-semibold uppercase tracking-widest text-zinc-400 mb-1">
+                    Назад
+                  </span>
+                  <span className="block text-lg md:text-xl font-light tracking-tight text-zinc-900">
+                    На главную
+                  </span>
+                </div>
+              </Link>
 
-          {/* Next case */}
-          <Link
-            to={`/case/${nextCaseId}`}
-            className="group flex items-center justify-end gap-4 px-6 md:px-12 lg:px-16 py-10 md:py-14 transition-colors duration-300 hover:bg-zinc-50 text-right no-underline"
-          >
-            <div>
-              <span className="block text-[10px] font-semibold uppercase tracking-widest text-zinc-400 mb-1">
-                Следующий кейс
-              </span>
-              <span className="block text-lg md:text-xl font-light tracking-tight text-zinc-900">
-                {nextCaseName}
-              </span>
+              {/* Next case */}
+              <Link
+                to={`/case/${nextCaseId}`}
+                className="group flex items-center justify-end gap-4 px-6 md:px-12 lg:px-16 py-10 md:py-14 bg-zinc-50/50 hover:bg-zinc-100/60 transition-colors duration-300 text-right no-underline"
+              >
+                <div>
+                  <span className="block text-[10px] font-semibold uppercase tracking-widest text-zinc-400 mb-1">
+                    Следующий кейс
+                  </span>
+                  <span className="block text-lg md:text-xl font-light tracking-tight text-zinc-900">
+                    {nextCaseName}
+                  </span>
+                </div>
+                <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-[#FF5B23] transition-colors duration-300 shrink-0" />
+              </Link>
             </div>
-            <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-[#FF5B23] transition-colors duration-300 shrink-0" />
-          </Link>
-        </div>
-      </section>
+          </section>
 
-      {/* ══════════════════════════════════════════════════════════
+          {/* ══════════════════════════════════════════════════════════
           8. БЛОК «ОБСУДИТЬ ПРОЕКТ» — полная копия с главной
           ══════════════════════════════════════════════════════════ */}
-      <CaseContacts />
+          <CaseContacts />
 
 
-      {/* ══════════════════════════════════════════════════════════
+          {/* ══════════════════════════════════════════════════════════
           БЕГУЩАЯ СТРОКА
           ══════════════════════════════════════════════════════════ */}
-      <KineticMarquee />
+          <KineticMarquee />
 
         </div>
       </motion.main>

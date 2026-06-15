@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import contentData from '../contentData';
@@ -8,6 +8,20 @@ const INITIAL_VISIBLE = 4; // количество карточек, видим�
 export default function Cases() {
   const cases = contentData.cases.items;
   const [showAll, setShowAll] = useState(false);
+
+  const handleToggle = () => {
+    if (showAll) {
+      setShowAll(false);
+      setTimeout(() => {
+        const el = document.getElementById('case-card-2');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+      }, 100);
+    } else {
+      setShowAll(true);
+    }
+  };
 
   const visibleCases = showAll ? cases : cases.slice(0, INITIAL_VISIBLE);
   const hiddenCount = cases.length - INITIAL_VISIBLE;
@@ -108,6 +122,7 @@ export default function Cases() {
               return (
                 <motion.div
                   key={project.name}
+                  id={`case-card-${idx}`}
                   variants={cardVariants}
                   initial="hidden"
                   animate="visible"
@@ -200,7 +215,7 @@ export default function Cases() {
             >
               <button
                 type="button"
-                onClick={() => setShowAll(!showAll)}
+                onClick={handleToggle}
                 className={`group inline-flex items-center gap-3 px-6 py-3 rounded-sm text-[13px] font-medium tracking-wide transition-all duration-250 hover:shadow-sm ${
                   !showAll
                     ? 'bg-[#E0FB4A] border border-[#E0FB4A] text-zinc-950 hover:bg-[#d5f53c] hover:border-[#d5f53c]'
@@ -209,13 +224,9 @@ export default function Cases() {
               >
                 <span>{!showAll ? 'Показать еще' : 'Скрыть'}</span>
                 {!showAll ? (
-                  <>
-                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-black text-[11px] font-semibold text-white transition-colors duration-200">
-                      {hiddenCount}
-                    </span>
-                    {/* Лаймовый ромбик-акцент при ховере */}
-                    <span className="w-1.5 h-1.5 bg-zinc-950 rotate-45 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                  </>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-black text-[11px] font-semibold text-white transition-colors duration-200">
+                    {hiddenCount}
+                  </span>
                 ) : null}
               </button>
             </motion.div>
