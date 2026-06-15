@@ -23,7 +23,7 @@ export default function Sidebar({ activeSection }) {
         initial={{ opacity: 0, filter: "blur(8px)" }}
         animate={{ opacity: 1, filter: "blur(0px)" }}
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-        className="lg:hidden flex items-center justify-between px-6 py-4 sticky top-0 bg-white/85 backdrop-blur-md border-b border-zinc-100 z-[200]"
+        className="lg:hidden flex items-center justify-between px-6 py-4 sticky top-0 bg-white/85 backdrop-blur-md border-b\u00a0border-zinc-100 z-[200]"
       >
         <span className="text-sm font-medium text-zinc-900">{contentData.sidebar.profile.name}</span>
         <button
@@ -78,7 +78,7 @@ export default function Sidebar({ activeSection }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span className="border-b border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+            <span className="border-b\u00a0border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
               Связь в Telegram
             </span>
             <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -141,7 +141,7 @@ export default function Sidebar({ activeSection }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span className="border-b border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+            <span className="border-b\u00a0border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
               Связь в Telegram
             </span>
             <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">

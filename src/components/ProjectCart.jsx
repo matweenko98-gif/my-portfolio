@@ -24,7 +24,7 @@ export default function ProjectCart({
   bump = false,
   badgeBump = false,
   highlightedSlot = null,
-  hintText = 'Выберите параметры слева — они появятся в корзине',
+  hintText = 'Выберите параметры слева — они появятся в\u00a0корзине',
   isLight = false,
 }) {
   const [showArrowHint, setShowArrowHint] = useState(true);

@@ -73,7 +73,7 @@ export default function LegalPage({ type }) {
       document.title = "Пользовательское соглашение | Правила использования сайта";
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
-        metaDescription.setAttribute('content', 'Пользовательское соглашение и правила использования сайта.');
+        metaDescription.setAttribute('content', 'Пользовательское соглашение и\u00a0правила использования сайта.');
       }
     }
   }, [type]);

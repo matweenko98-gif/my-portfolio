@@ -95,7 +95,7 @@ export default function Workflow() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
-      className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-neutral-800 bg-[#111111] w-full overflow-hidden"
+      className="relative py-20 px-6 md:px-12 lg:px-16 border-b\u00a0border-neutral-800 bg-[#111111] w-full overflow-hidden"
     >
       {/* Background Coordinate Lines */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
@@ -164,18 +164,18 @@ export default function Workflow() {
           {steps.map((step, idx) => {
             const stepResults = {
               websites: [
-                "Результат: Интеллект-карта и ТЗ",
-                "Результат: Интерактивный макет в Figma",
-                "Результат: Готовый сайт на Tilda + CRM",
+                "Результат: Интеллект-карта и\u00a0ТЗ",
+                "Результат: Интерактивный макет в\u00a0Figma",
+                "Результат: Готовый сайт на\u00a0Tilda + CRM",
                 "Результат: Передача прав + Видеоинструкция",
-                "Результат: 30 дней поддержки и аналитики"
+                "Результат: 30 дней поддержки и\u00a0аналитики"
               ],
               aiApps: [
-                "Результат: Функциональное ТЗ и бэклог",
+                "Результат: Функциональное ТЗ и\u00a0бэклог",
                 "Результат: Интерактивный прототип Figma",
                 "Результат: Рабочий MVP веб-сервис",
                 "Результат: Релиз продукта + Инструкции",
-                "Результат: План развития и итераций"
+                "Результат: План развития и\u00a0итераций"
               ]
             };
             const stepResult = stepResults[activeTab][idx];

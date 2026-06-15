@@ -37,9 +37,9 @@ function ImageUpload({ label, value, onChange, onError, pathPrefix = 'case' }) {
     } catch (err) {
       console.error('Upload error:', err);
       if (onError) {
-        onError('Ошибка при загрузке изображения: ' + err.message);
+        onError('Ошибка при\u00a0загрузке изображения: ' + err.message);
       } else {
-        alert('Ошибка при загрузке изображения: ' + err.message);
+        alert('Ошибка при\u00a0загрузке изображения: ' + err.message);
       }
     } finally {
       setUploading(false);
@@ -216,28 +216,28 @@ export default function AdminWorkspace() {
         {
           num: "01",
           title: "Интернет-магазин одежды FORME",
-          description: "Онлайн-магазин одежды с фокусом на форму, посадку и визуальную чистоту. Проект ориентирован на аудиторию, для которой важны не тренды «на один сезон», а силуэт, качество и ощущение собранного образа.",
+          description: "Онлайн-магазин одежды с\u00a0фокусом на\u00a0форму, посадку и\u00a0визуальную чистоту. Проект ориентирован на\u00a0аудиторию, для\u00a0которой важны не тренды «на\u00a0один сезон», а\u00a0силуэт, качество и\u00a0ощущение собранного образа.",
           link_url: "",
           sort_order: 0
         },
         {
           num: "02",
           title: "Типография цифровых решений",
-          description: "Многостраничный сайт. Основной фокус — B2B-клиенты, для которых важны скорость, качество, точная цветопередача и надёжность подрядчика.",
+          description: "Многостраничный сайт. Основной фокус — B2B-клиенты, для\u00a0которых важны скорость, качество, точная цветопередача и\u00a0надёжность подрядчика.",
           link_url: "",
           sort_order: 1
         },
         {
           num: "03",
           title: "Корпоративный сайт косметологического кабинета",
-          description: "Косметологический кабинет для девушек с проблемной, чувствительной и реактивной кожей. Формат — частный специалист. Сайт должен был работать как система: объяснять подход специалиста, показывать логику работы с кожей и формировать ощущение безопасного пространства.",
+          description: "Косметологический кабинет для\u00a0девушек с\u00a0проблемной, чувствительной и\u00a0реактивной кожей. Формат — частный специалист. Сайт должен был работать как\u00a0система: объяснять подход специалиста, показывать логику работы с\u00a0кожей и\u00a0формировать ощущение безопасного пространства.",
           link_url: "",
           sort_order: 2
         },
         {
           num: "04",
           title: "Nempl — автоматизация бизнеса",
-          description: "Nempl — компания, занимающаяся внедрением ИИ-сотрудников для автоматизации продаж и бизнес-процессов. Основной продукт — ИИ-ассистенты для отделов продаж, поддержки и коммуникаций, интегрируемые с CRM и мессенджерами.",
+          description: "Nempl — компания, занимающаяся внедрением ИИ-сотрудников для\u00a0автоматизации продаж и\u00a0бизнес-процессов. Основной продукт — ИИ-ассистенты для\u00a0отделов продаж, поддержки и\u00a0коммуникаций, интегрируемые с\u00a0CRM и\u00a0мессенджерами.",
           link_url: "",
           sort_order: 3
         }
@@ -300,7 +300,7 @@ export default function AdminWorkspace() {
       fetchCases();
     } catch (err) {
       console.error('Delete error:', err);
-      setToast({ show: true, message: 'Ошибка при удалении: ' + err.message, type: 'error' });
+      setToast({ show: true, message: 'Ошибка при\u00a0удалении: ' + err.message, type: 'error' });
     }
   };
 
@@ -347,7 +347,7 @@ export default function AdminWorkspace() {
       fetchCases();
     } catch (err) {
       console.error('Error swapping positions:', err);
-      setToast({ show: true, message: 'Ошибка при перемещении: ' + err.message, type: 'error' });
+      setToast({ show: true, message: 'Ошибка при\u00a0перемещении: ' + err.message, type: 'error' });
     }
   };
 
@@ -464,7 +464,7 @@ export default function AdminWorkspace() {
       fetchCases();
     } catch (err) {
       console.error('Error updating positions after drag & drop:', err);
-      setToast({ show: true, message: 'Ошибка при перетаскивании: ' + err.message, type: 'error' });
+      setToast({ show: true, message: 'Ошибка при\u00a0перетаскивании: ' + err.message, type: 'error' });
     } finally {
       setDraggedIndex(null);
       setLoadingList(false);
@@ -577,7 +577,7 @@ export default function AdminWorkspace() {
   const handlePublishOtherProject = async (e) => {
     e.preventDefault();
     if (!otherNum || !otherTitle || !otherDescription) {
-      setToast({ show: true, message: 'Пожалуйста, заполните Номер, Название и Описание', type: 'error' });
+      setToast({ show: true, message: 'Пожалуйста, заполните Номер, Название и\u00a0Описание', type: 'error' });
       return;
     }
 
@@ -613,13 +613,13 @@ export default function AdminWorkspace() {
           .from('other_projects')
           .insert([payload]);
         if (error) throw error;
-        setToast({ show: true, message: 'Проект успешно добавлен в базу!', type: 'success' });
+        setToast({ show: true, message: 'Проект успешно добавлен в\u00a0базу!', type: 'success' });
       }
       resetOtherForm();
       fetchOtherProjects();
     } catch (err) {
       console.error('Error saving other project:', err);
-      setToast({ show: true, message: 'Ошибка при сохранении: ' + err.message, type: 'error' });
+      setToast({ show: true, message: 'Ошибка при\u00a0сохранении: ' + err.message, type: 'error' });
     } finally {
       setSavingOther(false);
     }
@@ -632,14 +632,14 @@ export default function AdminWorkspace() {
         .delete()
         .eq('id', id);
       if (error) throw error;
-      setToast({ show: true, message: 'Проект успешно удален из базы!', type: 'success' });
+      setToast({ show: true, message: 'Проект успешно удален из\u00a0базы!', type: 'success' });
       if (editingOtherId === id) {
         resetOtherForm();
       }
       fetchOtherProjects();
     } catch (err) {
       console.error('Error deleting other project:', err);
-      setToast({ show: true, message: 'Ошибка при удалении: ' + err.message, type: 'error' });
+      setToast({ show: true, message: 'Ошибка при\u00a0удалении: ' + err.message, type: 'error' });
     }
   };
 
@@ -669,7 +669,7 @@ export default function AdminWorkspace() {
       fetchOtherProjects();
     } catch (err) {
       console.error('Error changing order:', err);
-      setToast({ show: true, message: 'Ошибка при перемещении: ' + err.message, type: 'error' });
+      setToast({ show: true, message: 'Ошибка при\u00a0перемещении: ' + err.message, type: 'error' });
     }
   };
 
@@ -744,7 +744,7 @@ export default function AdminWorkspace() {
           year
         },
         about: {
-          title: 'О проекте',
+          title: 'О\u00a0проекте',
           text: shortBio
         },
         challenge: {
@@ -797,7 +797,7 @@ export default function AdminWorkspace() {
       fetchCases();
     } catch (err) {
       console.error('Saving error:', err);
-      setToast({ show: true, message: 'Ошибка при сохранении кейса: ' + err.message, type: 'error' });
+      setToast({ show: true, message: 'Ошибка при\u00a0сохранении кейса: ' + err.message, type: 'error' });
     } finally {
       setPublishing(false);
     }
@@ -878,7 +878,7 @@ export default function AdminWorkspace() {
                         </span>
                         <div className="min-w-0 flex-1">
                           <span className="block text-xs font-semibold text-black break-words whitespace-normal leading-normal">
-                            {item.title || item.card_title || '(Без названия)'}
+                            {item.title || item.card_title || '(Без\u00a0названия)'}
                           </span>
                           <span className="block text-[10px] text-zinc-400 truncate mt-0.5">
                             /{item.slug}
@@ -960,7 +960,7 @@ export default function AdminWorkspace() {
                         </span>
                         <div className="min-w-0 flex-1">
                           <span className="block text-xs font-semibold text-black break-words whitespace-normal leading-normal">
-                            {item.title || '(Без названия)'}
+                            {item.title || '(Без\u00a0названия)'}
                           </span>
                           <span className="block text-[10px] text-zinc-400 truncate mt-0.5">
                             № {item.num}
@@ -1018,7 +1018,7 @@ export default function AdminWorkspace() {
       {/* RIGHT COLUMN: Form Constructor (Wide workspace) */}
       <main className="flex-1 p-6 md:p-12 lg:p-16 max-w-4xl bg-white">
         {/* Tab switcher tabs bar */}
-        <div className="flex border-b border-zinc-200 mb-8">
+        <div className="flex border-b\u00a0border-zinc-200 mb-8">
           <button
             type="button"
             onClick={() => {
@@ -1073,7 +1073,7 @@ export default function AdminWorkspace() {
               
               {/* SECTION 1: BASIC INFORMATION */}
               <section className="space-y-6 bg-white p-6 border border-zinc-150 rounded-sm">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] border-b border-zinc-100 pb-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] border-b\u00a0border-zinc-100 pb-2">
                   [ 1. Основные параметры Hero ]
                 </h3>
 
@@ -1184,7 +1184,7 @@ export default function AdminWorkspace() {
                     </label>
                     <input
                       type="text"
-                      placeholder="Сайт с акцентом на чистые силуэты и форму..."
+                      placeholder="Сайт с\u00a0акцентом на\u00a0чистые силуэты и\u00a0форму..."
                       value={subtitle}
                       onChange={(e) => setSubtitle(e.target.value)}
                       className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-sm focus:border-black focus:ring-0 outline-none transition-colors"
@@ -1208,7 +1208,7 @@ export default function AdminWorkspace() {
 
               {/* SECTION 2: METADATA & ABOUT */}
               <section className="space-y-6 bg-neutral-50 p-6 border border-zinc-200/60 rounded-sm">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] border-b border-zinc-200 pb-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] border-b\u00a0border-zinc-200 pb-2">
                   [ 2. Мета-данные и Описание ]
                 </h3>
 
@@ -1284,7 +1284,7 @@ export default function AdminWorkspace() {
                   </label>
                   <textarea
                     rows={4}
-                    placeholder="Расскажите в 3-5 предложениях о целях, задачах и сути проекта..."
+                    placeholder="Расскажите в\u00a03-5 предложениях о\u00a0целях, задачах и\u00a0сути проекта..."
                     value={shortBio}
                     onChange={(e) => setShortBio(e.target.value)}
                     className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-sm focus:border-black focus:ring-0 outline-none transition-colors resize-y"
@@ -1299,7 +1299,7 @@ export default function AdminWorkspace() {
 
               {/* SECTION 3: TASK & SOLUTION */}
               <section className="space-y-6 bg-white p-6 border border-zinc-150 rounded-sm">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] border-b border-zinc-100 pb-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] border-b\u00a0border-zinc-100 pb-2">
                   [ 3. Задача и Решение ]
                 </h3>
 
@@ -1310,7 +1310,7 @@ export default function AdminWorkspace() {
                     </label>
                     <textarea
                       rows={5}
-                      placeholder="Опишите техническую сложность или бизнес-задачу..."
+                      placeholder="Опишите техническую сложность или\u00a0бизнес-задачу..."
                       value={task}
                       onChange={(e) => setTask(e.target.value)}
                       className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-sm focus:border-black focus:ring-0 outline-none transition-colors resize-y"
@@ -1358,7 +1358,7 @@ export default function AdminWorkspace() {
 
               {/* SECTION 4: VISIBILITY TOGGLES */}
               <section className="space-y-6 bg-neutral-50 p-6 border border-zinc-200/60 rounded-sm">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] border-b border-zinc-200 pb-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] border-b\u00a0border-zinc-200 pb-2">
                   [ 4. Видимость блоков на сайте ]
                 </h3>
                 
@@ -1372,7 +1372,7 @@ export default function AdminWorkspace() {
                       ),
                       challenge: (
                         <>
-                          Показывать блок 'Задача и Решение' <span className="text-zinc-400 font-normal">(№3)</span>
+                          Показывать блок 'Задача и\u00a0Решение' <span className="text-zinc-400 font-normal">(№3)</span>
                         </>
                       ),
                       desktop: (
@@ -1424,7 +1424,7 @@ export default function AdminWorkspace() {
 
               {/* SECTION 5: PROCESS STEPS */}
               <section className="space-y-6 bg-white p-6 border border-zinc-150 rounded-sm">
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+                <div className="flex items-center justify-between border-b\u00a0border-zinc-100 pb-2">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23]">
                     [ 5. Конструктор процесса реализации ]
                   </h3>
@@ -1464,7 +1464,7 @@ export default function AdminWorkspace() {
                             <input
                               type="text"
                               required
-                              placeholder="Анализ и стратегия"
+                              placeholder="Анализ и\u00a0стратегия"
                               value={step.title}
                               onChange={(e) => updateProcessStep(idx, 'title', e.target.value)}
                               className="w-full px-3 py-1.5 text-xs bg-white border border-zinc-200 rounded-sm focus:border-black outline-none"
@@ -1520,7 +1520,7 @@ export default function AdminWorkspace() {
 
               {/* SECTION 6: DESKTOP FEATURES */}
               <section className="space-y-6 bg-neutral-50 p-6 border border-zinc-200/60 rounded-sm">
-                <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                <div className="flex items-center justify-between border-b\u00a0border-zinc-200 pb-2">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23]">
                     [ 6. Ключевые функции (Desktop) ]
                   </h3>
@@ -1560,7 +1560,7 @@ export default function AdminWorkspace() {
                             <input
                               type="text"
                               required
-                              placeholder="Онлайн-запись к врачу"
+                              placeholder="Онлайн-запись к\u00a0врачу"
                               value={card.title}
                               onChange={(e) => updateDesktopFeature(idx, 'title', e.target.value)}
                               className="w-full px-3 py-1.5 text-xs bg-white border border-zinc-200 rounded-sm focus:border-black outline-none"
@@ -1598,7 +1598,7 @@ export default function AdminWorkspace() {
 
               {/* SECTION 7: MOBILE FEATURES */}
               <section className="space-y-6 bg-white p-6 border border-zinc-150 rounded-sm">
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+                <div className="flex items-center justify-between border-b\u00a0border-zinc-100 pb-2">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23]">
                     [ 7. Ключевые функции (Mobile) ]
                   </h3>
@@ -1676,7 +1676,7 @@ export default function AdminWorkspace() {
 
               {/* SECTION 8: PANORAMA IMAGES */}
               <section className="space-y-6 bg-neutral-50 p-6 border border-zinc-200/60 rounded-sm">
-                <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                <div className="flex items-center justify-between border-b\u00a0border-zinc-200 pb-2">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23]">
                     [ 8. Панорамный шоукейс ]
                   </h3>
@@ -1725,7 +1725,7 @@ export default function AdminWorkspace() {
 
               {/* SECTION 9: OUTRO IMAGES */}
               <section className="space-y-6 bg-white p-6 border border-zinc-150 rounded-sm">
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+                <div className="flex items-center justify-between border-b\u00a0border-zinc-100 pb-2">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23]">
                     [ 9. Финальный шоукейс (Outro) ]
                   </h3>
@@ -1778,7 +1778,7 @@ export default function AdminWorkspace() {
 
               {/* SECTION 10: CUSTOM BLOCKS */}
               <section className="space-y-6 bg-neutral-50 p-6 border border-zinc-200/60 rounded-sm">
-                <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                <div className="flex items-center justify-between border-b\u00a0border-zinc-200 pb-2">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23]">
                     [ 10. Кастомные инфо-блоки ]
                   </h3>
@@ -1879,7 +1879,7 @@ export default function AdminWorkspace() {
             )}
 
             <h1 className="text-3xl font-light tracking-tighter text-black mb-8">
-              {editingOtherId !== null ? `Редактирование проекта: ${otherTitle}` : '+ Добавить новый проект в архив'}
+              {editingOtherId !== null ? `Редактирование проекта: ${otherTitle}` : '+ Добавить новый проект в\u00a0архив'}
             </h1>
 
             <form onSubmit={handlePublishOtherProject} className="space-y-6 bg-white p-6 border border-zinc-150 rounded-sm max-w-2xl">
@@ -1933,7 +1933,7 @@ export default function AdminWorkspace() {
                 <textarea
                   required
                   rows={4}
-                  placeholder="Опишите проект, его суть и технологическую направленность..."
+                  placeholder="Опишите проект, его суть и\u00a0технологическую направленность..."
                   value={otherDescription}
                   onChange={(e) => setOtherDescription(e.target.value)}
                   className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-sm focus:border-black outline-none resize-y"

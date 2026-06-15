@@ -18,7 +18,7 @@ export default function Hero() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
-      className="relative min-h-screen flex flex-col justify-center pt-24 pb-16 lg:pb-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100 bg-white"
+      className="relative min-h-screen flex flex-col justify-center pt-24 pb-16 lg:pb-20 px-6 md:px-12 lg:px-16 border-b\u00a0border-zinc-100 bg-white"
     >
       {/* Background Coordinate Lines */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
@@ -39,7 +39,7 @@ export default function Hero() {
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
-              className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tighter text-black leading-[0.95] mb-0"
+              className="text-[clamp(2rem,4.5vw,4.2rem)] font-light tracking-tighter text-black leading-[0.95] mb-0"
             >
               {contentData.hero.title}
             </motion.h1>

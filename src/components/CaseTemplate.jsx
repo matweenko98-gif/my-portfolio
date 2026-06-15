@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Send, MessageCircle, Check, Copy, Clock, Shield, Loader2 } from 'lucide-react';
-import mockCaseData from '../utils/mockCaseData';
 import contentData from '../contentData';
 import KineticMarquee from './ui/KineticMarquee';
 import { supabase } from '../lib/supabaseClient';
@@ -331,7 +330,7 @@ function CaseSidebar({ activeSection, sections = [] }) {
         initial={{ opacity: 0, filter: "blur(8px)" }}
         animate={{ opacity: 1, filter: "blur(0px)" }}
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-        className="lg:hidden flex items-center justify-between px-6 py-4 sticky top-0 bg-white/85 backdrop-blur-md border-b border-zinc-100 z-[200]"
+        className="lg:hidden flex items-center justify-between px-6 py-4 sticky top-0 bg-white/85 backdrop-blur-md border-b\u00a0border-zinc-100 z-[200]"
       >
         <span className="text-sm font-medium text-zinc-900">{profile.name}</span>
         <button
@@ -415,7 +414,7 @@ function CaseSidebar({ activeSection, sections = [] }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span className="border-b border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+            <span className="border-b\u00a0border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
               Связь в Telegram
             </span>
             <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -504,7 +503,7 @@ function CaseSidebar({ activeSection, sections = [] }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span className="border-b border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+            <span className="border-b\u00a0border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
               Связь в Telegram
             </span>
             <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -703,7 +702,7 @@ export default function CaseTemplate() {
   const outroImages = data.outro?.images || (data.outro?.image ? [data.outro.image] : []);
 
   const caseSections = [
-    data.about?.text && { id: 'case-about', label: 'О проекте' },
+    data.about?.text && { id: 'case-about', label: 'О\u00a0проекте' },
     (data.visibility?.process !== false && data.process?.length > 0) && { id: 'case-process', label: 'Процесс' },
     (data.visibility?.challenge !== false && (data.challenge?.task || data.challenge?.solution)) && { id: 'case-challenge', label: 'Задача' },
     (data.visibility?.desktop !== false && data.features?.length > 0) && { id: 'case-showcase', label: 'Десктоп' },
@@ -806,7 +805,7 @@ export default function CaseTemplate() {
           {metaItems.length > 0 && (
             <motion.section
               {...sectionReveal}
-              className="border-t border-b border-neutral-200/60 bg-white"
+              className="border-t border-b\u00a0border-neutral-200/60 bg-white"
             >
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-neutral-200/60">
                 {metaItems.map((item, idx) => (
@@ -926,7 +925,7 @@ export default function CaseTemplate() {
           Блок 4: Бесконечный панорамный шоукейс
           ══════════════════════════════════════════════════════════ */}
           {data.visibility?.panorama !== false && Array.isArray(data.panorama_images) && data.panorama_images.length > 0 && (
-            <section id="case-marquee-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b border-neutral-100 overflow-hidden relative">
+            <section id="case-marquee-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b\u00a0border-neutral-100 overflow-hidden relative">
               <style>{marqueeStyle}</style>
 
               <div className="px-6 md:px-12 lg:px-16 mb-12">
@@ -981,7 +980,7 @@ export default function CaseTemplate() {
           Блок 5: Задача и Решение (The Challenge)
           ══════════════════════════════════════════════════════════ */}
           {data.visibility?.challenge !== false && (data.challenge?.task || data.challenge?.solution) && (
-            <section id="case-challenge" className="py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white border-b border-neutral-100">
+            <section id="case-challenge" className="py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white border-b\u00a0border-neutral-100">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
                 <div className="lg:col-span-4">
                   <p className="text-[11px] font-bold uppercase tracking-widest text-[#FF5B23] mb-4">
@@ -1030,7 +1029,7 @@ export default function CaseTemplate() {
           Блок 6: Ключевые десктопные экраны (Desktop Horizontal Scroll)
           ══════════════════════════════════════════════════════════ */}
           {data.visibility?.desktop !== false && Array.isArray(data.features) && data.features.length > 0 && (
-            <section id="case-showcase" className="py-20 md:py-28 bg-white border-b border-neutral-100 overflow-hidden">
+            <section id="case-showcase" className="py-20 md:py-28 bg-white border-b\u00a0border-neutral-100 overflow-hidden">
               <div className="flex flex-col md:flex-row justify-between md:items-end px-6 md:px-12 lg:px-16 mb-6 md:mb-10 gap-4">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
@@ -1105,7 +1104,7 @@ export default function CaseTemplate() {
           Блок 7: Мобильная версия (Mobile Responsive Carousel)
           ══════════════════════════════════════════════════════════ */}
           {data.visibility?.mobile !== false && Array.isArray(data.mobile_features) && data.mobile_features.length > 0 && (
-            <section id="case-mobile-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b border-neutral-100 overflow-hidden">
+            <section id="case-mobile-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b\u00a0border-neutral-100 overflow-hidden">
               <div className="flex flex-col md:flex-row justify-between md:items-end px-6 md:px-12 lg:px-16 mb-6 md:mb-10 gap-4">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
@@ -1156,7 +1155,7 @@ export default function CaseTemplate() {
                     </div>
 
                     {/* Smartphone Aspect Ratio */}
-                    <div className="w-full aspect-[9/19] bg-neutral-100 border border-zinc-300 rounded-md shadow-lg overflow-hidden flex items-center justify-center relative">
+                    <div className="w-full aspect-[9/19] bg-neutral-100 border border-zinc-300 rounded-md overflow-hidden flex items-center justify-center relative">
                       {screen.image ? (
                         <img src={screen.image} alt={screen.title} className="w-full h-full object-cover" />
                       ) : (
@@ -1241,7 +1240,7 @@ export default function CaseTemplate() {
               {/* Back to home */}
               <Link
                 to="/"
-                className="group flex items-center gap-4 px-6 md:px-12 lg:px-16 py-10 md:py-14 border-b md:border-b-0 md:border-r border-zinc-300 bg-zinc-50/50 hover:bg-zinc-100/60 transition-colors duration-300 no-underline"
+                className="group flex items-center gap-4 px-6 md:px-12 lg:px-16 py-10 md:py-14 border-b\u00a0md:border-b-0 md:border-r border-zinc-300 bg-zinc-50/50 hover:bg-zinc-100/60 transition-colors duration-300 no-underline"
               >
                 <ArrowLeft className="w-5 h-5 text-zinc-400 group-hover:text-zinc-900 transition-colors duration-300 shrink-0" />
                 <div>

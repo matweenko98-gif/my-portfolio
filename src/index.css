@@ -15,6 +15,13 @@
     scroll-behavior: smooth;
     overflow-x: clip;
     overscroll-behavior: none;
+    -ms-overflow-style: none;  /* IE/Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Скрытие скроллбара для Chrome, Safari и Opera */
+  ::-webkit-scrollbar {
+    display: none;
   }
 
   body {

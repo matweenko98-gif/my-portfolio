@@ -154,22 +154,22 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
   }, [isCalcOpen]);
 
   const siteTypeOptions = [
-    { value: 'individual_landing', label: 'Индивидуальный Лендинг', price: 30000, days: 7, description: 'одностраничный сайт с уникальным дизайном в Zero-блоках' },
-    { value: 'template_site', label: 'Сайт на шаблонах Tilda', price: 20000, days: 5, description: 'быстрый старт на стандартных блоках с кастомизацией под стиль' },
+    { value: 'individual_landing', label: 'Индивидуальный Лендинг', price: 30000, days: 7, description: 'одностраничный сайт с\u00a0уникальным дизайном в\u00a0Zero-блоках' },
+    { value: 'template_site', label: 'Сайт на\u00a0шаблонах Tilda', price: 20000, days: 5, description: 'быстрый старт на\u00a0стандартных блоках с\u00a0кастомизацией под\u00a0стиль' },
     { value: 'multipage_shop', label: 'Многостраничный сайт / Магазин', price: 50000, days: 15, description: 'уникальный дизайн, сложная структура' }
   ];
 
   const pagesOptions = [
-    { value: '1_page', label: '1 страница', multiplier: 1, extraDays: 0, description: 'подходит для лендинга' },
-    { value: '2_5_pages', label: 'От 2 до 5 страниц', multiplier: 1.3, extraDays: 5, description: '' },
-    { value: '5_10_pages', label: 'От 5 до 10 страниц', multiplier: 1.6, extraDays: 10, description: '' },
+    { value: '1_page', label: '1 страница', multiplier: 1, extraDays: 0, description: 'подходит для\u00a0лендинга' },
+    { value: '2_5_pages', label: 'От\u00a02 до\u00a05 страниц', multiplier: 1.3, extraDays: 5, description: '' },
+    { value: '5_10_pages', label: 'От\u00a05 до\u00a010 страниц', multiplier: 1.6, extraDays: 10, description: '' },
     { value: 'more_10_pages', label: 'Более 10 страниц / Каталог', multiplier: 2.0, extraDays: 15, description: '' }
   ];
 
   const contentReadyOptions = [
-    { value: 'ready', label: 'У меня есть всё готовое', multiplier: 1, extraDays: 0, description: 'тексты, фотографии, фирменный стиль' },
-    { value: 'partial', label: 'Материалы есть частично', multiplier: 1.2, extraDays: 3, description: 'потребуется помощь в доработке или структурировании' },
-    { value: 'none', label: 'Ничего нет', multiplier: 1.4, extraDays: 7, description: 'нужна разработка структуры и текстов с нуля' }
+    { value: 'ready', label: 'У\u00a0меня есть всё готовое', multiplier: 1, extraDays: 0, description: 'тексты, фотографии, фирменный стиль' },
+    { value: 'partial', label: 'Материалы есть частично', multiplier: 1.2, extraDays: 3, description: 'потребуется помощь в\u00a0доработке или\u00a0структурировании' },
+    { value: 'none', label: 'Ничего нет', multiplier: 1.4, extraDays: 7, description: 'нужна разработка структуры и\u00a0текстов с\u00a0нуля' }
   ];
 
   const activeSiteType = siteType ? siteTypeOptions.find((opt) => opt.value === siteType) : null;
@@ -224,11 +224,11 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
   const handleSubmit = async () => {
     const newErrors = {};
     if (!isCartComplete) {
-      alert('Пожалуйста, выберите все параметры проекта в конфигураторе.');
+      alert('Пожалуйста, выберите все параметры проекта в\u00a0конфигураторе.');
       return;
     }
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
+    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или\u00a0телефон';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -243,7 +243,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
     const contentReadyLabels = contentReadyOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
 
     const messageText = `
-<b>🔔 Новая заявка с сайта-портфолио (Расчет Tilda)</b>
+<b>🔔 Новая заявка с\u00a0сайта-портфолио (Расчет Tilda)</b>
 
 <b>Клиент:</b> ${name}
 <b>Контакт:</b> ${contact}
@@ -264,17 +264,17 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        const customSuccessMsg = `Расчет получен! Я свяжусь с вами в ближайшее время для уточнения деталей. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        const customSuccessMsg = `Расчет получен! Я свяжусь с\u00a0вами в\u00a0ближайшее время для\u00a0уточнения деталей. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
         onSendSuccess(customSuccessMsg);
         setName('');
         setContact('');
         setComments('');
       } else {
-        alert('Ошибка при отправке. Пожалуйста, проверьте настройки токена бота.');
+        alert('Ошибка при\u00a0отправке. Пожалуйста, проверьте настройки токена бота.');
       }
     } catch (e) {
       console.error(e);
-      alert('Произошла ошибка при отправке заявки.');
+      alert('Произошла ошибка при\u00a0отправке заявки.');
     } finally {
       setLoading(false);
     }
@@ -289,7 +289,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
 
   return (
     <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-sm p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-[#111111] text-xl font-normal tracking-tight border-b border-neutral-200 pb-3">
+      <div className="text-[#111111] text-xl font-normal tracking-tight border-b\u00a0border-neutral-200 pb-3">
         Конфигуратор проекта
       </div>
 
@@ -393,7 +393,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
           </span>
           <textarea
             rows={4}
-            placeholder="Например: Нужна интеграция с CRM и личный кабинет..."
+            placeholder="Например: Нужна интеграция с\u00a0CRM и\u00a0личный кабинет..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
             className="w-full bg-white border border-neutral-200 text-[#111111] rounded-sm px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
@@ -426,7 +426,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             </label>
             <input
               type="text"
-              placeholder="Телефон или Telegram"
+              placeholder="Телефон или\u00a0Telegram"
               value={contact}
               onChange={(e) => {
                 setContact(e.target.value);
@@ -495,21 +495,21 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
   }, [isCalcOpen]);
 
   const problemOptions = [
-    { value: 'outdated', label: 'Устарел дизайн', price: 20000, days: 0, description: 'обновим визуальный стиль сайта и сделаем его современным' },
-    { value: 'mobile_ux', label: 'Плохой мобильный UX', price: 25000, days: 2, description: 'исправим ошибки отображения на телефонах и планшетах' },
-    { value: 'no_leads', label: 'Нет заявок', price: 30000, days: 4, description: 'проработаем структуру, логику и офферы для роста конверсии' }
+    { value: 'outdated', label: 'Устарел дизайн', price: 20000, days: 0, description: 'обновим визуальный стиль сайта и\u00a0сделаем его современным' },
+    { value: 'mobile_ux', label: 'Плохой мобильный UX', price: 25000, days: 2, description: 'исправим ошибки отображения на\u00a0телефонах и\u00a0планшетах' },
+    { value: 'no_leads', label: 'Нет заявок', price: 30000, days: 4, description: 'проработаем структуру, логику и\u00a0офферы для\u00a0роста конверсии' }
   ];
 
   const volumeOptions = [
-    { value: 'landing', label: 'Одностраничный сайт', multiplier: 1.0, extraDays: 0, description: 'подходит для лендинга' },
-    { value: 'multipage', label: 'До 5 страниц', multiplier: 1.4, extraDays: 3, description: 'подходит для сайтов компаний' },
-    { value: 'large', label: 'Крупный сайт / Магазин', multiplier: 1.8, extraDays: 7, description: 'более 5 страниц или каталог' }
+    { value: 'landing', label: 'Одностраничный сайт', multiplier: 1.0, extraDays: 0, description: 'подходит для\u00a0лендинга' },
+    { value: 'multipage', label: 'До\u00a05 страниц', multiplier: 1.4, extraDays: 3, description: 'подходит для\u00a0сайтов компаний' },
+    { value: 'large', label: 'Крупный сайт / Магазин', multiplier: 1.8, extraDays: 7, description: 'более 5 страниц или\u00a0каталог' }
   ];
 
   const depthOptions = [
-    { value: 'visual_update', label: 'Визуальное обновление', multiplier: 1.0, extraDays: 0, description: 'тексты и структура остаются прежними, меняется только дизайн' },
-    { value: 'full_redesign', label: 'Полный редизайн UX/UI', multiplier: 1.3, extraDays: 3, description: 'исправление логики, новая структура и дизайн в Figma с нуля' },
-    { value: 'full_rewrite', label: 'Полная переработка смыслов', multiplier: 1.6, extraDays: 5, description: 'пишем тексты и структуру заново под новые задачи' }
+    { value: 'visual_update', label: 'Визуальное обновление', multiplier: 1.0, extraDays: 0, description: 'тексты и\u00a0структура остаются прежними, меняется только дизайн' },
+    { value: 'full_redesign', label: 'Полный редизайн UX/UI', multiplier: 1.3, extraDays: 3, description: 'исправление логики, новая структура и\u00a0дизайн в\u00a0Figma с\u00a0нуля' },
+    { value: 'full_rewrite', label: 'Полная переработка смыслов', multiplier: 1.6, extraDays: 5, description: 'пишем тексты и\u00a0структуру заново под\u00a0новые задачи' }
   ];
 
   const activeProblem = problemType ? problemOptions.find((opt) => opt.value === problemType) : null;
@@ -570,11 +570,11 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
   const handleSubmit = async () => {
     const newErrors = {};
     if (!isCartComplete) {
-      alert('Пожалуйста, выберите все параметры проекта в конфигураторе.');
+      alert('Пожалуйста, выберите все параметры проекта в\u00a0конфигураторе.');
       return;
     }
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
+    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или\u00a0телефон';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -588,22 +588,22 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
     const volumeLabels = volumeOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
     const depthLabels = depthOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
 
-    const messageText = `<b>🔔 Новая заявка с сайта-портфолио (Редизайн сайта)</b>\n\n<b>Клиент:</b> ${name}\n<b>Контакт:</b> ${contact}\n\n<b>Услуга:</b> ${service.title}\n<b>Выбранные параметры:</b>\n• Проблема сайта: <b>${problemLabels[problemType]}</b>\n• Объем страниц: <b>${volumeLabels[volume]}</b>\n• Глубина переработки: <b>${depthLabels[depth]}</b>\n• Дополнительные пожелания: <b>${comments || 'Нет'}</b>\n\n<b>Примерная стоимость:</b> от ${formatPrice(price)} руб.\n<b>Сроки:</b> от ${days} ${getDaysWord(days)}\n\n✅ <b>Действие:</b> Подтверждение расчета`;
+    const messageText = `<b>🔔 Новая заявка с\u00a0сайта-портфолио (Редизайн сайта)</b>\n\n<b>Клиент:</b> ${name}\n<b>Контакт:</b> ${contact}\n\n<b>Услуга:</b> ${service.title}\n<b>Выбранные параметры:</b>\n• Проблема сайта: <b>${problemLabels[problemType]}</b>\n• Объем страниц: <b>${volumeLabels[volume]}</b>\n• Глубина переработки: <b>${depthLabels[depth]}</b>\n• Дополнительные пожелания: <b>${comments || 'Нет'}</b>\n\n<b>Примерная стоимость:</b> от ${formatPrice(price)} руб.\n<b>Сроки:</b> от ${days} ${getDaysWord(days)}\n\n✅ <b>Действие:</b> Подтверждение расчета`;
 
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        const customSuccessMsg = `Расчет получен! Я изучу ваш текущий сайт и свяжусь в ближайшее время. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        const customSuccessMsg = `Расчет получен! Я изучу ваш текущий сайт и\u00a0свяжусь в\u00a0ближайшее время. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
         onSendSuccess(customSuccessMsg);
         setName('');
         setContact('');
         setComments('');
       } else {
-        alert('Ошибка при отправке. Пожалуйста, проверьте настройки токена бота.');
+        alert('Ошибка при\u00a0отправке. Пожалуйста, проверьте настройки токена бота.');
       }
     } catch (e) {
       console.error(e);
-      alert('Произошла ошибка при отправке заявки.');
+      alert('Произошла ошибка при\u00a0отправке заявки.');
     } finally {
       setLoading(false);
     }
@@ -618,7 +618,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
 
   return (
     <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-sm p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-[#111111] text-xl font-normal tracking-tight border-b border-neutral-200 pb-3">
+      <div className="text-[#111111] text-xl font-normal tracking-tight border-b\u00a0border-neutral-200 pb-3">
         Конфигуратор редизайна
       </div>
 
@@ -722,7 +722,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
           </span>
           <textarea
             rows={4}
-            placeholder="Укажите ссылку на текущий сайт и напишите пожелания..."
+            placeholder="Укажите ссылку на\u00a0текущий сайт и\u00a0напишите пожелания..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
             className="w-full bg-white border border-neutral-200 text-[#111111] rounded-sm px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
@@ -755,7 +755,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             </label>
             <input
               type="text"
-              placeholder="Телефон или Telegram"
+              placeholder="Телефон или\u00a0Telegram"
               value={contact}
               onChange={(e) => {
                 setContact(e.target.value);
@@ -824,19 +824,19 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
   }, [isCalcOpen]);
 
   const typeOptions = [
-    { value: 'website_design', label: 'Дизайн веб-сайта', price: 20000, days: 0, description: 'уникальный стиль, адаптивные макеты для ПК и мобильных устройств' },
-    { value: 'app_interface', label: 'Интерфейс приложения', price: 35000, days: 5, description: 'UX-сценарии, личные кабинеты, дашборды и экраны MVP' }
+    { value: 'website_design', label: 'Дизайн веб-сайта', price: 20000, days: 0, description: 'уникальный стиль, адаптивные макеты для\u00a0ПК и\u00a0мобильных устройств' },
+    { value: 'app_interface', label: 'Интерфейс приложения', price: 35000, days: 5, description: 'UX-сценарии, личные кабинеты, дашборды и\u00a0экраны MVP' }
   ];
 
   const complexityOptions = [
-    { value: 'small', label: 'До 5 экранов', multiplier: 1.0, extraDays: 0, description: 'подходит для простых сайтов и лендингов' },
-    { value: 'medium', label: 'От 5 до 15 экранов', multiplier: 1.4, extraDays: 5, description: 'подходит для сайтов компаний и небольших сервисов' },
+    { value: 'small', label: 'До\u00a05 экранов', multiplier: 1.0, extraDays: 0, description: 'подходит для\u00a0простых сайтов и\u00a0лендингов' },
+    { value: 'medium', label: 'От\u00a05 до\u00a015 экранов', multiplier: 1.4, extraDays: 5, description: 'подходит для\u00a0сайтов компаний и\u00a0небольших сервисов' },
     { value: 'ecosystem', label: 'Более 15 экранов', multiplier: 1.8, extraDays: 10, description: 'сложная экосистема, детальный интерактивный прототип' }
   ];
 
   const specOptions = [
-    { value: 'has_spec', label: 'Есть готовый UI-кит / ТЗ', multiplier: 1.0, extraDays: 0, description: 'работа по готовым компонентам и готовой структуре' },
-    { value: 'no_spec', label: 'Без UI-кита / ТЗ с нуля', multiplier: 1.3, extraDays: 5, description: 'совместная разработка дизайн-системы и проектирование логики' }
+    { value: 'has_spec', label: 'Есть готовый UI-кит / ТЗ', multiplier: 1.0, extraDays: 0, description: 'работа по\u00a0готовым компонентам и\u00a0готовой структуре' },
+    { value: 'no_spec', label: 'Без\u00a0UI-кита / ТЗ с\u00a0нуля', multiplier: 1.3, extraDays: 5, description: 'совместная разработка дизайн-системы и\u00a0проектирование логики' }
   ];
 
   const activeType = designType ? typeOptions.find((opt) => opt.value === designType) : null;
@@ -897,11 +897,11 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
   const handleSubmit = async () => {
     const newErrors = {};
     if (!isCartComplete) {
-      alert('Пожалуйста, выберите все параметры проекта в конфигураторе.');
+      alert('Пожалуйста, выберите все параметры проекта в\u00a0конфигураторе.');
       return;
     }
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
+    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или\u00a0телефон';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -915,22 +915,22 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
     const complexityLabels = complexityOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
     const specLabels = specOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
 
-    const messageText = `<b>🔔 Новая заявка с сайта-портфолио (Дизайн в Figma)</b>\n\n<b>Клиент:</b> ${name}\n<b>Контакт:</b> ${contact}\n\n<b>Услуга:</b> ${service.title}\n<b>Выбранные параметры:</b>\n• Тип дизайна: <b>${typeLabels[designType]}</b>\n• Объем и сложность: <b>${complexityLabels[complexity]}</b>\n• UI-кит / ТЗ: <b>${specLabels[specStatus]}</b>\n• Дополнительные пожелания: <b>${comments || 'Нет'}</b>\n\n<b>Примерная стоимость (только дизайн):</b> от ${formatPrice(price)} руб.\n<b>Сроки:</b> от ${days} ${getDaysWord(days)}\n\n✅ <b>Действие:</b> Подтверждение расчета`;
+    const messageText = `<b>🔔 Новая заявка с\u00a0сайта-портфолио (Дизайн в\u00a0Figma)</b>\n\n<b>Клиент:</b> ${name}\n<b>Контакт:</b> ${contact}\n\n<b>Услуга:</b> ${service.title}\n<b>Выбранные параметры:</b>\n• Тип дизайна: <b>${typeLabels[designType]}</b>\n• Объем и\u00a0сложность: <b>${complexityLabels[complexity]}</b>\n• UI-кит / ТЗ: <b>${specLabels[specStatus]}</b>\n• Дополнительные пожелания: <b>${comments || 'Нет'}</b>\n\n<b>Примерная стоимость (только дизайн):</b> от ${formatPrice(price)} руб.\n<b>Сроки:</b> от ${days} ${getDaysWord(days)}\n\n✅ <b>Действие:</b> Подтверждение расчета`;
 
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        const customSuccessMsg = `Расчет получен! Я проанализирую вашу задачу и свяжусь в ближайшее время для обсуждения концепции. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        const customSuccessMsg = `Расчет получен! Я проанализирую вашу задачу и\u00a0свяжусь в\u00a0ближайшее время для\u00a0обсуждения концепции. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
         onSendSuccess(customSuccessMsg);
         setName('');
         setContact('');
         setComments('');
       } else {
-        alert('Ошибка при отправке. Пожалуйста, проверьте настройки токена бота.');
+        alert('Ошибка при\u00a0отправке. Пожалуйста, проверьте настройки токена бота.');
       }
     } catch (e) {
       console.error(e);
-      alert('Произошла ошибка при отправке заявки.');
+      alert('Произошла ошибка при\u00a0отправке заявки.');
     } finally {
       setLoading(false);
     }
@@ -945,7 +945,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
 
   return (
     <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-sm p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-[#111111] text-xl font-normal tracking-tight border-b border-neutral-200 pb-3">
+      <div className="text-[#111111] text-xl font-normal tracking-tight border-b\u00a0border-neutral-200 pb-3">
         Конфигуратор дизайна в Figma
       </div>
 
@@ -1082,7 +1082,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             </label>
             <input
               type="text"
-              placeholder="Телефон или Telegram"
+              placeholder="Телефон или\u00a0Telegram"
               value={contact}
               onChange={(e) => {
                 setContact(e.target.value);
@@ -1123,27 +1123,27 @@ function AICalculator({ service }) {
   const products = [
     {
       title: 'Веб-приложение / Сервис',
-      price: 'от 40 000 ₽',
-      desc: 'Создание личных кабинетов, баз данных, дашбордов и сложных интерактивных систем.',
-      features: ['Кастомный Frontend и Backend', 'Интеграция баз данных (PostgreSQL/Supabase)', 'Личные кабинеты пользователей', 'Админ-панель управления']
+      price: 'от\u00a040 000 ₽',
+      desc: 'Создание личных кабинетов, баз данных, дашбордов и\u00a0сложных интерактивных систем.',
+      features: ['Кастомный Frontend и\u00a0Backend', 'Интеграция баз данных (PostgreSQL/Supabase)', 'Личные кабинеты пользователей', 'Админ-панель управления']
     },
     {
       title: 'Мобильное MVP',
-      price: 'от 40 000 ₽',
-      desc: 'Разработка первых версий мобильных приложений для тестов гипотез на реальных пользователях.',
-      features: ['Адаптивное PWA/мобильное решение', 'Базовые функции авторизации', 'Push-уведомления и формы ввода', 'Быстрый запуск для тестирования']
+      price: 'от\u00a040 000 ₽',
+      desc: 'Разработка первых версий мобильных приложений для\u00a0тестов гипотез на\u00a0реальных пользователях.',
+      features: ['Адаптивное PWA/мобильное решение', 'Базовые функции авторизации', 'Push-уведомления и\u00a0формы ввода', 'Быстрый запуск для\u00a0тестирования']
     },
     {
       title: 'Платформа / SaaS',
-      price: 'от 55 000 ₽',
-      desc: 'Разработка многопользовательских сервисов, обучающих ИТ-платформ с разветвленной логикой.',
-      features: ['Сложные алгоритмы и сценарии', 'Интеграция платежных шлюзов', 'Разделение прав доступа', 'Подготовка к масштабированию']
+      price: 'от\u00a055 000 ₽',
+      desc: 'Разработка многопользовательских сервисов, обучающих ИТ-платформ с\u00a0разветвленной логикой.',
+      features: ['Сложные алгоритмы и\u00a0сценарии', 'Интеграция платежных шлюзов', 'Разделение прав доступа', 'Подготовка к\u00a0масштабированию']
     }
   ];
 
   return (
     <div className="bg-[#1E1E1E] border border-neutral-850 rounded-sm p-5 sm:p-6 flex flex-col gap-6 w-full">
-      <div id="tariffs-heading" className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
+      <div id="tariffs-heading" className="text-sm font-semibold text-white border-b\u00a0border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
         <span>Тарифы и направления разработки</span>
         <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-sm">
           Срок: Рассчитывается индивидуально
@@ -1238,7 +1238,7 @@ function DefaultCalculator({ service, onSendSuccess }) {
   const handleSubmit = async () => {
     const newErrors = {};
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
+    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или\u00a0телефон';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -1261,7 +1261,7 @@ function DefaultCalculator({ service, onSendSuccess }) {
     }
 
     const messageText = `
-<b>🔔 Новая заявка с сайта-портфолио</b>
+<b>🔔 Новая заявка с\u00a0сайта-портфолио</b>
 
 <b>Клиент:</b> ${name}
 <b>Контакт:</b> ${contact}
@@ -1282,11 +1282,11 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
         setName('');
         setContact('');
       } else {
-        alert('Ошибка при отправке. Пожалуйста, проверьте настройки токена бота.');
+        alert('Ошибка при\u00a0отправке. Пожалуйста, проверьте настройки токена бота.');
       }
     } catch (e) {
       console.error(e);
-      alert('Произошла ошибка при отправке заявки.');
+      alert('Произошла ошибка при\u00a0отправке заявки.');
     } finally {
       setLoading(false);
     }
@@ -1301,7 +1301,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
 
   return (
     <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-white text-xl font-normal tracking-tight border-b border-neutral-850 pb-3">
+      <div className="text-white text-xl font-normal tracking-tight border-b\u00a0border-neutral-850 pb-3">
         Конфигуратор проекта
       </div>
 
@@ -1375,7 +1375,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
             </label>
             <input
               type="text"
-              placeholder="Телефон или Telegram"
+              placeholder="Телефон или\u00a0Telegram"
               value={contact}
               onChange={(e) => {
                 setContact(e.target.value);
@@ -1443,7 +1443,7 @@ function ServiceGraphic({ number }) {
       <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#262626] to-[#1E1E1E]/50 rounded-md border border-white/5 flex flex-col justify-between p-4 overflow-hidden select-none">
         {/* A mini-browser mockup */}
         <div className="w-full bg-[#111111] border border-neutral-800/50 rounded-md shadow-sm flex flex-col h-full overflow-hidden">
-          <div className="bg-[#1A1A1A] border-b border-neutral-800/50 px-3 py-2 flex items-center gap-1.5 shrink-0">
+          <div className="bg-[#1A1A1A] border-b\u00a0border-neutral-800/50 px-3 py-2 flex items-center gap-1.5 shrink-0">
             <div className="w-2 h-2 rounded-full bg-neutral-700" />
             <div className="w-2 h-2 rounded-full bg-neutral-700" />
             <div className="w-2 h-2 rounded-full bg-neutral-700" />
@@ -1491,7 +1491,7 @@ function ServiceGraphic({ number }) {
       <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#262626] to-[#1E1E1E]/50 rounded-md border border-white/5 flex flex-col justify-between p-4 overflow-hidden select-none">
         {/* A dashboard UI with code info */}
         <div className="w-full bg-[#111111] border border-neutral-800/50 rounded-md shadow-sm flex flex-col h-full overflow-hidden">
-          <div className="bg-[#1A1A1A] border-b border-neutral-800/50 px-3 py-1.5 flex items-center justify-between shrink-0">
+          <div className="bg-[#1A1A1A] border-b\u00a0border-neutral-800/50 px-3 py-1.5 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#E0FB4A] animate-pulse" />
               <span className="text-[9px] text-neutral-400 font-mono">ai-agent.js</span>
@@ -1521,7 +1521,7 @@ function ServiceGraphic({ number }) {
       <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#262626] to-[#1E1E1E]/50 rounded-md border border-white/5 flex items-center justify-center p-4 overflow-hidden select-none">
         <div className="w-full h-full bg-[#111111] border border-neutral-800/50 rounded-md shadow-sm p-3 flex flex-col gap-2 relative">
           {/* Visual designer vector mockup */}
-          <div className="flex items-center justify-between border-b border-neutral-800/50 pb-1.5">
+          <div className="flex items-center justify-between border-b\u00a0border-neutral-800/50 pb-1.5">
             <span className="text-[9px] text-neutral-400 font-mono">Figma Artboard</span>
             <div className="flex gap-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-neutral-700" />
@@ -1718,7 +1718,7 @@ export default function Services() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
-      className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-neutral-800 bg-[#111111]"
+      className="relative py-20 px-6 md:px-12 lg:px-16 border-b\u00a0border-neutral-800 bg-[#111111]"
     >
       {/* Background Coordinate Lines */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
@@ -1800,7 +1800,7 @@ export default function Services() {
           <div>
             <h3 className="text-lg font-bold text-white mb-2">Заявка успешно отправлена!</h3>
             <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed">
-              {successModalContent || 'Спасибо! Расчет стоимости или запрос на консультацию получен. Я свяжусь с вами в ближайшее время для обсуждения деталей.'}
+              {successModalContent || 'Спасибо! Расчет стоимости или\u00a0запрос на\u00a0консультацию получен. Я свяжусь с\u00a0вами в\u00a0ближайшее время для\u00a0обсуждения деталей.'}
             </p>
           </div>
 

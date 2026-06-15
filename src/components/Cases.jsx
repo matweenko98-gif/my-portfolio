@@ -10,22 +10,22 @@ const FALLBACK_OTHER_PROJECTS = [
   {
     num: "01",
     title: "Интернет-магазин одежды FORME",
-    description: "Онлайн-магазин одежды с фокусом на форму, посадку и визуальную чистоту. Проект ориентирован на аудиторию, для которой важны не тренды «на один сезон», а силуэт, качество и ощущение собранного образа."
+    description: "Онлайн-магазин одежды с\u00a0фокусом на\u00a0форму, посадку и\u00a0визуальную чистоту. Проект ориентирован на\u00a0аудиторию, для\u00a0которой важны не тренды «на\u00a0один сезон», а\u00a0силуэт, качество и\u00a0ощущение собранного образа."
   },
   {
     num: "02",
     title: "Типография цифровых решений",
-    description: "Многостраничный сайт. Основной фокус — B2B-клиенты, для которых важны скорость, качество, точная цветопередача и надёжность подрядчика."
+    description: "Многостраничный сайт. Основной фокус — B2B-клиенты, для\u00a0которых важны скорость, качество, точная цветопередача и\u00a0надёжность подрядчика."
   },
   {
     num: "03",
     title: "Корпоративный сайт косметологического кабинета",
-    description: "Косметологический кабинет для девушек с проблемной, чувствительной и реактивной кожей. Формат — частный специалист. Сайт должен был работать как система: объяснять подход специалиста, показывать логику работы с кожей и формировать ощущение безопасного пространства."
+    description: "Косметологический кабинет для\u00a0девушек с\u00a0проблемной, чувствительной и\u00a0реактивной кожей. Формат — частный специалист. Сайт должен был работать как\u00a0система: объяснять подход специалиста, показывать логику работы с\u00a0кожей и\u00a0формировать ощущение безопасного пространства."
   },
   {
     num: "04",
     title: "Nempl — автоматизация бизнеса",
-    description: "Nempl — компания, занимающаяся внедрением ИИ-сотрудников для автоматизации продаж и бизнес-процессов. Основной продукт — ИИ-ассистенты для отделов продаж, поддержки и коммуникаций, интегрируемые с CRM и мессенджерами."
+    description: "Nempl — компания, занимающаяся внедрением ИИ-сотрудников для\u00a0автоматизации продаж и\u00a0бизнес-процессов. Основной продукт — ИИ-ассистенты для\u00a0отделов продаж, поддержки и\u00a0коммуникаций, интегрируемые с\u00a0CRM и\u00a0мессенджерами."
   }
 ];
 
@@ -169,7 +169,7 @@ export default function Cases() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
-      className="relative py-20 px-6 md:px-12 lg:px-16 border-b border-zinc-100 bg-white"
+      className="relative py-20 px-6 md:px-12 lg:px-16 border-b\u00a0border-zinc-100 bg-white"
     >
       {/* Background Coordinate Lines */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
@@ -207,7 +207,7 @@ export default function Cases() {
             {visibleCases.map((project, idx) => {
               const caseNumber = String(idx + 1).padStart(2, '0');
               const isInDev = !!project.is_in_development || !!project.inDevelopment;
-              const title = project.card_title || project.title || project.name || '(Без названия)';
+              const title = project.card_title || project.title || project.name || '(Без\u00a0названия)';
               const image = project.card_image || project.imageMain;
               const tags = Array.isArray(project.card_tags) ? project.card_tags : (project.tags || []);
               const slug = project.slug || String(idx + 1);
