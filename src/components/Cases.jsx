@@ -1,13 +1,100 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import contentData from '../contentData';
+import { supabase } from '../lib/supabaseClient';
 
 const INITIAL_VISIBLE = 4; // количество карточек, видимых при первой загрузке
 
+const FALLBACK_OTHER_PROJECTS = [
+  {
+    num: "01",
+    title: "Интернет-магазин одежды FORME",
+    description: "Онлайн-магазин одежды с фокусом на форму, посадку и визуальную чистоту. Проект ориентирован на аудиторию, для которой важны не тренды «на один сезон», а силуэт, качество и ощущение собранного образа."
+  },
+  {
+    num: "02",
+    title: "Типография цифровых решений",
+    description: "Многостраничный сайт. Основной фокус — B2B-клиенты, для которых важны скорость, качество, точная цветопередача и надёжность подрядчика."
+  },
+  {
+    num: "03",
+    title: "Корпоративный сайт косметологического кабинета",
+    description: "Косметологический кабинет для девушек с проблемной, чувствительной и реактивной кожей. Формат — частный специалист. Сайт должен был работать как система: объяснять подход специалиста, показывать логику работы с кожей и формировать ощущение безопасного пространства."
+  },
+  {
+    num: "04",
+    title: "Nempl — автоматизация бизнеса",
+    description: "Nempl — компания, занимающаяся внедрением ИИ-сотрудников для автоматизации продаж и бизнес-процессов. Основной продукт — ИИ-ассистенты для отделов продаж, поддержки и коммуникаций, интегрируемые с CRM и мессенджерами."
+  }
+];
+
 export default function Cases() {
-  const cases = contentData.cases.items;
+  const [cases, setCases] = useState([]);
+  const [otherProjects, setOtherProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    const fetchCases = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('cases')
+          .select('*')
+          .order('sort_order', { ascending: true });
+        if (error) throw error;
+        setCases(data || []);
+      } catch (err) {
+        console.error('Error fetching cases for homepage:', err);
+        setCases(contentData.cases.items);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchOtherProjects = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('other_projects')
+          .select('*')
+          .order('sort_order', { ascending: true });
+        if (error) throw error;
+        if (data && data.length > 0) {
+          setOtherProjects(data);
+        } else {
+          // Empty DB, seed default entries
+          try {
+            await supabase
+              .from('other_projects')
+              .insert(FALLBACK_OTHER_PROJECTS.map((p, idx) => ({
+                num: p.num,
+                title: p.title,
+                description: p.description,
+                link_url: p.link_url || null,
+                sort_order: idx
+              })));
+            const { data: refetched } = await supabase
+              .from('other_projects')
+              .select('*')
+              .order('sort_order', { ascending: true });
+            if (refetched && refetched.length > 0) {
+              setOtherProjects(refetched);
+              return;
+            }
+          } catch (seedErr) {
+            console.error('Error seeding other projects on mount:', seedErr);
+          }
+          setOtherProjects(FALLBACK_OTHER_PROJECTS);
+        }
+      } catch (err) {
+        console.error('Error fetching other projects:', err);
+        setOtherProjects(FALLBACK_OTHER_PROJECTS);
+      }
+    };
+
+    fetchCases();
+    fetchOtherProjects();
+  }, []);
 
   const handleToggle = () => {
     if (showAll) {
@@ -119,9 +206,89 @@ export default function Cases() {
           <AnimatePresence initial={false}>
             {visibleCases.map((project, idx) => {
               const caseNumber = String(idx + 1).padStart(2, '0');
+              const isInDev = !!project.is_in_development || !!project.inDevelopment;
+              const title = project.card_title || project.title || project.name || '(Без названия)';
+              const image = project.card_image || project.imageMain;
+              const tags = Array.isArray(project.card_tags) ? project.card_tags : (project.tags || []);
+              const slug = project.slug || String(idx + 1);
+
+              const cardContent = (
+                <motion.article
+                  whileHover={!isInDev ? "hover" : ""}
+                  className={`bg-gray-50/40 border border-neutral-200/80 rounded-sm p-3 flex flex-col justify-between group transition-all duration-500 ease-out relative overflow-hidden h-full ${
+                    isInDev 
+                      ? 'cursor-default' 
+                      : 'cursor-pointer hover:bg-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)]'
+                  }`}
+                >
+                  <div>
+                    {/* Внутренний таб-индекс */}
+                    <span className="text-[10px] font-semibold tracking-wider text-[#FF5B23] uppercase mb-3 block">
+                      [ КЕЙС {caseNumber} ]
+                    </span>
+
+                    {/* Графический контейнер */}
+                    <div className="relative overflow-hidden aspect-[4/3] rounded-sm bg-zinc-50 border border-zinc-100/50">
+                      <div className="relative w-full h-full overflow-hidden">
+                        {isInDev && (
+                          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+                            <div className="bg-black px-4 py-2 rounded-sm text-white text-[11px] font-bold tracking-wider">
+                              КЕЙС В РАЗРАБОТКЕ...
+                            </div>
+                          </div>
+                        )}
+                        {image ? (
+                          <img
+                            src={image}
+                            alt={title}
+                            className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out ${
+                              !isInDev ? 'group-hover:scale-105' : ''
+                            }`}
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-neutral-400 bg-neutral-100 text-xs">
+                            Нет изображения
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Лаймовые бейджи */}
+                      <div className="absolute bottom-3 left-3 flex flex-row flex-wrap gap-1.5 z-10">
+                        {tags.map((tag, tIdx) => (
+                          <span
+                            key={tIdx}
+                            className="bg-[#E0FB4A] border border-[#E0FB4A]/30 text-zinc-950 text-[10px] px-2.5 py-1 rounded-sm shadow-sm tracking-wide uppercase font-semibold"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Нижняя текстовая часть */}
+                  <div className="flex flex-col pt-5 mt-1">
+                    <h3 className="text-xl md:text-2xl font-light tracking-tight text-black flex items-center justify-between gap-2 w-full">
+                      <span>{title}</span>
+                      {!isInDev && (
+                        <span className="text-zinc-300 transition-all duration-300 text-sm shrink-0 group-hover:text-[#FF5B23] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                          ↗
+                        </span>
+                      )}
+                    </h3>
+
+                    {!isInDev && (
+                      <span className="block md:hidden mt-4 mb-3 text-sm font-medium text-zinc-800 hover:text-zinc-600 underline decoration-zinc-300 underline-offset-4">
+                        Смотреть кейс →
+                      </span>
+                    )}
+                  </div>
+                </motion.article>
+              );
+
               return (
                 <motion.div
-                  key={project.name}
+                  key={project.id || slug || idx}
                   id={`case-card-${idx}`}
                   variants={cardVariants}
                   initial="hidden"
@@ -130,72 +297,15 @@ export default function Cases() {
                   layout
                   className="h-full"
                 >
-                  <Link to={`/case/${idx + 1}`} className="no-underline block h-full">
-                    <motion.article
-                      whileHover="hover"
-                      className="bg-gray-50/40 border border-neutral-200/80 rounded-sm p-3 flex flex-col justify-between group cursor-pointer transition-all duration-500 ease-out hover:bg-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)] relative overflow-hidden h-full"
-                    >
-                      <div>
-                        {/* Внутренний таб-индекс */}
-                        <span className="text-[10px] font-semibold tracking-wider text-[#FF5B23] uppercase mb-3 block">
-                          [ Кейс {caseNumber} ]
-                        </span>
-
-                        {/* Графический контейнер */}
-                        <div className="relative overflow-hidden aspect-[4/3] rounded-sm bg-zinc-50 border border-zinc-100/50">
-
-                          {/* Основное фото с зумом при ховере */}
-                          <img
-                            src={project.imageMain}
-                            alt={project.name}
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                          />
-
-                          {/* Заглушка «В разработке» */}
-                          {project.inDevelopment && (
-                            <motion.div
-                              variants={overlayVariants}
-                              className="absolute inset-0 bg-zinc-950/60 pointer-events-none group-hover:pointer-events-auto flex items-center justify-center z-20"
-                            >
-                              <motion.span
-                                variants={textVariants}
-                                className="text-white text-[11px] font-bold tracking-widest uppercase px-3.5 py-2 border border-white/10 bg-zinc-900/90 rounded-sm shadow-md"
-                              >
-                                Кейс в разработке...
-                              </motion.span>
-                            </motion.div>
-                          )}
-
-                          {/* Лаймовые бейджи */}
-                          <div className="absolute bottom-3 left-3 flex flex-row flex-wrap gap-1.5 z-10">
-                            {project.tags.map((tag, tIdx) => (
-                              <span
-                                key={tIdx}
-                                className="bg-[#E0FB4A] border border-[#E0FB4A]/30 text-zinc-950 text-[10px] px-2.5 py-1 rounded-sm shadow-sm tracking-wide uppercase font-semibold"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Нижняя текстовая часть */}
-                      <div className="flex flex-col pt-5 mt-1">
-                        <h3 className="text-xl md:text-2xl font-light tracking-tight text-black flex items-center justify-between gap-2 w-full">
-                          <span>{project.name}</span>
-                          <span className="text-gray-300 transition-all duration-300 text-sm shrink-0 group-hover:text-[#FF5B23] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                            ↗
-                          </span>
-                        </h3>
-
-                        {/* Адаптивная ссылка на мобильных */}
-                        <span className="block md:hidden mt-4 mb-3 text-sm font-medium text-zinc-800 hover:text-zinc-600 underline decoration-zinc-300 underline-offset-4">
-                          Смотреть кейс →
-                        </span>
-                      </div>
-                    </motion.article>
-                  </Link>
+                  {isInDev ? (
+                    <div className="h-full block">
+                      {cardContent}
+                    </div>
+                  ) : (
+                    <Link to={`/case/${slug}`} className="no-underline block h-full">
+                      {cardContent}
+                    </Link>
+                  )}
                 </motion.div>
               );
             })}
@@ -234,10 +344,6 @@ export default function Cases() {
         </AnimatePresence>
 
 
-        {/* ══════════════════════════════════════════════════
-            ЖУРНАЛЬНЫЙ АРХИВ ПРОЕКТОВ
-            Чисто информационный список всех кейсов на белом фоне
-            ══════════════════════════════════════════════════ */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -255,32 +361,48 @@ export default function Cases() {
             {/* Верхняя разделительная линия */}
             <div className="border-t border-zinc-100" />
 
-            {cases.slice(0, 4).map((project, idx) => (
-              <div key={project.name}>
-                {/* Строка проекта */}
-                <div className="group flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-0 py-4 transition-colors duration-200 cursor-default">
+            {otherProjects.map((project) => {
+              const hasLink = !!project.link_url;
+              const rowContent = (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 py-4 items-baseline">
+                  {/* Left column: Number + Title */}
+                  <div className="flex items-baseline gap-4 md:gap-6">
+                    <span className="text-[11px] font-medium text-zinc-300 group-hover:text-zinc-400 transition-colors duration-200 shrink-0 select-none tabular-nums">
+                      {project.num}
+                    </span>
+                    <span className="text-[14px] md:text-[15px] font-medium text-zinc-800 group-hover:text-zinc-950 transition-colors duration-200 tracking-tight leading-snug">
+                      {project.title}
+                    </span>
+                  </div>
 
-                  {/* 01 — номер */}
-                  <span className="text-[11px] font-medium text-zinc-300 sm:w-10 shrink-0 select-none tabular-nums">
-                    {String(idx + 1).padStart(2, '0')}
-                  </span>
-
-                  {/* Название */}
-                  <span className="text-[14px] md:text-[15px] font-medium text-zinc-800 group-hover:text-zinc-950 transition-colors duration-200 sm:flex-1 tracking-tight leading-snug">
-                    {project.name}
-                  </span>
-
-                  {/* Краткое описание — справа от названия на десктопе */}
-                  <span className="text-[12px] text-zinc-400 leading-snug sm:ml-6 sm:text-right sm:max-w-xs shrink-0">
+                  {/* Right column: Description */}
+                  <div className="text-[12px] text-zinc-450 group-hover:text-zinc-800 transition-colors duration-200 leading-relaxed md:pl-2">
                     {project.description}
-                  </span>
-
+                  </div>
                 </div>
+              );
 
-                {/* Нижняя разделительная линия */}
-                <div className="border-t border-zinc-100" />
-              </div>
-            ))}
+              return (
+                <div key={project.id || project.num} className="relative">
+                  {hasLink ? (
+                    <a
+                      href={project.link_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group block no-underline transition-all duration-300 hover:bg-zinc-50/70 px-4 -mx-4 rounded-sm cursor-pointer"
+                    >
+                      {rowContent}
+                    </a>
+                  ) : (
+                    <div className="group px-4 -mx-4">
+                      {rowContent}
+                    </div>
+                  )}
+                  {/* Lower divider line */}
+                  <div className="border-t border-zinc-100" />
+                </div>
+              );
+            })}
           </div>
         </motion.div>
 
