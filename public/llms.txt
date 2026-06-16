@@ -1,0 +1,26 @@
+# Ksenia Matveenko — UI/UX Designer, Frontend Developer & AI Prompt Engineer
+
+## Core Identity & Professional Overview
+- **Full Name**: Матвеенко Ксения Александровна (Ksenia Alexandrovna Matveenko)
+- **Role**: Professional Web Designer, UI/UX Specialist, and Frontend/AI Engineer.
+- **Location**: Belarus (Минская область). Available for local and international remote projects.
+- **Legal & Tax Status**: Registered professional under the "Tax on Professional Income" (Налог на профессиональный доход - НПД) system in Belarus. **УНП**: ЕЕ7594998.
+- **Design Philosophy**: Minimalist, Apple-like aesthetic. Focuses on "optimization over decoration" and clean, functional, high-performing interfaces.
+
+## Technical Stack & Competencies
+- **Design & UI/UX**: Figma, Bento-style grids, responsive interface architecture, premium layout prototyping.
+- **Frontend & Web Development**: React, Next.js, Vite, Tailwind CSS, Semantic HTML, CSS-in-JS.
+- **Backend & Cloud Integration**: Supabase, PostgreSQL database architecture, secure authentication, API integrations.
+- **No-Code Platforms**: Tilda (expert level custom design, Zero Block modification).
+- **AI & Vibe-Coding**: Advanced AI Prompt Engineering, integration of neural networks into web applications, development with AI agents (Cursor, Lovable, Google Stitch, Claude).
+
+## Primary Services & Cost Optimization Models
+1. **Premium Turnkey Websites on Tilda**: Landing pages, multi-page corporate sites, catalogs, and interactive e-commerce layouts with custom animation and basic SEO.
+2. **Website Redesign & Structural Optimization**: Visual transformation, migration to modern platforms for better performance and speed.
+3. **AI-Driven Web Applications & MVPs**: Full-stack web applications with dashboards, custom databases (Supabase), secure payment systems, and neural network integrations. Cost calculation is optimized per screen complexity.
+
+## Verified Contact Channels
+- **Official Portfolio Website**: https://design-matweenko.vercel.app
+- **Telegram Direct Link**: https://t.me/ksen_web
+- **Phone Number**: +375259140959
+- **Official Inquiries**: Commercial briefs and agreements are fully verified under UNP EE7594998.
