@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import Sidebar from './Sidebar';
 import Hero from './Hero';
-import Services from './Services';
-import Reviews from './Reviews';
-import Cases from './Cases';
-import Workflow from './Workflow';
-import Contacts from './Contacts';
 import contentData from '../contentData';
 import { FlickeringGrid } from "./ui/FlickeringGrid";
-import KineticMarquee from './ui/KineticMarquee';
+
+// ─── Тяжёлые секции — lazy-loaded ─────────────────────────────────────────────
+// Services (~86 KB), Cases, Workflow, Reviews, Contacts, KineticMarquee
+// подгружаются асинхронно после того, как Hero уже отрисован.
+const Services     = lazy(() => import('./Services'));
+const Cases        = lazy(() => import('./Cases'));
+const Workflow     = lazy(() => import('./Workflow'));
+const Reviews      = lazy(() => import('./Reviews'));
+const Contacts     = lazy(() => import('./Contacts'));
+const KineticMarquee = lazy(() => import('./ui/KineticMarquee'));
+
+// Минималистичный плейсхолдер для секций пока чанк грузится
+function SectionFallback() {
+  return <div style={{ minHeight: '200px' }} />;
+}
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState('hero');
@@ -21,27 +30,40 @@ export default function HomePage() {
       metaDescription.setAttribute('content', 'Создание высококлассных сайтов, интерфейсов и\u00a0UX/UI дизайна с\u00a0упором на\u00a0чистую эстетику и\u00a0техническое совершенство.');
     }
 
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      const sections = contentData.sidebar.navigation.map(item => item.id);
+    // ─── Оптимизация: offsetTop/offsetHeight читаем ОДИН раз за тик RAF ──────
+    // Вызов getBoundingClientRect/offsetXxx внутри scroll-хендлера без
+    // requestAnimationFrame вызывает Forced Reflow на каждый скролл-событие.
+    // Решение: оборачиваем логику в rAF (браузер уже «знает» layout к этому
+    // моменту) и кэшируем элементы, чтобы не запрашивать DOM каждый раз.
 
-      // Calculate which section is currently centered/active in the viewport
-      let currentSection = 'hero';
-      for (const sectionId of sections) {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          const top = el.offsetTop - 240; // trigger zone offset
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            currentSection = sectionId;
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const scrollPosition = window.scrollY;
+        const sections = contentData.sidebar.navigation.map(item => item.id);
+
+        let currentSection = 'hero';
+        for (const sectionId of sections) {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            // offsetTop + offsetHeight — layout-свойства, безопасны внутри rAF
+            const top = el.offsetTop - 240;
+            const height = el.offsetHeight;
+            if (scrollPosition >= top && scrollPosition < top + height) {
+              currentSection = sectionId;
+            }
           }
         }
-      }
-      setActiveSection(currentSection);
+        setActiveSection(currentSection);
+        ticking = false;
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    // Run once on load to establish initial state
+    // Начальное состояние
     handleScroll();
 
     return () => window.removeEventListener('scroll', handleScroll);
@@ -67,13 +89,28 @@ export default function HomePage() {
           className="relative flex-1 w-full lg:w-[calc(100%-260px)] lg:max-w-[calc(100%-260px)] lg:ml-[260px] min-h-screen flex flex-col bg-white min-w-0 overflow-x-clip"
         >
           <div className="relative z-10 flex flex-col w-full">
+            {/* Hero грузится синхронно — критический контент первого экрана */}
             <Hero />
-            <Services />
-            <Cases />
-            <Workflow />
-            <Reviews />
-            <Contacts />
-            <KineticMarquee />
+
+            {/* Все остальные секции — lazy, подгрузятся после первого экрана */}
+            <Suspense fallback={<SectionFallback />}>
+              <Services />
+            </Suspense>
+            <Suspense fallback={<SectionFallback />}>
+              <Cases />
+            </Suspense>
+            <Suspense fallback={<SectionFallback />}>
+              <Workflow />
+            </Suspense>
+            <Suspense fallback={<SectionFallback />}>
+              <Reviews />
+            </Suspense>
+            <Suspense fallback={<SectionFallback />}>
+              <Contacts />
+            </Suspense>
+            <Suspense fallback={<SectionFallback />}>
+              <KineticMarquee />
+            </Suspense>
           </div>
         </motion.main>
       </div>

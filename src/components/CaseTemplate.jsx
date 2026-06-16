@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Send, MessageCircle, Check, Copy, Clock, Shield,
 import contentData from '../contentData';
 import KineticMarquee from './ui/KineticMarquee';
 import { supabase } from '../lib/supabaseClient';
+import { caseHeroImg, panoramaImg, featureImg, mobileFeatureImg, outroImg, customBlockImg, avatarImg } from '../utils/imageUtils';
 
 // ── Framer Motion shared animation preset ──
 const sectionReveal = {
@@ -447,7 +448,7 @@ function CaseSidebar({ activeSection, sections = [] }) {
         {/* Profile */}
         <div className="shrink-0 mb-5 xl:mb-6 sidebar-profile">
           <div className="w-16 h-16 xl:w-20 xl:h-20 rounded-sm overflow-hidden mb-4 border border-zinc-200/30 bg-zinc-50">
-            <img src={profile.avatarUrl} alt={profile.altText} className="w-full h-full object-cover" />
+            <img src={avatarImg(profile.avatarUrl)} alt={profile.altText} width={80} height={80} className="w-full h-full object-cover" />
           </div>
           <h2 className="text-base xl:text-lg font-medium text-black mb-0.5 leading-tight tracking-tight">{profile.name}</h2>
           <p className="text-[12px] xl:text-[13px] text-neutral-400 font-normal leading-snug sidebar-role">{profile.role}</p>
@@ -669,7 +670,13 @@ export default function CaseTemplate() {
 
   // Track active section on scroll
   useEffect(() => {
-    const handleScroll = () => {
+    // ── rAF + ticking guard ────────────────────────────────────────────────────
+    // offsetTop / offsetHeight — layout-свойства. Если раньше браузер рендерил
+    // какой-либо DOM, их чтение заставляет браузер немедленно
+    // пересчитать layout (Forced Reflow). Внутри rAF layout уже актуален.
+    let ticking = false;
+
+    const computeActiveSection = () => {
       const scrollPosition = window.scrollY;
       const sections = ['case-about', 'case-process', 'case-challenge', 'case-showcase', 'case-mobile-showcase', 'case-outro', 'case-custom'];
 
@@ -677,7 +684,7 @@ export default function CaseTemplate() {
       for (const sectionId of sections) {
         const el = document.getElementById(sectionId);
         if (el) {
-          const top = el.offsetTop - 240; // trigger zone offset
+          const top = el.offsetTop - 240;
           const height = el.offsetHeight;
           if (scrollPosition >= top && scrollPosition < top + height) {
             currentSection = sectionId;
@@ -685,10 +692,18 @@ export default function CaseTemplate() {
         }
       }
       setActiveSection(currentSection);
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(computeActiveSection);
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
+    computeActiveSection();
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [id, data]);
@@ -820,8 +835,17 @@ export default function CaseTemplate() {
                 transition={{ duration: 1, ease: [0.215, 0.610, 0.355, 1.000], delay: 0.15 }}
                 className="w-full px-6 md:px-12 lg:px-16 pb-12"
               >
+                {/* aspect-ratio задан через padding-trick контейнера, явный width/height предотвращает CLS */}
                 <div className="w-full border border-neutral-200/60 rounded-sm overflow-hidden bg-neutral-100 shadow-sm">
-                  <img src={data.heroImage} alt={data.title || data.card_title} className="w-full h-auto object-cover max-h-[85vh]" />
+                  <img
+                    src={caseHeroImg(data.heroImage)}
+                    alt={data.title || data.card_title}
+                    loading="eager"
+                    decoding="async"
+                    width={1400}
+                    height={787}
+                    className="w-full h-auto object-cover max-h-[85vh]"
+                  />
                 </div>
               </motion.div>
             )}
@@ -971,13 +995,13 @@ export default function CaseTemplate() {
                   <div className="flex gap-6 w-max animate-marquee-ltr">
                     {data.panorama_images.map((imgUrl, idx) => (
                       <div key={`ltr-1-${idx}`} className="w-[300px] md:w-[450px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden shrink-0">
-                        <img src={imgUrl} alt={`Панорама ${idx + 1}`} className="w-full h-full object-cover" />
+                        <img src={panoramaImg(imgUrl)} alt={`Панорама ${idx + 1}`} loading="lazy" decoding="async" width={900} height={506} className="w-full h-full object-cover" />
                       </div>
                     ))}
                     {/* Duplicate for infinite effect */}
                     {data.panorama_images.map((imgUrl, idx) => (
                       <div key={`ltr-2-${idx}`} className="w-[300px] md:w-[450px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden shrink-0">
-                        <img src={imgUrl} alt={`Панорама ${idx + 1}`} className="w-full h-full object-cover" />
+                        <img src={panoramaImg(imgUrl)} alt={`Панорама ${idx + 1}`} loading="lazy" decoding="async" width={900} height={506} className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>
@@ -989,12 +1013,12 @@ export default function CaseTemplate() {
                     <div className="flex gap-6 w-max animate-marquee-rtl">
                       {[...data.panorama_images].reverse().map((imgUrl, idx) => (
                         <div key={`rtl-1-${idx}`} className="w-[300px] md:w-[450px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden shrink-0">
-                          <img src={imgUrl} alt={`Панорама ${idx + 1}`} className="w-full h-full object-cover" />
+                          <img src={panoramaImg(imgUrl)} alt={`Панорама ${idx + 1}`} loading="lazy" decoding="async" width={900} height={506} className="w-full h-full object-cover" />
                         </div>
                       ))}
                       {[...data.panorama_images].reverse().map((imgUrl, idx) => (
                         <div key={`rtl-2-${idx}`} className="w-[300px] md:w-[450px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden shrink-0">
-                          <img src={imgUrl} alt={`Панорама ${idx + 1}`} className="w-full h-full object-cover" />
+                          <img src={panoramaImg(imgUrl)} alt={`Панорама ${idx + 1}`} loading="lazy" decoding="async" width={900} height={506} className="w-full h-full object-cover" />
                         </div>
                       ))}
                     </div>
@@ -1114,7 +1138,7 @@ export default function CaseTemplate() {
                       {/* Image */}
                       <div className="w-full aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden flex items-center justify-center">
                         {feature.image ? (
-                          <img src={feature.image} alt={feature.title} className="w-full h-full object-cover" />
+                          <img src={featureImg(feature.image)} alt={feature.title} loading="lazy" decoding="async" width={800} height={450} className="w-full h-full object-cover" />
                         ) : (
                           <span className="text-neutral-400 text-[10px] font-semibold tracking-widest uppercase">
                             Десктопный скриншот 0{idx + 1}
@@ -1185,7 +1209,7 @@ export default function CaseTemplate() {
                     {/* Smartphone Aspect Ratio */}
                     <div className="w-full aspect-[9/19] bg-neutral-100 border border-zinc-300 rounded-md overflow-hidden flex items-center justify-center relative">
                       {screen.image ? (
-                        <img src={screen.image} alt={screen.title} className="w-full h-full object-cover" />
+                        <img src={mobileFeatureImg(screen.image)} alt={screen.title} loading="lazy" decoding="async" width={400} height={844} className="w-full h-full object-cover" />
                       ) : (
                         <div className="flex flex-col justify-between p-4 text-neutral-400 text-[9px] font-medium tracking-widest uppercase absolute inset-0">
                           <div className="flex justify-between items-center w-full">
@@ -1227,8 +1251,8 @@ export default function CaseTemplate() {
 
               <div className={`grid grid-cols-1 ${outroImages.length > 1 ? 'md:grid-cols-2' : ''} gap-6`}>
                 {outroImages.map((imgUrl, idx) => (
-                  <div key={idx} className="w-full border border-neutral-200/60 rounded-sm overflow-hidden bg-zinc-50 shadow-sm">
-                    <img src={imgUrl} alt={`Outro ${idx + 1}`} className="w-full h-auto object-cover" />
+                  <div key={idx} className="w-full border border-neutral-200/60 rounded-sm overflow-hidden bg-zinc-50 shadow-sm" style={{ aspectRatio: '16/9' }}>
+                    <img src={outroImg(imgUrl)} alt={`Outro ${idx + 1}`} loading="lazy" decoding="async" width={1000} height={562} className="w-full h-auto object-cover" />
                   </div>
                 ))}
               </div>
@@ -1251,7 +1275,7 @@ export default function CaseTemplate() {
                       </div>
                     ) : (
                       <div className="w-full border border-neutral-200/60 rounded-sm overflow-hidden bg-zinc-50">
-                        <img src={block.content} alt={`Кастомный блок ${idx + 1}`} className="w-full h-auto object-cover" />
+                        <img src={customBlockImg(block.content)} alt={`Кастомный блок ${idx + 1}`} loading="lazy" decoding="async" width={1000} height={562} className="w-full h-auto object-cover" />
                       </div>
                     )}
                   </div>

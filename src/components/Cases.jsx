@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import contentData from '../contentData';
 import { supabase } from '../lib/supabaseClient';
+import { caseCardImg } from '../utils/imageUtils';
 
 const INITIAL_VISIBLE = 4; // количество карточек, видимых при первой загрузке
 
@@ -239,9 +240,12 @@ export default function Cases() {
                         )}
                         {image ? (
                           <img
-                            src={image}
+                            src={caseCardImg(image)}
                             alt={title}
-                            loading="lazy"
+                            loading={idx === 0 ? 'eager' : 'lazy'}
+                            decoding="async"
+                            width={650}
+                            height={488}
                             className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out ${
                               !isInDev ? 'group-hover:scale-105' : ''
                             }`}

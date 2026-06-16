@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import contentData from '../contentData';
+import { avatarImg } from '../utils/imageUtils';
 
 export default function Sidebar({ activeSection }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -111,7 +112,13 @@ export default function Sidebar({ activeSection }) {
         {/* Profile */}
         <div className="shrink-0 mb-6 xl:mb-8 sidebar-profile">
           <div className="w-16 h-16 xl:w-20 xl:h-20 rounded-md overflow-hidden mb-4 border border-zinc-200/30 bg-zinc-50">
-            <img src={contentData.sidebar.profile.avatarUrl} alt={contentData.sidebar.profile.altText} className="w-full h-full object-cover" />
+            <img
+              src={avatarImg(contentData.sidebar.profile.avatarUrl)}
+              alt={contentData.sidebar.profile.altText}
+              width={80}
+              height={80}
+              className="w-full h-full object-cover"
+            />
           </div>
           <h2 className="text-base xl:text-lg font-medium text-black mb-0.5 leading-tight tracking-tight">{contentData.sidebar.profile.name}</h2>
           <p className="text-[12px] xl:text-[13px] text-neutral-400 font-normal leading-snug sidebar-role">{contentData.sidebar.profile.role}</p>

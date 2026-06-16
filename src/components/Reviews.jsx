@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import contentData from '../contentData';
+import { reviewImg } from '../utils/imageUtils';
 
 const SCROLL_ROTATIONS = 1.2;
 const TRACK_COPIES = 3;
@@ -110,9 +111,13 @@ export default function Reviews() {
     const updateStyles = () => {
       if (!reviewsRef.current || !trackRef.current || !containerRef.current) return;
 
+      // ── BATCH READ #1: все geometry-чтения до любой записи ──────────────────
+      // getBoundingClientRect вызывает Forced Reflow если браузер ещё не знает
+      // актуальный layout. Здесь мы читаем все нужные значения ДО записи стилей,
+      // чтобы движок не сбрасывал layout между read/write парами.
       const rect = reviewsRef.current.getBoundingClientRect();
       const scrollableHeight = rect.height - window.innerHeight;
-      if (scrollableHeight <= 0) return;
+      if (scrollableHeight <= 0) { ticking = false; return; }
 
       const progress = Math.max(0, Math.min(1, -rect.top / scrollableHeight));
       const currentIsMobile = window.innerWidth < 768;
@@ -125,16 +130,28 @@ export default function Reviews() {
       const maxColHeight = Math.max(...columnHeights);
       const totalScroll = maxColHeight * SCROLL_ROTATIONS;
 
-      trackRef.current.style.transform = `translate3d(0, ${-progress * totalScroll}px, 0)`;
-
+      // Читаем containerRect один раз
       const containerRect = containerRef.current.getBoundingClientRect();
-      cardsRef.current.forEach((el) => {
-        if (!el) return;
+
+      // Читаем все cardRect за один проход — ДО любых записей
+      const cards = cardsRef.current;
+      const cardScales = new Array(cards.length);
+      for (let i = 0; i < cards.length; i++) {
+        const el = cards[i];
+        if (!el) { cardScales[i] = null; continue; }
         const cardRect = el.getBoundingClientRect();
         const cardCenterY = cardRect.top + cardRect.height / 2;
-        const scale = getCenterScale(containerRect.height, cardCenterY, containerRect.top);
-        el.style.transform = `scale(${scale})`;
-      });
+        cardScales[i] = getCenterScale(containerRect.height, cardCenterY, containerRect.top);
+      }
+
+      // ── BATCH WRITE: все записи style после чтений ───────────────────────────
+      trackRef.current.style.transform = `translate3d(0, ${-progress * totalScroll}px, 0)`;
+
+      for (let i = 0; i < cards.length; i++) {
+        if (cards[i] !== null && cards[i] !== undefined && cardScales[i] !== null) {
+          cards[i].style.transform = `scale(${cardScales[i]})`;
+        }
+      }
 
       ticking = false;
     };
@@ -157,8 +174,8 @@ export default function Reviews() {
 
     const onScroll = () => {
       if (!ticking) {
-        requestAnimationFrame(updateStyles);
         ticking = true;
+        requestAnimationFrame(updateStyles);
       }
     };
 
@@ -247,9 +264,12 @@ export default function Reviews() {
                     }}
                   >
                     <img
-                      src={review.imageUrl}
+                      src={reviewImg(review.imageUrl)}
                       alt={`Отзыв ${review.id}`}
                       loading="lazy"
+                      decoding="async"
+                      width={720}
+                      height={Math.round(720 / (review.aspectRatio || 1.5))}
                       className="w-[85vw] sm:w-auto sm:max-w-[320px] md:w-[360px] h-auto object-contain rounded-md shadow-[0_4px_20px_rgb(0,0,0,0.02)] transition-transform duration-200 ease-out hover:scale-[1.04] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] cursor-default border border-zinc-200/30 bg-white"
                     />
                   </div>
