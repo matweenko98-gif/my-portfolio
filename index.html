@@ -1,25 +1,53 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ксения Матвеенко — Дизайн-студия & Разработка премиальных сайтов</title>
-    <meta name="description" content="Создание высококлассных сайтов, интерфейсов и UX/UI дизайна с упором на чистую эстетику и техническое совершенство." />
-    
-    <!-- Open Graph / Facebook / Telegram -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Ксения Матвеенко | Web Design & UX/UI Studio" />
-    <meta property="og:description" content="Разработка индивидуальных цифровых продуктов и премиальных сайтов с чистой, строгой эстетикой." />
-    <meta property="og:url" content="https://design-matweenko.vercel.app" />
-    <meta property="og:image" content="https://design-matweenko.vercel.app/og-image.png" />
 
-    <link rel="icon" type="image/svg+xml" href="/images.svg/favicon.svg.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  </head>
-  <body class="bg-white text-zinc-900 antialiased font-sans m-0 p-0">
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ксения Матвеенко — Дизайн-студия & Разработка премиальных сайтов</title>
+  <meta name="description"
+    content="Создание высококлассных сайтов, интерфейсов и UX/UI дизайна с упором на чистую эстетику и техническое совершенство." />
+
+  <!-- Open Graph / Facebook / Telegram -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Ксения Матвеенко | Web Design & UX/UI Studio" />
+  <meta property="og:description"
+    content="Разработка индивидуальных цифровых продуктов и премиальных сайтов с чистой, строгой эстетикой." />
+  <meta property="og:url" content="https://design-matweenko.vercel.app" />
+  <meta property="og:image" content="https://design-matweenko.vercel.app/og-image.png" />
+
+  <link rel="icon" type="image/svg+xml" href="/images.svg/favicon.svg.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0Y505CTJ47"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-0Y505CTJ47');
+  </script>
+
+  <script type="text/javascript">
+    (function (m, e, t, r, i, k, a) {
+      m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+      m[i].l = 1 * new Date();
+      for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+      k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+    })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=109905970', 'ym');
+
+    ym(109905970, 'init', { ssr: true, webvisor: true, clickmap: true, ecommerce: "dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce: true, trackLinks: true });
+  </script>
+  <noscript>
+    <div><img src="https://mc.yandex.ru/watch/109905970" style="position:absolute; left:-9999px;" alt="" /></div>
+  </noscript>
+</head>
+
+<body class="bg-white text-zinc-900 antialiased font-sans m-0 p-0">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>
