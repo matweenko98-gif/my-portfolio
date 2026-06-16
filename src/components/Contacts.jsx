@@ -24,6 +24,7 @@ export default function Contacts() {
   const [activeIntentId, setActiveIntentId] = useState(contacts.intents[0].id);
   const [copied, setCopied] = useState(false);
   const [phoneCopied, setPhoneCopied] = useState(false);
+  const [emailCopied, setEmailCopied] = useState(false);
 
   const activeIntent = useMemo(
     () => contacts.intents.find((item) => item.id === activeIntentId) ?? contacts.intents[0],
@@ -70,6 +71,16 @@ export default function Contacts() {
       }
     }
   }, [contacts.phone]);
+
+  const handleCopyEmail = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText("verameeva77@mail.ru");
+      setEmailCopied(true);
+      setTimeout(() => setEmailCopied(false), 2000);
+    } catch {
+      setEmailCopied(false);
+    }
+  }, []);
 
   const handleMaxClick = useCallback(async () => {
     if (maxOpensDirectChat) {
@@ -163,8 +174,8 @@ export default function Contacts() {
               </div>
             </div>
 
-            {/* Phone — desktop only (shown on mobile as order-4 sibling below) */}
-            <div className="hidden lg:flex mt-16 lg:mt-20 mb-6 flex-col items-start relative z-0">
+            {/* Phone & Email — desktop only */}
+            <div className="hidden lg:flex mt-16 lg:mt-20 mb-6 items-end justify-between relative z-0">
               <button
                 type="button"
                 onClick={handleCopyPhone}
@@ -178,6 +189,23 @@ export default function Contacts() {
                     <Check className="w-8 h-8 text-[#E0FB4A]" />
                   ) : (
                     <Copy className="w-8 h-8" />
+                  )}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCopyEmail}
+                className="bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/email flex items-center gap-2 mb-3 text-neutral-455 hover:text-white transition-colors duration-300 select-all"
+              >
+                <span className="text-xs font-normal tracking-wide">
+                  verameeva77@mail.ru
+                </span>
+                <span className="text-neutral-550 group-hover/email:text-white transition-colors duration-300">
+                  {emailCopied ? (
+                    <Check className="w-3.5 h-3.5 text-[#E0FB4A]" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
                   )}
                 </span>
               </button>
@@ -283,8 +311,8 @@ export default function Contacts() {
             </div>
           </div>
 
-          {/* ── Mobile only: phone — order-4 ── */}
-          <div className="lg:hidden order-4 flex flex-col items-start pb-2 mt-8">
+          {/* ── Mobile only: phone & email — order-4 ── */}
+          <div className="lg:hidden order-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 mt-8 w-full">
             <button
               type="button"
               onClick={handleCopyPhone}
@@ -298,6 +326,23 @@ export default function Contacts() {
                   <Check className="w-5 h-5 text-[#E0FB4A]" />
                 ) : (
                   <Copy className="w-5 h-5" />
+                )}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCopyEmail}
+              className="bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/email flex items-center gap-2 select-all text-neutral-455 hover:text-white transition-colors duration-300"
+            >
+              <span className="text-xs font-normal tracking-wide">
+                verameeva77@mail.ru
+              </span>
+              <span className="text-neutral-550 group-hover/email:text-white transition-colors duration-300">
+                {emailCopied ? (
+                  <Check className="w-3.5 h-3.5 text-[#E0FB4A]" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
                 )}
               </span>
             </button>

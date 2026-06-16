@@ -1554,7 +1554,10 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
   const IconComponent = ICON_MAP[service.number] || Layers;
 
   return (
-    <div id={`service-card-${service.number}`} className="group border border-neutral-800 rounded-md p-6 sm:p-8 hover:border-neutral-600 hover:scale-[1.015] hover:shadow-2xl transition-all bg-[#1A1A1A] duration-300">
+    <div id={`service-card-${service.number}`} className="group relative border border-neutral-800 rounded-md p-6 sm:p-8 hover:border-neutral-600 hover:scale-[1.015] hover:shadow-2xl transition-all bg-[#1A1A1A] duration-300">
+      {(service.number === '01' || service.number === '03') && (
+        <div className="absolute inset-0 bg-orange-500/[0.02] pointer-events-none rounded-md" />
+      )}
       {/* Two-column layout grid for header and parameters */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-stretch">
         

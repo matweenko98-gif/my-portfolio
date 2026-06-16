@@ -70,15 +70,28 @@ export default function Sidebar({ activeSection }) {
           })}
         </div>
 
-        {/* Mobile footer telegram connection link */}
-        <div className="mt-auto mb-10 pt-6 border-t border-zinc-100 w-2/3 flex justify-center">
+        {/* Mobile footer links */}
+        <div className="mt-auto mb-10 pt-6 border-t border-zinc-100 w-2/3 flex flex-col items-center gap-2.5 justify-center">
+          <a
+            href={contentData.sidebar.socialLinks.max}
+            className="inline-flex items-center gap-1.5 group cursor-pointer text-[14px] font-normal text-zinc-900 whitespace-nowrap"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="border-b border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+              Связь в MAX
+            </span>
+            <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              ↗
+            </span>
+          </a>
           <a
             href={contentData.sidebar.socialLinks.telegram}
             className="inline-flex items-center gap-1.5 group cursor-pointer text-[14px] font-normal text-zinc-900 whitespace-nowrap"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span className="border-b\u00a0border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+            <span className="border-b border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
               Связь в Telegram
             </span>
             <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -133,21 +146,36 @@ export default function Sidebar({ activeSection }) {
           </ul>
         </nav>
 
-        {/* Sidebar Footer — text link only */}
+        {/* Sidebar Footer — text links */}
         <div className="shrink-0 mt-auto border-t border-neutral-100/60 pt-4 sidebar-footer">
-          <a
-            href={contentData.sidebar.socialLinks.telegram}
-            className="inline-flex items-center gap-1.5 group cursor-pointer text-[13px] font-normal text-[#111111] whitespace-nowrap"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="border-b\u00a0border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
-              Связь в Telegram
-            </span>
-            <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              ↗
-            </span>
-          </a>
+          <div className="flex flex-col gap-2.5">
+            <a
+              href={contentData.sidebar.socialLinks.max}
+              className="inline-flex items-center gap-1.5 group cursor-pointer text-[13px] font-normal text-[#111111] whitespace-nowrap"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="border-b border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+                Связь в MAX
+              </span>
+              <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                ↗
+              </span>
+            </a>
+            <a
+              href={contentData.sidebar.socialLinks.telegram}
+              className="inline-flex items-center gap-1.5 group cursor-pointer text-[13px] font-normal text-[#111111] whitespace-nowrap"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="border-b border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+                Связь в Telegram
+              </span>
+              <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                ↗
+              </span>
+            </a>
+          </div>
         </div>
       </motion.aside>
     </>

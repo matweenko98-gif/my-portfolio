@@ -34,7 +34,8 @@ const contentData = {
       { id: "contacts", label: "Обсудить проект" }
     ],
     socialLinks: {
-      telegram: "https://t.me/ksen_web"
+      telegram: "https://t.me/ksen_web",
+      max: "https://max.ru/u/f9LHodD0cOLc1tgODx5Hvuln4-rgmfFJqN4Q5OLgnaxmSTG2FxgU9ZVRnGg"
     }
   },
 
@@ -452,7 +453,7 @@ const contentData = {
       max: {
         text: "Написать в\u00a0MAX",
         // Замените на вашу личную ссылку из MAX: Настройки → Поделиться
-        url: "https://max.ru/"
+        url: "https://max.ru/u/f9LHodD0cOLc1tgODx5Hvuln4-rgmfFJqN4Q5OLgnaxmSTG2FxgU9ZVRnGg"
       }
     },
     buttons: {

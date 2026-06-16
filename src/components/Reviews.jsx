@@ -36,10 +36,10 @@ function buildTrackLayout(items, isMobile, gap) {
       columnStaggers: [0],
     };
   } else {
-    const columnLefts = ['calc(50% - 527px)', 'calc(50% - 165px)', 'calc(50% + 197px)'];
+    const columnLefts = ['calc(50% - 558px)', 'calc(50% - 180px)', 'calc(50% + 198px)'];
     const columnStaggers = [-125, 55, -55]; // Side columns staggered higher
-    const gapVal = gap || 32;
-    const cardWidth = 330; // standard width on desktop
+    const gapVal = gap || 18;
+    const cardWidth = 360; // standard width on desktop
     
     const columnYs = [0, 0, 0];
     const columns = [[], [], []];
@@ -120,7 +120,7 @@ export default function Reviews() {
       const { columnHeights } = buildTrackLayout(
         visibleItems,
         currentIsMobile,
-        currentIsMobile ? 36 : 32
+        currentIsMobile ? 36 : 18
       );
       const maxColHeight = Math.max(...columnHeights);
       const totalScroll = maxColHeight * SCROLL_ROTATIONS;
@@ -147,7 +147,7 @@ export default function Reviews() {
       const { columnHeights } = buildTrackLayout(
         visibleItems,
         currentIsMobile,
-        currentIsMobile ? 36 : 32
+        currentIsMobile ? 36 : 18
       );
       const maxColHeight = Math.max(...columnHeights);
       const scrollPx = maxColHeight * SCROLL_ROTATIONS;
@@ -182,7 +182,7 @@ export default function Reviews() {
   const { layout, columnHeights, columnStaggers } = buildTrackLayout(
     visibleItems,
     isMobile,
-    isMobile ? 36 : 32
+    isMobile ? 36 : 18
   );
 
   return (
@@ -250,7 +250,7 @@ export default function Reviews() {
                       src={review.imageUrl}
                       alt={`Отзыв ${review.id}`}
                       loading="lazy"
-                      className="w-[85vw] sm:w-auto sm:max-w-[320px] md:w-[330px] h-auto object-contain rounded-md shadow-[0_4px_20px_rgb(0,0,0,0.02)] transition-transform duration-200 ease-out hover:scale-[1.04] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] cursor-default border border-zinc-200/30 bg-white"
+                      className="w-[85vw] sm:w-auto sm:max-w-[320px] md:w-[360px] h-auto object-contain rounded-md shadow-[0_4px_20px_rgb(0,0,0,0.02)] transition-transform duration-200 ease-out hover:scale-[1.04] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] cursor-default border border-zinc-200/30 bg-white"
                     />
                   </div>
                 );
