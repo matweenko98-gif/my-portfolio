@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Layers, Code, RefreshCw, Send, X, CheckCircle2, Layout, Files, FileText } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Layers, Code, RefreshCw, Send, X, Layout, Files, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import contentData from '../contentData';
 import ProjectCart from './ProjectCart';
@@ -1770,6 +1771,7 @@ export default function Services() {
   };
 
   return (
+    <>
     <motion.section
       id="services"
       initial={{ opacity: 0, y: 24 }}
@@ -1826,39 +1828,38 @@ export default function Services() {
       </motion.div>
 
       </div>
+    </motion.section>
 
-      {/* ===== ОКНО УСПЕХА (SUCCESS MODAL) ===== */}
-      <div 
-        className={`fixed inset-0 bg-zinc-950/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4 transition-all duration-300 ease-in-out ${
+    {createPortal(
+      <div
+        className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 backdrop-blur-md bg-black/40 transition-all duration-300 ease-in-out ${
           isSuccessModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div 
-        className={`bg-white border border-neutral-200 rounded-md p-6 sm:p-8 max-w-[440px] w-full shadow-xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
-          isSuccessModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
-        }`}
+        <div
+          className={`bg-white rounded-[1px] p-7 sm:p-9 max-w-[400px] w-full shadow-2xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
+            isSuccessModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+          }`}
         >
-          {/* Кнопка закрытия */}
-          <button 
+          <button
             onClick={() => {
               setIsSuccessModalOpen(false);
               setSuccessModalContent(null);
               setActiveCalculator(null);
             }}
-            className="absolute top-4 right-4 text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
+            className="absolute top-3.5 right-3.5 text-neutral-300 hover:text-neutral-500 transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
 
-          {/* Иконка успеха */}
-          <div className="w-16 h-16 rounded-sm bg-emerald-950/30 border border-emerald-900/50 flex items-center justify-center text-emerald-600">
-            <CheckCircle2 className="w-8 h-8" strokeWidth={1.5} />
-          </div>
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="5,15 11.5,21 23,8" stroke="#FF5B23" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
 
           <div>
-            <h3 className="text-lg font-bold text-[#111111] mb-2">Расчет успешно отправлен!</h3>
-            <p className="text-sm text-neutral-600 leading-relaxed">
-              {successModalContent || 'Расчет успешно отправлен! Я свяжусь с вами в Telegram в течение 1 рабочего дня.'}
+            <h3 className="text-[17px] font-semibold text-[#111111] mb-2 tracking-tight">Расчет отправлен</h3>
+            <p className="text-sm text-neutral-500 leading-relaxed">
+              {successModalContent || 'Я свяжусь с вами в Telegram в течение 1 рабочего дня.'}
             </p>
           </div>
 
@@ -1868,12 +1869,14 @@ export default function Services() {
               setSuccessModalContent(null);
               setActiveCalculator(null);
             }}
-            className="w-full mt-3 bg-black text-white font-semibold py-3 rounded-sm hover:bg-neutral-900 transition-all duration-200"
+            className="w-full mt-1 border border-neutral-200 text-[#111111] font-medium text-sm py-2.5 rounded-[1px] hover:border-neutral-300 hover:bg-neutral-50 transition-all duration-200 cursor-pointer"
           >
-            Отлично
+            Закрыть
           </button>
         </div>
-      </div>
-    </motion.section>
+      </div>,
+      document.body
+    )}
+</>
   );
 }
