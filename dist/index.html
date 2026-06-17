@@ -16,43 +16,66 @@
   <meta property="og:image" content="https://design-matweenko.vercel.app/og-image.png" />
 
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg--Hboyu8x.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
-    rel="stylesheet" />
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0Y505CTJ47"></script>
+  <link rel="preload" href="/fonts/InterTight-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/InterTight-Bold.woff2" as="font" type="font/woff2" crossorigin />
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-0Y505CTJ47');
+
+    function loadGtag() {
+      if (document.querySelector('script[data-gtm-loaded]')) return;
+      var script = document.createElement('script');
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-0Y505CTJ47';
+      script.async = true;
+      script.setAttribute('data-gtm-loaded', 'true');
+      script.onload = function () {
+        gtag('js', new Date());
+        gtag('config', 'G-0Y505CTJ47');
+      };
+      document.head.appendChild(script);
+    }
+
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(loadGtag);
+    } else {
+      window.addEventListener('load', loadGtag);
+    }
   </script>
 
-  <script type="text/javascript" defer>
-    (function (m, e, t, r, i, k, a) {
-      m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
-      m[i].l = 1 * new Date();
-      for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
-      k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
-    })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js', 'ym');
+  <script>
+    function initYandexMetrika() {
+      if (window.ym) {
+        ym(109905970, 'init', {
+          id: 109905970,
+          webvisor: false,
+          clickmap: true,
+          trackLinks: true,
+          accurateTrackBounce: true,
+          ecommerce: 'dataLayer',
+        });
+      }
+    }
 
-    ym(109905970, 'init', {
-      id: 109905970,
-      // webvisor: false — отключает Вебвизор и соединение wss://mc.yandex.ru/solid.ws
-      // Без этого браузер кидает ERR_NAME_NOT_RESOLVED в консоль при блокировке сокета.
-      // Если запись сессий нужна — верните webvisor: true, ошибки в консоли неизбежны.
-      webvisor: false,
-      clickmap: true,
-      trackLinks: true,
-      accurateTrackBounce: true,
-      ecommerce: 'dataLayer',
-    });
+    function loadMetrika() {
+      if (document.querySelector('script[data-ym-loaded]')) return;
+      var script = document.createElement('script');
+      script.src = 'https://mc.yandex.ru/metrika/tag.js';
+      script.async = true;
+      script.setAttribute('data-ym-loaded', 'true');
+      script.onload = initYandexMetrika;
+      document.head.appendChild(script);
+    }
+
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(loadMetrika);
+    } else {
+      window.addEventListener('load', loadMetrika);
+    }
   </script>
-  <script type="module" crossorigin src="/assets/index-Jk7xQMHK.js"></script>
+  <script type="module" crossorigin src="/assets/index-ChgGEN2p.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/vendor-react-DzWd0_Qu.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-misc-DS9-1A44.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-CNaO_Ey_.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-xlvCEcfK.css">
 </head>
 
 <body class="bg-white text-zinc-900 antialiased font-sans m-0 p-0">

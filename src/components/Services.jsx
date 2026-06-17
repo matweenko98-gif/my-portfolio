@@ -11,11 +11,46 @@ const TILDA_CART_ICON_KEYS = {
   contentReady: 'fileText',
 };
 
-// НАСТРОЙКА TELEGRAM БОТА
-// Вставьте ваш токен бота и ID чата для активации отправки заявок в Telegram
-const TG_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN";
-const TG_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID";
 const TELEGRAM_CONSULT_URL = 'https://t.me/ksen_web';
+
+// Отправка сообщения в Telegram через переменные окружения Vite
+const sendTelegramMessage = async (messageText) => {
+  try {
+    const token = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+    const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
+    if (!token || !chatId) {
+      console.warn('Telegram Bot token or chat id is not configured. Skipping send.');
+      return false;
+    }
+
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: messageText,
+        parse_mode: 'Markdown',
+      }),
+    });
+    const data = await response.json();
+    return response.ok && data?.ok;
+  } catch (e) {
+    console.error('Failed to send Telegram message:', e);
+    return false;
+  }
+};
+
+// Валидация контакта: телефон или Telegram-username
+const isValidContact = (val) => {
+  if (!val) return false;
+  const s = val.trim();
+  const phone = /^\+?[0-9\s\-()]{7,15}$/;
+  const tg = /^@?[A-Za-z0-9_]{5,32}$/;
+  return phone.test(s) || tg.test(s);
+};
 
 const Figma = (props) => (
   <svg
@@ -62,31 +97,6 @@ const formatPrice = (price) => {
   return price.toLocaleString('ru-RU');
 };
 
-const sendTelegramMessage = async (messageText) => {
-  if (!TG_TOKEN || TG_TOKEN.startsWith("YOUR_")) {
-    console.warn("Telegram Bot token is not configured. Simulating success...");
-    return new Promise((resolve) => setTimeout(() => resolve(true), 800));
-  }
-  
-  const url = `https://api.telegram.org/bot${TG_TOKEN}/sendMessage`;
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_id: TG_CHAT_ID,
-        text: messageText,
-        parse_mode: 'HTML',
-      }),
-    });
-    return response.ok;
-  } catch (e) {
-    console.error("Failed to send Telegram message:", e);
-    return false;
-  }
-};
 
 const SegmentedControl = ({ label, options, val, setVal }) => (
   <div className="flex flex-col gap-2">
@@ -131,6 +141,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
   const [contact, setContact] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
   const [cartBump, setCartBump] = useState(false);
   const [badgeBump, setBadgeBump] = useState(false);
   const [highlightedSlot, setHighlightedSlot] = useState(null);
@@ -228,7 +239,8 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
       return;
     }
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или\u00a0телефон';
+    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
+    else if (!isValidContact(contact)) newErrors.contact = 'Пожалуйста, введите корректный номер телефона или никнейм Telegram (например, @username)';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -236,45 +248,44 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
     }
 
     setErrors({});
+    setSubmitError(null);
     setLoading(true);
 
     const siteTypeLabels = siteTypeOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
     const pagesLabels = pagesOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
     const contentReadyLabels = contentReadyOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
 
-    const messageText = `
-<b>🔔 Новая заявка с\u00a0сайта-портфолио (Расчет Tilda)</b>
+    const messageText = `🔔 *Новая заявка с сайта-портфолио (Расчет Tilda)*
 
-<b>Клиент:</b> ${name}
-<b>Контакт:</b> ${contact}
+  *Клиент:* ${name}
+  *Контакт:* ${contact}
 
-<b>Услуга:</b> ${service.title}
-<b>Выбранные параметры:</b>
-• Тип сайта: <b>${siteTypeLabels[siteType]}</b>
-• Количество страниц: <b>${pagesLabels[pagesCount]}</b>
-• Готовность контента: <b>${contentReadyLabels[contentReady]}</b>
-• Дополнительные пожелания: <b>${comments || 'Нет'}</b>
+  *Услуга:* ${service.title}
+  *Выбранные параметры:*
+  • Тип сайта: *${siteTypeLabels[siteType]}*
+  • Количество страниц: *${pagesLabels[pagesCount]}*
+  • Готовность контента: *${contentReadyLabels[contentReady]}*
+  • Дополнительные пожелания: *${comments || 'Нет'}*
 
-<b>Примерная стоимость:</b> от ${formatPrice(price)} руб.
-<b>Сроки:</b> от ${days} ${getDaysWord(days)}
+  *Примерная стоимость:* от ${formatPrice(price)} руб.
+  *Сроки:* от ${days} ${getDaysWord(days)}
 
-✅ <b>Действие:</b> Подтверждение расчета
-    `.trim();
+  ✅ *Действие:* Подтверждение расчета`;
 
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        const customSuccessMsg = `Расчет получен! Я свяжусь с\u00a0вами в\u00a0ближайшее время для\u00a0уточнения деталей. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
-        onSendSuccess(customSuccessMsg);
+        const customSuccessMsg = `Расчет получен! Я свяжусь с вами в ближайшее время для уточнения деталей. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        onSendSuccess();
         setName('');
         setContact('');
         setComments('');
-      } else {
-        alert('Ошибка при\u00a0отправке. Пожалуйста, проверьте настройки токена бота.');
+        return;
       }
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
     } catch (e) {
       console.error(e);
-      alert('Произошла ошибка при\u00a0отправке заявки.');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
     } finally {
       setLoading(false);
     }
@@ -393,7 +404,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
           </span>
           <textarea
             rows={4}
-            placeholder="Например: Нужна интеграция с\u00a0CRM и\u00a0личный кабинет..."
+            placeholder="Например: Нужна интеграция с CRM и личный кабинет..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
             className="w-full bg-white border border-neutral-200 text-[#111111] rounded-sm px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
@@ -426,7 +437,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             </label>
             <input
               type="text"
-              placeholder="Телефон или\u00a0Telegram"
+              placeholder="Телефон или Telegram"
               value={contact}
               onChange={(e) => {
                 setContact(e.target.value);
@@ -458,6 +469,12 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             Нужна консультация
           </a>
         </div>
+        {submitError && (
+          <div className="text-red-500 text-sm mt-3">{submitError}</div>
+        )}
+        {submitError && (
+          <div className="text-red-500 text-sm mt-3">{submitError}</div>
+        )}
       </div>
     </div>
   );
@@ -497,7 +514,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
   const problemOptions = [
     { value: 'outdated', label: 'Устарел дизайн', price: 20000, days: 0, description: 'обновим визуальный стиль сайта и\u00a0сделаем его современным' },
     { value: 'mobile_ux', label: 'Плохой мобильный UX', price: 25000, days: 2, description: 'исправим ошибки отображения на\u00a0телефонах и\u00a0планшетах' },
-    { value: 'no_leads', label: 'Нет заявок', price: 30000, days: 4, description: 'проработаем структуру, логику и\u00a0офферы для\u00a0роста конверсии' }
+    { value: 'no_leads', label: 'Устарел контент / Новые блоки', price: 30000, days: 4, description: 'добавим новые разделы, страницы или обновим информацию под свежие задачи бизнеса' }
   ];
 
   const volumeOptions = [
@@ -574,7 +591,8 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
       return;
     }
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или\u00a0телефон';
+    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
+    else if (!isValidContact(contact)) newErrors.contact = 'Пожалуйста, введите корректный номер телефона или никнейм Telegram (например, @username)';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -582,28 +600,44 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
     }
 
     setErrors({});
+    setSubmitError(null);
     setLoading(true);
 
     const problemLabels = problemOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
     const volumeLabels = volumeOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
     const depthLabels = depthOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
 
-    const messageText = `<b>🔔 Новая заявка с\u00a0сайта-портфолио (Редизайн сайта)</b>\n\n<b>Клиент:</b> ${name}\n<b>Контакт:</b> ${contact}\n\n<b>Услуга:</b> ${service.title}\n<b>Выбранные параметры:</b>\n• Проблема сайта: <b>${problemLabels[problemType]}</b>\n• Объем страниц: <b>${volumeLabels[volume]}</b>\n• Глубина переработки: <b>${depthLabels[depth]}</b>\n• Дополнительные пожелания: <b>${comments || 'Нет'}</b>\n\n<b>Примерная стоимость:</b> от ${formatPrice(price)} руб.\n<b>Сроки:</b> от ${days} ${getDaysWord(days)}\n\n✅ <b>Действие:</b> Подтверждение расчета`;
+    const messageText = `🔔 *Новая заявка с сайта-портфолио (Редизайн сайта)*
+
+  *Клиент:* ${name}
+  *Контакт:* ${contact}
+
+  *Услуга:* ${service.title}
+  *Выбранные параметры:*
+  • Проблема сайта: *${problemLabels[problemType]}*
+  • Объем страниц: *${volumeLabels[volume]}*
+  • Глубина переработки: *${depthLabels[depth]}*
+  • Дополнительные пожелания: *${comments || 'Нет'}*
+
+  *Примерная стоимость:* от ${formatPrice(price)} руб.
+  *Сроки:* от ${days} ${getDaysWord(days)}
+
+  ✅ *Действие:* Подтверждение расчета`;
 
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        const customSuccessMsg = `Расчет получен! Я изучу ваш текущий сайт и\u00a0свяжусь в\u00a0ближайшее время. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
-        onSendSuccess(customSuccessMsg);
+        const customSuccessMsg = `Расчет получен! Я изучу ваш текущий сайт и свяжусь в ближайшее время. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        onSendSuccess();
         setName('');
         setContact('');
         setComments('');
-      } else {
-        alert('Ошибка при\u00a0отправке. Пожалуйста, проверьте настройки токена бота.');
+        return;
       }
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
     } catch (e) {
       console.error(e);
-      alert('Произошла ошибка при\u00a0отправке заявки.');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
     } finally {
       setLoading(false);
     }
@@ -722,7 +756,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
           </span>
           <textarea
             rows={4}
-            placeholder="Укажите ссылку на\u00a0текущий сайт и\u00a0напишите пожелания..."
+            placeholder="Укажите ссылку на текущий сайт и напишите пожелания..."
             value={comments}
             onChange={(e) => setComments(e.target.value)}
             className="w-full bg-white border border-neutral-200 text-[#111111] rounded-sm px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
@@ -755,7 +789,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             </label>
             <input
               type="text"
-              placeholder="Телефон или\u00a0Telegram"
+              placeholder="Телефон или Telegram"
               value={contact}
               onChange={(e) => {
                 setContact(e.target.value);
@@ -901,7 +935,8 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
       return;
     }
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или\u00a0телефон';
+    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
+    else if (!isValidContact(contact)) newErrors.contact = 'Пожалуйста, введите корректный номер телефона или никнейм Telegram (например, @username)';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -909,28 +944,44 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
     }
 
     setErrors({});
+    setSubmitError(null);
     setLoading(true);
 
     const typeLabels = typeOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
     const complexityLabels = complexityOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
     const specLabels = specOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
 
-    const messageText = `<b>🔔 Новая заявка с\u00a0сайта-портфолио (Дизайн в\u00a0Figma)</b>\n\n<b>Клиент:</b> ${name}\n<b>Контакт:</b> ${contact}\n\n<b>Услуга:</b> ${service.title}\n<b>Выбранные параметры:</b>\n• Тип дизайна: <b>${typeLabels[designType]}</b>\n• Объем и\u00a0сложность: <b>${complexityLabels[complexity]}</b>\n• UI-кит / ТЗ: <b>${specLabels[specStatus]}</b>\n• Дополнительные пожелания: <b>${comments || 'Нет'}</b>\n\n<b>Примерная стоимость (только дизайн):</b> от ${formatPrice(price)} руб.\n<b>Сроки:</b> от ${days} ${getDaysWord(days)}\n\n✅ <b>Действие:</b> Подтверждение расчета`;
+    const messageText = `🔔 *Новая заявка с сайта-портфолио (Дизайн в Figma)*
+
+  *Клиент:* ${name}
+  *Контакт:* ${contact}
+
+  *Услуга:* ${service.title}
+  *Выбранные параметры:*
+  • Тип дизайна: *${typeLabels[designType]}*
+  • Объем и сложность: *${complexityLabels[complexity]}*
+  • UI-кит / ТЗ: *${specLabels[specStatus]}*
+  • Дополнительные пожелания: *${comments || 'Нет'}*
+
+  *Примерная стоимость (только дизайн):* от ${formatPrice(price)} руб.
+  *Сроки:* от ${days} ${getDaysWord(days)}
+
+  ✅ *Действие:* Подтверждение расчета`;
 
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        const customSuccessMsg = `Расчет получен! Я проанализирую вашу задачу и\u00a0свяжусь в\u00a0ближайшее время для\u00a0обсуждения концепции. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
-        onSendSuccess(customSuccessMsg);
+        const customSuccessMsg = `Расчет получен! Я проанализирую вашу задачу и свяжусь в ближайшее время для обсуждения концепции. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        onSendSuccess();
         setName('');
         setContact('');
         setComments('');
-      } else {
-        alert('Ошибка при\u00a0отправке. Пожалуйста, проверьте настройки токена бота.');
+        return;
       }
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
     } catch (e) {
       console.error(e);
-      alert('Произошла ошибка при\u00a0отправке заявки.');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
     } finally {
       setLoading(false);
     }
@@ -1082,7 +1133,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             </label>
             <input
               type="text"
-              placeholder="Телефон или\u00a0Telegram"
+              placeholder="Телефон или Telegram"
               value={contact}
               onChange={(e) => {
                 setContact(e.target.value);
@@ -1238,7 +1289,8 @@ function DefaultCalculator({ service, onSendSuccess }) {
   const handleSubmit = async () => {
     const newErrors = {};
     if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или\u00a0телефон';
+    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
+    else if (!isValidContact(contact)) newErrors.contact = 'Пожалуйста, введите корректный номер телефона или никнейм Telegram (например, @username)';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -1247,6 +1299,7 @@ function DefaultCalculator({ service, onSendSuccess }) {
 
     setErrors({});
     setLoading(true);
+    setSubmitError(null);
 
     // Сбор выбранных опций для сообщения
     let selectedOptionsList = '';
@@ -1255,25 +1308,24 @@ function DefaultCalculator({ service, onSendSuccess }) {
         const selectedVal = selectedOptions[opt.id];
         const choice = opt.choices.find(c => c.value === selectedVal);
         if (choice) {
-          selectedOptionsList += `• ${opt.label}: <b>${choice.label}</b> (+${formatPrice(choice.price)} ₽)\n`;
+          selectedOptionsList += `• ${opt.label}: *${choice.label}* (+${formatPrice(choice.price)} ₽)\n`;
         }
       });
     }
 
-    const messageText = `
-<b>🔔 Новая заявка с\u00a0сайта-портфолио</b>
+    const messageText = `🔔 *Новая заявка с сайта-портфолио*
 
-<b>Клиент:</b> ${name}
-<b>Контакт:</b> ${contact}
+*Клиент:* ${name}
+*Контакт:* ${contact}
 
-<b>Услуга:</b> ${service.title}
-<b>Выбранные опции:</b>
+*Услуга:* ${service.title}
+*Выбранные опции:*
 ${selectedOptionsList || 'Нет дополнительных опций'}
-<b>Итоговая цена:</b> от ${formatPrice(price)} руб.
-<b>Сроки:</b> от ${days} ${getDaysWord(days)}
 
-✅ <b>Действие:</b> Подтверждение расчета
-    `.trim();
+*Итоговая цена:* от ${formatPrice(price)} руб.
+*Сроки:* от ${days} ${getDaysWord(days)}
+
+✅ *Действие:* Подтверждение расчета`;
 
     try {
       const success = await sendTelegramMessage(messageText);
@@ -1281,12 +1333,12 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
         onSendSuccess();
         setName('');
         setContact('');
-      } else {
-        alert('Ошибка при\u00a0отправке. Пожалуйста, проверьте настройки токена бота.');
+        return;
       }
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
     } catch (e) {
       console.error(e);
-      alert('Произошла ошибка при\u00a0отправке заявки.');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
     } finally {
       setLoading(false);
     }
@@ -1375,7 +1427,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
             </label>
             <input
               type="text"
-              placeholder="Телефон или\u00a0Telegram"
+              placeholder="Телефон или Telegram"
               value={contact}
               onChange={(e) => {
                 setContact(e.target.value);
@@ -1416,6 +1468,9 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
             Нужна консультация
           </a>
         </div>
+        {submitError && (
+          <div className="text-red-500 text-sm mt-3">{submitError}</div>
+        )}
       </div>
     </div>
   );
@@ -1761,8 +1816,8 @@ export default function Services() {
               onToggleCalc={() => {
                 setActiveCalculator(prev => prev === service.number ? null : service.number);
               }}
-              onSendSuccess={(message) => {
-                setSuccessModalContent(message);
+              onSendSuccess={() => {
+                setSuccessModalContent('Расчет успешно отправлен! Я свяжусь с вами в Telegram в течение 1 рабочего дня.');
                 setIsSuccessModalOpen(true);
               }}
             />
@@ -1779,18 +1834,18 @@ export default function Services() {
         }`}
       >
         <div 
-          className={`bg-[#1A1A1A] border border-neutral-800 rounded-md p-6 sm:p-8 max-w-[440px] w-full shadow-xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
-            isSuccessModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
-          }`}
+        className={`bg-white border border-neutral-200 rounded-md p-6 sm:p-8 max-w-[440px] w-full shadow-xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
+          isSuccessModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+        }`}
         >
           {/* Кнопка закрытия */}
           <button 
             onClick={() => {
               setIsSuccessModalOpen(false);
               setSuccessModalContent(null);
+              setActiveCalculator(null);
             }}
-            className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors cursor-pointer"
-            aria-label="Закрыть"
+            className="absolute top-4 right-4 text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -1801,30 +1856,22 @@ export default function Services() {
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-white mb-2">Заявка успешно отправлена!</h3>
-            <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed">
-              {successModalContent || 'Спасибо! Расчет стоимости или\u00a0запрос на\u00a0консультацию получен. Я свяжусь с\u00a0вами в\u00a0ближайшее время для\u00a0обсуждения деталей.'}
+            <h3 className="text-lg font-bold text-[#111111] mb-2">Расчет успешно отправлен!</h3>
+            <p className="text-sm text-neutral-600 leading-relaxed">
+              {successModalContent || 'Расчет успешно отправлен! Я свяжусь с вами в Telegram в течение 1 рабочего дня.'}
             </p>
           </div>
 
-          <div className="w-full bg-[#1A1A1A] border border-neutral-800 rounded-md p-4 flex flex-col gap-3.5">
-            <div className="flex flex-col items-center">
-              <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-medium mb-1">Позвонить напрямую</span>
-              <a href={`tel:${contentData.contacts.phone}`} className="text-sm sm:text-base font-bold text-white hover:underline">
-                {contentData.contacts.phone}
-              </a>
-            </div>
-            <div className="border-t border-neutral-850 w-full"></div>
-            <a
-              href={contentData.contacts.buttons.telegram.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 bg-[#FF5B23] text-white font-semibold py-3 px-5 rounded-sm cursor-pointer w-full hover:bg-[#e04f1e] transition-all duration-200 hover:-translate-y-[0.5px] text-xs sm:text-sm"
-            >
-              <Send className="w-4 h-4" />
-              <span>Написать в Telegram напрямую</span>
-            </a>
-          </div>
+          <button
+            onClick={() => {
+              setIsSuccessModalOpen(false);
+              setSuccessModalContent(null);
+              setActiveCalculator(null);
+            }}
+            className="w-full mt-3 bg-black text-white font-semibold py-3 rounded-sm hover:bg-neutral-900 transition-all duration-200"
+          >
+            Отлично
+          </button>
         </div>
       </div>
     </motion.section>

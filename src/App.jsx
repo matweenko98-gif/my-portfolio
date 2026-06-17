@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
+import CookieBanner from './components/CookieBanner';
 
 // ─── Lazy-loaded route chunks ─────────────────────────────────────────────────
 // Каждый маршрут вынесен в отдельный чанк через dynamic import.
@@ -51,6 +52,7 @@ export default function App() {
         </Routes>
       </Suspense>
       <Analytics />
+      <CookieBanner />
     </>
   );
 }
