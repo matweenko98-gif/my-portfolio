@@ -1118,7 +1118,7 @@ export default function CaseTemplate() {
                   <React.Fragment key={idx}>
                     {idx > 0 && <div className="w-px self-stretch bg-neutral-200 my-4 shrink-0" />}
                     <div
-                      className="w-[85vw] md:w-[45%] lg:w-[44%] shrink-0 snap-start"
+                      className="w-[85vw] md:w-[45%] lg:w-[44%] shrink-0 snap-start flex flex-col"
                     >
                       {/* Text */}
                       <div className="mb-5">
@@ -1136,7 +1136,7 @@ export default function CaseTemplate() {
                       </div>
 
                       {/* Image */}
-                      <div className="w-full aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden flex items-center justify-center">
+                      <div className="w-full aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden flex items-center justify-center mt-auto">
                         {feature.image ? (
                           <img src={featureImg(feature.image)} alt={feature.title} loading="lazy" decoding="async" width={800} height={450} className="w-full h-full object-cover" />
                         ) : (
@@ -1192,7 +1192,7 @@ export default function CaseTemplate() {
                 {data.mobile_features.map((screen, idx) => (
                   <div
                     key={idx}
-                    className="w-[60vw] sm:w-[40vw] md:w-[25vw] lg:w-[18vw] shrink-0 snap-start"
+                    className="w-[60vw] sm:w-[40vw] md:w-[25vw] lg:w-[18vw] shrink-0 snap-start flex flex-col"
                   >
                     {/* Text */}
                     <div className="mb-4">
@@ -1207,7 +1207,7 @@ export default function CaseTemplate() {
                     </div>
 
                     {/* Smartphone Aspect Ratio */}
-                    <div className="w-full aspect-[9/19] bg-neutral-100 border border-zinc-300 rounded-md overflow-hidden flex items-center justify-center relative">
+                    <div className="w-full aspect-[9/19] bg-neutral-100 border border-zinc-300 rounded-md overflow-hidden flex items-center justify-center relative mt-auto">
                       {screen.image ? (
                         <img src={mobileFeatureImg(screen.image)} alt={screen.title} loading="lazy" decoding="async" width={400} height={844} className="w-full h-full object-cover" />
                       ) : (
