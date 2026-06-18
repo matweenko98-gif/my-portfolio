@@ -109,7 +109,7 @@ function MobileCard({ title, tag, scrollTargetId }) {
       onClick={() =>
         document.getElementById(scrollTargetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
-      className="flex-1 bg-white border border-neutral-200 rounded-[2px] p-3 relative text-left cursor-pointer hover:border-[#FF5B23]/50 transition-colors duration-200 min-h-[82px] sm:min-h-[90px]"
+      className="flex-1 bg-white border border-neutral-200 rounded-[2px] p-3 relative text-left cursor-pointer hover:border-[#FF5B23]/50 transition-colors duration-200 min-h-[76px] sm:min-h-[82px]"
     >
       <span className="absolute top-2 right-2 font-mono text-[8px] text-neutral-400 tracking-wide">
         {tag}
@@ -132,7 +132,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative h-[100dvh] lg:h-auto flex flex-col bg-white border-b border-zinc-100"
+      className="relative h-auto md:h-screen flex flex-col bg-white border-b border-zinc-100"
     >
       {/* Background coordinate grid lines — едва угадываются */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0 opacity-40">
@@ -152,10 +152,10 @@ export default function Hero() {
       </div>
 
       {/* Основной контейнер с горизонтальными паддингами */}
-      <div className="flex-1 flex flex-col justify-between px-6 md:px-12 lg:px-16 min-h-0">
+      <div className="flex flex-col md:flex-1 justify-start px-4 md:px-12 lg:px-16 min-h-0 gap-6">
 
         {/* ── Зона плашек ── */}
-        <div className="relative flex-1 min-h-[32vh] md:min-h-[42vh] pt-12">
+        <div className="relative md:flex-1 min-h-0 md:min-h-[42vh] pt-8 md:pt-12">
 
           {/* Desktop staircase — скрыты на мобильном */}
           <div className="hidden lg:block">
@@ -165,7 +165,7 @@ export default function Hero() {
           </div>
 
           {/* Mobile row — скрыт на десктопе */}
-          <div className="flex lg:hidden gap-2 mt-6">
+          <div className="flex lg:hidden gap-3 mt-6 pt-1">
             {CARDS_DATA.map((card) => (
               <MobileCard key={card.id} {...card} />
             ))}
@@ -173,14 +173,14 @@ export default function Hero() {
         </div>
 
         {/* ── Контентная зона (заголовок, подзаголовок, кнопки) ── */}
-        <div className="relative z-10 pb-10 lg:pb-14 pt-2">
+        <div className="relative z-10 pb-6 md:pb-10 pt-2">
 
           {/* Заголовок: font-normal (400), очень крупный, uppercase, плотный */}
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1] }}
-            className="text-[9vw] md:text-7xl lg:text-[6vw] font-normal tracking-tighter text-black leading-[0.9] uppercase mb-4"
+            className="mt-3 md:mt-0 text-[9vw] md:text-7xl lg:text-[6vw] font-normal tracking-tighter text-black leading-[0.95] uppercase mb-2 md:mb-4"
           >
             ДИЗАЙН И РАЗРАБОТКА<br />ВЕБ-ПРОДУКТОВ
           </motion.h1>
@@ -202,7 +202,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1], delay: 0.22 }}
-            className="flex flex-row gap-2 max-w-[600px]"
+            className="flex flex-row gap-2 max-w-[600px] items-end"
           >
             <a
               href={`#${contentData.hero.buttons.primary.targetId}`}
