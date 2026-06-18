@@ -12,6 +12,7 @@ const Services     = lazy(() => import('./Services'));
 const Cases        = lazy(() => import('./Cases'));
 const Workflow     = lazy(() => import('./Workflow'));
 const Reviews      = lazy(() => import('./Reviews'));
+const FAQ          = lazy(() => import('./FAQ'));
 const Contacts     = lazy(() => import('./Contacts'));
 const KineticMarquee = lazy(() => import('./ui/KineticMarquee'));
 
@@ -104,6 +105,9 @@ export default function HomePage() {
             </Suspense>
             <Suspense fallback={<SectionFallback />}>
               <Reviews />
+            </Suspense>
+            <Suspense fallback={<SectionFallback />}>
+              <FAQ />
             </Suspense>
             <Suspense fallback={<SectionFallback />}>
               <Contacts />

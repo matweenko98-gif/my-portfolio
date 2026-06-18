@@ -31,6 +31,7 @@ const contentData = {
       { id: "cases", label: "Результаты (Кейсы)" },
       { id: "workflow", label: "Процесс работы" },
       { id: "reviews", label: "Отзывы" },
+      { id: "faq", label: "Вопросы и ответы" },
       { id: "contacts", label: "Обсудить проект" }
     ],
     socialLinks: {
