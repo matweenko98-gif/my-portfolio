@@ -173,7 +173,7 @@ export default function Hero() {
         </div>
 
         {/* ── Контентная зона (заголовок, подзаголовок, кнопки) ── */}
-        <div className="relative z-10 pb-6 md:pb-10 pt-2">
+        <div className="relative z-10 pb-6 md:pb-10 pt-6 md:pt-2">
 
           {/* Заголовок: font-normal (400), очень крупный, uppercase, плотный */}
           <motion.h1
@@ -202,19 +202,19 @@ export default function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1], delay: 0.22 }}
-            className="flex flex-row gap-2 max-w-[600px] items-end"
+            className="flex flex-col sm:flex-row gap-3 max-w-[600px]"
           >
             <a
               href={`#${contentData.hero.buttons.primary.targetId}`}
               onClick={(e) => handleScrollTo(e, contentData.hero.buttons.primary.targetId)}
-              className="flex-1 inline-flex items-center justify-center bg-[#FF5B23] text-white font-semibold py-3 px-5 rounded-[2px] hover:bg-[#e04f1e] transition-colors duration-200 text-sm tracking-tight"
+              className="flex-1 w-full inline-flex items-center justify-center bg-[#FF5B23] text-white font-semibold py-3 px-5 rounded-[2px] hover:bg-[#e04f1e] transition-colors duration-200 text-sm tracking-tight"
             >
               {contentData.hero.buttons.primary.text}
             </a>
             <a
               href={`#${contentData.hero.buttons.secondary.targetId}`}
               onClick={(e) => handleScrollTo(e, contentData.hero.buttons.secondary.targetId)}
-              className="flex-1 inline-flex items-center justify-center bg-white text-zinc-900 font-semibold py-3 px-5 rounded-[2px] hover:bg-orange-50 transition-colors duration-200 text-sm tracking-tight"
+              className="flex-1 w-full inline-flex items-center justify-center bg-white text-zinc-900 font-semibold py-3 px-5 rounded-[2px] hover:bg-orange-50 transition-colors duration-200 text-sm tracking-tight"
               style={{ border: '0.4px solid #FF5B23' }}
             >
               {contentData.hero.buttons.secondary.text}
