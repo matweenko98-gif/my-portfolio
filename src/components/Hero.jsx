@@ -9,7 +9,7 @@ const CARDS_DATA = [
     tag: 'Tilda',
     scrollTargetId: 'service-card-01',
     // top-left, верхняя позиция
-    desktopStyle: { left: '0%', top: '14%', width: '17%', height: '25%' },
+    desktopStyle: { left: '0%', top: '14%', width: '19%', height: '28%' },
   },
   {
     id: 'webapps',
@@ -17,7 +17,7 @@ const CARDS_DATA = [
     tag: 'AI-development',
     scrollTargetId: 'service-card-03',
     // центр, ступенька вниз
-    desktopStyle: { left: '30%', top: '42%', width: '21%', height: '28%' },
+    desktopStyle: { left: '30%', top: '42%', width: '19%', height: '28%' },
   },
   {
     id: 'platforms',
@@ -25,7 +25,7 @@ const CARDS_DATA = [
     tag: 'AI-development',
     scrollTargetId: 'service-card-03',
     // справа, top:22% гарантирует чёткий зазор ниже строки статуса
-    desktopStyle: { right: '5%', top: '22%', width: '21%', height: '38%' },
+    desktopStyle: { right: '5%', top: '22%', width: '19%', height: '28%' },
   },
 ];
 
@@ -90,7 +90,8 @@ function ServiceCard({ title, tag, scrollTargetId, desktopStyle }) {
             {tag}
           </span>
           {/* Title — строго нижний левый угол */}
-          <div className="flex flex-col justify-end h-full">
+          <div className="flex flex-col justify-between h-full">
+            <div className="h-4" />
             <span className="text-[11px] font-semibold tracking-tight text-zinc-900 leading-snug whitespace-pre-line select-none">
               {title}
             </span>
@@ -108,7 +109,7 @@ function MobileCard({ title, tag, scrollTargetId }) {
       onClick={() =>
         document.getElementById(scrollTargetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
-      className="flex-1 bg-white border border-neutral-200 rounded-[2px] p-3 relative text-left cursor-pointer hover:border-[#FF5B23]/50 transition-colors duration-200 min-h-[70px]"
+      className="flex-1 bg-white border border-neutral-200 rounded-[2px] p-3 relative text-left cursor-pointer hover:border-[#FF5B23]/50 transition-colors duration-200 min-h-[82px] sm:min-h-[90px]"
     >
       <span className="absolute top-2 right-2 font-mono text-[8px] text-neutral-400 tracking-wide">
         {tag}
@@ -131,7 +132,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex flex-col bg-white border-b border-zinc-100"
+      className="relative h-[100dvh] lg:h-auto flex flex-col bg-white border-b border-zinc-100"
     >
       {/* Background coordinate grid lines — едва угадываются */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0 opacity-40">
@@ -151,10 +152,10 @@ export default function Hero() {
       </div>
 
       {/* Основной контейнер с горизонтальными паддингами */}
-      <div className="flex-1 flex flex-col px-6 md:px-12 lg:px-16 min-h-0">
+      <div className="flex-1 flex flex-col justify-between px-6 md:px-12 lg:px-16 min-h-0">
 
         {/* ── Зона плашек ── */}
-        <div className="relative flex-1 min-h-[42vh] pt-12">
+        <div className="relative flex-1 min-h-[32vh] md:min-h-[42vh] pt-12">
 
           {/* Desktop staircase — скрыты на мобильном */}
           <div className="hidden lg:block">
@@ -179,7 +180,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1] }}
-            className="text-6xl md:text-7xl lg:text-[6vw] font-normal tracking-tighter text-black leading-[0.9] uppercase mb-4"
+            className="text-[9vw] md:text-7xl lg:text-[6vw] font-normal tracking-tighter text-black leading-[0.9] uppercase mb-4"
           >
             ДИЗАЙН И РАЗРАБОТКА<br />ВЕБ-ПРОДУКТОВ
           </motion.h1>

@@ -161,6 +161,13 @@ export default function Workflow() {
           .scrollbar-none::-webkit-scrollbar { display: none; }
         `}} />
         <div key={activeTab} className="flex flex-row gap-6 pb-6 w-max min-w-full snap-x snap-mandatory lg:snap-none">
+          <div
+            key="gif-card"
+            className="group bg-[#1A1A1A] border border-neutral-800 rounded-md p-0 flex flex-col justify-between transition-all duration-300 lg:hover:-translate-y-1 lg:hover:bg-neutral-900/60 lg:hover:border-neutral-700 w-[290px] min-w-[290px] lg:w-[320px] lg:min-w-[320px] h-auto min-h-[290px] lg:h-[285px] shrink-0 snap-align-start lg:snap-align-none relative animate-fadeIn"
+            style={{ animationDelay: '0ms' }}
+          >
+            <img src="/images/working-process.gif.gif" alt="Процесс работы" className="w-full h-full object-cover rounded-[2px]" />
+          </div>
           {steps.map((step, idx) => {
             const stepResults = {
               websites: [
@@ -185,7 +192,7 @@ export default function Workflow() {
                 key={idx}
                 onClick={() => setExpandedStep(prev => prev === idx ? null : idx)}
                 className={`group bg-[#1A1A1A] border border-neutral-800 rounded-md p-6 flex flex-col justify-between transition-all duration-300 lg:hover:-translate-y-1 lg:hover:bg-neutral-900/60 lg:hover:border-neutral-700 w-[290px] min-w-[290px] lg:w-[320px] lg:min-w-[320px] h-auto min-h-[290px] lg:h-[285px] shrink-0 snap-align-start lg:snap-align-none relative animate-fadeIn cursor-pointer`}
-                style={{ animationDelay: `${idx * 60}ms` }}
+                style={{ animationDelay: `${(idx + 1) * 60}ms` }}
               >
                 {/* Top Progress Line */}
                 <div className="w-full h-[3px] bg-neutral-800 rounded-full transition-colors duration-300 lg:group-hover:bg-[#E0FB4A]" />

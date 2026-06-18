@@ -32,7 +32,7 @@ export default function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className={`fixed bottom-4 right-4 z-50 max-w-md w-full transition-transform duration-300 ${visible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+    <div className={`fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md transition-transform duration-300 ${visible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
       <div className="bg-white/95 border border-neutral-200 rounded-lg p-3.5 shadow-md backdrop-blur-sm text-sm text-neutral-900">
         <div className="flex items-start gap-3">
           <div className="flex-1">
