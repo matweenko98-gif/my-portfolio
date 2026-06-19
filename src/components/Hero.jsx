@@ -132,7 +132,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative h-auto md:h-screen flex flex-col bg-white border-b border-zinc-100"
+      className="relative min-h-screen flex flex-col bg-white border-b border-zinc-100"
     >
       {/* Background coordinate grid lines — едва угадываются */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0 opacity-40">
@@ -152,7 +152,7 @@ export default function Hero() {
       </div>
 
       {/* Основной контейнер с горизонтальными паддингами */}
-      <div className="flex flex-col md:flex-1 justify-start px-4 md:px-12 lg:px-16 min-h-0 gap-6">
+      <div className="flex flex-col md:flex-1 justify-start px-4 md:px-12 lg:px-16 min-h-0 gap-6 pb-16 md:pb-24">
 
         {/* ── Зона плашек ── */}
         <div className="relative md:flex-1 min-h-0 md:min-h-[42vh] pt-8 md:pt-12">

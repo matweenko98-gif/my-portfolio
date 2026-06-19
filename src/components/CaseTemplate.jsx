@@ -117,7 +117,7 @@ function CaseContacts() {
               <motion.h2
                 initial={{ y: "100%", opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true, margin: "-100px" }}
+                viewport={{ once: true, amount: 0, margin: "200px 0px 0px 0px" }}
                 transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
                 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-0 leading-tight"
               >

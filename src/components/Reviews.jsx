@@ -221,7 +221,7 @@ export default function Reviews() {
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, amount: 0, margin: "200px 0px 0px 0px" }}
           transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
           className="max-w-3xl mb-8 select-none"
         >
@@ -229,7 +229,7 @@ export default function Reviews() {
             <motion.h2
               initial={{ y: "100%", opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, amount: 0, margin: "200px 0px 0px 0px" }}
               transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
               className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tighter text-black mb-0 md:whitespace-nowrap"
             >

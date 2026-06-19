@@ -93,7 +93,7 @@ export default function Workflow() {
       id="workflow"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
+      viewport={{ once: true, amount: 0, margin: "200px 0px 0px 0px" }}
       transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
       className="relative py-20 px-6 md:px-12 lg:px-16 border-b\u00a0border-neutral-800 bg-[#111111] w-full overflow-hidden"
     >
@@ -111,7 +111,7 @@ export default function Workflow() {
           <motion.h2
             initial={{ y: "100%", opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, amount: 0, margin: "200px 0px 0px 0px" }}
             transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
             className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-0"
           >
@@ -229,7 +229,7 @@ export default function Workflow() {
         <motion.h2
           initial={{ y: "100%", opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, amount: 0, margin: "200px 0px 0px 0px" }}
           transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
           className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-white mb-0"
         >
@@ -242,7 +242,7 @@ export default function Workflow() {
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
+        viewport={{ once: true, amount: 0, margin: "200px 0px 0px 0px" }}
       >
         {standards.map((std, idx) => {
           const IconComponent = iconMap[std.iconName] || Sparkles;

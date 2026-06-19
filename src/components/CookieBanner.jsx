@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import contentData from '../contentData';
 
 export default function CookieBanner() {
   const [accepted, setAccepted] = useState(true);
   const [visible, setVisible] = useState(false);
+  const cookieText = contentData.cookieBanner;
 
   useEffect(() => {
     try {
@@ -36,14 +38,14 @@ export default function CookieBanner() {
       <div className="bg-white/95 border border-neutral-200 rounded-lg p-3.5 shadow-md backdrop-blur-sm text-sm text-neutral-900">
         <div className="flex items-start gap-3">
           <div className="flex-1">
-            <div className="font-medium mb-1">Печеньки на базе</div>
-            <div className="text-[13px] text-neutral-600">Использую файлы cookie, чтобы интерфейс летал, а аналитика радовалась. Вы не против?</div>
+            <div className="font-medium mb-1">{cookieText.title}</div>
+            <div className="text-[13px] text-neutral-600">{cookieText.text}</div>
           </div>
           <div className="flex-shrink-0 ml-2">
             <button
               onClick={accept}
               className="inline-flex items-center justify-center px-3 py-1.5 bg-black text-white text-sm rounded-sm border border-transparent hover:opacity-95 transition"
-            >Ок, супер</button>
+            >{cookieText.buttonText}</button>
           </div>
         </div>
       </div>
