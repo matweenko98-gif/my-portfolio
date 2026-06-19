@@ -74,13 +74,13 @@ export default function Contacts() {
 
   const handleCopyEmail = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText("verameeva77@mail.ru");
+      await navigator.clipboard.writeText(contacts.email);
       setEmailCopied(true);
       setTimeout(() => setEmailCopied(false), 2000);
     } catch {
       setEmailCopied(false);
     }
-  }, []);
+  }, [contacts.email]);
 
   const handleMaxClick = useCallback(async () => {
     if (maxOpensDirectChat) {

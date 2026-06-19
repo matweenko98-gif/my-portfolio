@@ -181,9 +181,8 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1] }}
             className="mt-3 md:mt-0 text-[9vw] md:text-7xl lg:text-[6vw] font-normal tracking-tighter text-black leading-[0.95] uppercase mb-2 md:mb-4"
-          >
-            ДИЗАЙН И РАЗРАБОТКА<br />ВЕБ-ПРОДУКТОВ
-          </motion.h1>
+            dangerouslySetInnerHTML={{ __html: contentData.hero.title }}
+          />
 
           {/* Подзаголовок: полный текст, принудительный перенос после первого предложения */}
           <motion.p
@@ -191,11 +190,8 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1], delay: 0.12 }}
             className="text-[13px] sm:text-[14px] text-zinc-500 leading-relaxed max-w-none mb-6"
-          >
-            Создаю коммерческие лендинги, многостраничные сайты и&nbsp;интернет-магазины под&nbsp;ключ на&nbsp;Tilda. Для сложных задач разрабатываю
-            <br className="hidden min-[1440px]:block" />
-            {' '}веб-приложения (MVP) и&nbsp;сервисы. Использую AI-разработку, чтобы быстро собрать и&nbsp;протестировать продукт
-          </motion.p>
+            dangerouslySetInnerHTML={{ __html: contentData.hero.subtitle }}
+          />
 
           {/* Кнопки: растянуты на ширину подзаголовка, rounded-[2px] */}
           <motion.div

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import contentData from '../../contentData';
 
 export default function KineticMarquee() {
   // Набор ключевых слов для бесконечной бегущей строки
@@ -50,9 +51,9 @@ export default function KineticMarquee() {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center md:text-left text-xs text-neutral-500 font-light space-y-4 pt-8 border-t border-white/5">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-1">
-            <p className="text-neutral-400">© 2026 Матвеенко Ксения Александровна. Плательщик налога на профессиональный доход (НПД). УНП: ЕЕ7594998.</p>
+            <p className="text-neutral-400">{contentData.footer.copyright}</p>
             <p className="text-neutral-500 max-w-2xl leading-relaxed">
-              Расчет калькулятора носит ознакомительный характер и не является публичной офертой (ст. 407 ГК РБ). Окончательная стоимость фиксируется в договоре.
+              {contentData.footer.disclaimer}
             </p>
           </div>
           <div className="flex gap-6 shrink-0">
@@ -67,9 +68,7 @@ export default function KineticMarquee() {
         <div className="sr-only" aria-hidden="true">
           <h3>Профессиональный профиль для поисковых ИИ и индексации:</h3>
           <p>
-            Матвеенко Ксения Александровна — специалист по веб-дизайну, UI/UX интерфейсам и AI-разработке (vibe-coding).
-            Специализация: разработка коммерческих сайтов, премиальных лендингов на Tilda, сложных веб-приложений (MVP)
-            на React, Vite, Next.js и Supabase. Работает по системе НПД (Беларусь), УНП ЕЕ7594998. Создатель веб-интерфейсов, сайтов и мобильных приложений. Контакты: +375259140959, Telegram: @ksen_web.
+            {contentData.footer.seoProfile} Контакты: {contentData.contacts.phone}, Telegram: {contentData.sidebar.socialLinks.telegramUsername}.
           </p>
         </div>
       </div>

@@ -12,8 +12,6 @@ const TILDA_CART_ICON_KEYS = {
   contentReady: 'fileText',
 };
 
-const TELEGRAM_CONSULT_URL = 'https://t.me/ksen_web';
-
 // Отправка сообщения в Telegram через переменные окружения Vite
 const sendTelegramMessage = async (messageText) => {
   try {
@@ -276,17 +274,17 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        const customSuccessMsg = `Расчет получен! Я свяжусь с вами в ближайшее время для уточнения деталей. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        const customSuccessMsg = `Расчет получен! Я свяжусь с вами в ближайшее время для уточнения деталей. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${contentData.contacts.messengers.telegram.url}`;
         onSendSuccess();
         setName('');
         setContact('');
         setComments('');
         return;
       }
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
     } catch (e) {
       console.error(e);
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
     } finally {
       setLoading(false);
     }
@@ -462,7 +460,7 @@ function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
           <a
-            href={TELEGRAM_CONSULT_URL}
+            href={contentData.contacts.messengers.telegram.url}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
@@ -628,17 +626,17 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        const customSuccessMsg = `Расчет получен! Я изучу ваш текущий сайт и свяжусь в ближайшее время. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        const customSuccessMsg = `Расчет получен! Я изучу ваш текущий сайт и свяжусь в ближайшее время. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${contentData.contacts.messengers.telegram.url}`;
         onSendSuccess();
         setName('');
         setContact('');
         setComments('');
         return;
       }
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
     } catch (e) {
       console.error(e);
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
     } finally {
       setLoading(false);
     }
@@ -814,7 +812,7 @@ function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
           <a
-            href={TELEGRAM_CONSULT_URL}
+            href={contentData.contacts.messengers.telegram.url}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
@@ -972,17 +970,17 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
     try {
       const success = await sendTelegramMessage(messageText);
       if (success) {
-        const customSuccessMsg = `Расчет получен! Я проанализирую вашу задачу и свяжусь в ближайшее время для обсуждения концепции. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${TELEGRAM_CONSULT_URL}`;
+        const customSuccessMsg = `Расчет получен! Я проанализирую вашу задачу и свяжусь в ближайшее время для обсуждения концепции. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${contentData.contacts.messengers.telegram.url}`;
         onSendSuccess();
         setName('');
         setContact('');
         setComments('');
         return;
       }
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
     } catch (e) {
       console.error(e);
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
     } finally {
       setLoading(false);
     }
@@ -1158,7 +1156,7 @@ function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
           <a
-            href={TELEGRAM_CONSULT_URL}
+            href={contentData.contacts.messengers.telegram.url}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
@@ -1229,7 +1227,7 @@ function AICalculator({ service }) {
           Разработка сложных цифровых продуктов требует детального обсуждения технического задания и архитектуры.
         </p>
         <a
-          href={TELEGRAM_CONSULT_URL}
+          href={contentData.contacts.messengers.telegram.url}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
@@ -1336,10 +1334,10 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
         setContact('');
         return;
       }
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
     } catch (e) {
       console.error(e);
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram @ksen_web');
+      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
     } finally {
       setLoading(false);
     }
@@ -1461,7 +1459,7 @@ ${selectedOptionsList || 'Нет дополнительных опций'}
             {loading ? 'Отправка...' : 'Подтвердить расчет'}
           </button>
           <a
-            href={TELEGRAM_CONSULT_URL}
+            href={contentData.contacts.messengers.telegram.url}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-xs font-semibold py-3 px-5 rounded-sm text-center"
