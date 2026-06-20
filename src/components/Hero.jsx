@@ -132,7 +132,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex flex-col bg-white border-b border-zinc-100"
+      className="relative flex flex-col bg-white border-b border-zinc-100 md:min-h-screen"
     >
       {/* Background coordinate grid lines — едва угадываются */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0 opacity-40">
@@ -152,7 +152,7 @@ export default function Hero() {
       </div>
 
       {/* Основной контейнер с горизонтальными паддингами */}
-      <div className="flex flex-col md:flex-1 justify-start px-4 md:px-12 lg:px-16 min-h-0 gap-6 pb-6 md:pb-24">
+      <div className="flex flex-col md:flex-1 justify-start px-4 md:px-12 lg:px-16 min-h-0 gap-6 pb-2 md:pb-24">
 
         {/* ── Зона плашек ── */}
         <div className="relative md:flex-1 min-h-0 md:min-h-[42vh] pt-8 md:pt-12">
@@ -173,14 +173,14 @@ export default function Hero() {
         </div>
 
         {/* ── Контентная зона (заголовок, подзаголовок, кнопки) ── */}
-        <div className="relative z-10 pb-6 md:pb-10 pt-6 md:pt-2">
+        <div className="relative z-10 pb-0 md:pb-10 pt-6 md:pt-2">
 
           {/* Заголовок: font-normal (400), очень крупный, uppercase, плотный */}
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.215, 0.61, 0.355, 1] }}
-            className="mt-3 md:mt-0 text-[9vw] md:text-7xl lg:text-[6vw] font-normal tracking-tighter text-black leading-[0.95] uppercase mb-2 md:mb-4"
+            className="mt-6 md:mt-0 text-[10vw] md:text-7xl lg:text-[6vw] font-normal tracking-tighter text-black leading-[0.95] uppercase mb-2 md:mb-4"
             dangerouslySetInnerHTML={{ __html: contentData.hero.title }}
           />
 
