@@ -152,7 +152,7 @@ export default function Hero() {
       </div>
 
       {/* Основной контейнер с горизонтальными паддингами */}
-      <div className="flex flex-col md:flex-1 justify-start px-4 md:px-12 lg:px-16 min-h-0 gap-6 pb-16 md:pb-24">
+      <div className="flex flex-col md:flex-1 justify-start px-4 md:px-12 lg:px-16 min-h-0 gap-6 pb-6 md:pb-24">
 
         {/* ── Зона плашек ── */}
         <div className="relative md:flex-1 min-h-0 md:min-h-[42vh] pt-8 md:pt-12">
