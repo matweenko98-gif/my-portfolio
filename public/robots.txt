@@ -1,3 +1,11 @@
 User-agent: *
 Allow: /
 Sitemap: https://design-matweenko.vercel.app/sitemap.xml
+
+# Запрещаем роботу картинок Google индексировать папку с отзывами
+User-agent: Googlebot-Image
+Disallow: /images/otziv.png/
+
+# Запрещаем роботу картинок Яндекса то же самое
+User-agent: YandexImages
+Disallow: /images/otziv.png/
