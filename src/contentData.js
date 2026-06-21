@@ -6,14 +6,6 @@
  * При редактировании обязательно сохраняйте синтаксис JavaScript (кавычки, запятые и скобки).
  */
 import avatarImg from '../images.svg/avatar.jpg';
-import otziv1 from '../images.svg/otziv.png/1.png';
-import otziv2 from '../images.svg/otziv.png/2.png';
-import otziv3 from '../images.svg/otziv.png/3.png';
-import otziv4 from '../images.svg/otziv.png/4.png';
-import otziv5 from '../images.svg/otziv.png/5.png';
-import otziv6 from '../images.svg/otziv.png/6.png';
-import otziv7 from '../images.svg/otziv.png/7.png';
-import otziv8 from '../images.svg/otziv.png/8.png';
 
 const contentData = {
   // Данные для Sidebar (левая фиксированная панель)
@@ -390,49 +382,49 @@ const contentData = {
     items: [
       {
         id: "rev1",
-        imageUrl: otziv1,
+        imageUrl: "/images/otziv.png/1.png",
         aspectRatio: 1.139,
         desktopOnly: false
       },
       {
         id: "rev2",
-        imageUrl: otziv2,
+        imageUrl: "/images/otziv.png/2.png",
         aspectRatio: 2.195,
         desktopOnly: false
       },
       {
         id: "rev3",
-        imageUrl: otziv3,
+        imageUrl: "/images/otziv.png/3.png",
         aspectRatio: 4.096,
         desktopOnly: true
       },
       {
         id: "rev4",
-        imageUrl: otziv4,
+        imageUrl: "/images/otziv.png/4.png",
         aspectRatio: 1.388,
         desktopOnly: true
       },
       {
         id: "rev5",
-        imageUrl: otziv5,
+        imageUrl: "/images/otziv.png/5.png",
         aspectRatio: 1.800,
         desktopOnly: false
       },
       {
         id: "rev6",
-        imageUrl: otziv6,
+        imageUrl: "/images/otziv.png/6.png",
         aspectRatio: 2.510,
         desktopOnly: true
       },
       {
         id: "rev7",
-        imageUrl: otziv7,
+        imageUrl: "/images/otziv.png/7.png",
         aspectRatio: 4.511,
         desktopOnly: false
       },
       {
         id: "rev8",
-        imageUrl: otziv8,
+        imageUrl: "/images/otziv.png/8.png",
         aspectRatio: 1.869,
         desktopOnly: true
       }
