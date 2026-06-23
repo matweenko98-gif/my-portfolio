@@ -3,6 +3,56 @@ import { supabase } from '../lib/supabaseClient';
 import { Plus, Trash2, Upload, Loader2, ArrowLeft, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+// Helper to convert and resize image to WebP on the fly
+function convertToWebP(file, maxWidth = 1600, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context not available'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const webpFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
+                type: 'image/webp',
+                lastModified: Date.now()
+              });
+              resolve(webpFile);
+            } else {
+              reject(new Error('Canvas to blob conversion failed'));
+            }
+          },
+          'image/webp',
+          quality
+        );
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+}
+
 // Simple Image Upload component for clean modular state
 function ImageUpload({ label, value, onChange, onError, pathPrefix = 'case' }) {
   const [uploading, setUploading] = useState(false);
@@ -13,15 +63,16 @@ function ImageUpload({ label, value, onChange, onError, pathPrefix = 'case' }) {
 
     setUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${pathPrefix}-${Math.random().toString(36).substring(2, 15)}-${Date.now()}.${fileExt}`;
+      // Auto-convert to WebP and resize on the fly
+      const processedFile = await convertToWebP(file, 1600, 0.82);
+      const fileName = `${pathPrefix}-${Math.random().toString(36).substring(2, 15)}-${Date.now()}.webp`;
       const filePath = `uploads/${fileName}`;
 
       const { data, error } = await supabase.storage
         .from('case-images')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
+        .upload(filePath, processedFile, {
+          cacheControl: '31536000',
+          upsert: true
         });
 
       if (error) {

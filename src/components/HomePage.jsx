@@ -31,11 +31,34 @@ export default function HomePage() {
       metaDescription.setAttribute('content', 'Создание высококлассных сайтов, интерфейсов и\u00a0UX/UI дизайна с\u00a0упором на\u00a0чистую эстетику и\u00a0техническое совершенство.');
     }
 
-    // ─── Оптимизация: offsetTop/offsetHeight читаем ОДИН раз за тик RAF ──────
-    // Вызов getBoundingClientRect/offsetXxx внутри scroll-хендлера без
-    // requestAnimationFrame вызывает Forced Reflow на каждый скролл-событие.
-    // Решение: оборачиваем логику в rAF (браузер уже «знает» layout к этому
-    // моменту) и кэшируем элементы, чтобы не запрашивать DOM каждый раз.
+    // ─── Оптимизация: кэшируем координаты секций и исключаем DOM-чтения из скролла ───
+    let sectionPositions = [];
+
+    const updateSectionPositions = () => {
+      const sections = contentData.sidebar.navigation.map(item => item.id);
+      const positions = [];
+      for (const sectionId of sections) {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          positions.push({
+            id: sectionId,
+            top: el.offsetTop - 240,
+            height: el.offsetHeight
+          });
+        }
+      }
+      sectionPositions = positions;
+    };
+
+    // Первоначальный расчет
+    updateSectionPositions();
+
+    // Задержка для правильного вычисления ленивых секций после рендера
+    const resizeTimeout = setTimeout(updateSectionPositions, 500);
+
+    const handleResize = () => {
+      requestAnimationFrame(updateSectionPositions);
+    };
 
     let ticking = false;
 
@@ -44,18 +67,10 @@ export default function HomePage() {
       ticking = true;
       requestAnimationFrame(() => {
         const scrollPosition = window.scrollY;
-        const sections = contentData.sidebar.navigation.map(item => item.id);
-
         let currentSection = 'hero';
-        for (const sectionId of sections) {
-          const el = document.getElementById(sectionId);
-          if (el) {
-            // offsetTop + offsetHeight — layout-свойства, безопасны внутри rAF
-            const top = el.offsetTop - 240;
-            const height = el.offsetHeight;
-            if (scrollPosition >= top && scrollPosition < top + height) {
-              currentSection = sectionId;
-            }
+        for (const section of sectionPositions) {
+          if (scrollPosition >= section.top && scrollPosition < section.top + section.height) {
+            currentSection = section.id;
           }
         }
         setActiveSection(currentSection);
@@ -64,10 +79,15 @@ export default function HomePage() {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
     // Начальное состояние
     handleScroll();
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
   }, []);
 
   return (

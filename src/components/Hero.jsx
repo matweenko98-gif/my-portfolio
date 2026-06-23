@@ -31,6 +31,7 @@ const CARDS_DATA = [
 
 function ServiceCard({ title, tag, scrollTargetId, desktopStyle }) {
   const outerRef = useRef(null);
+  const rectRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -39,9 +40,22 @@ function ServiceCard({ title, tag, scrollTargetId, desktopStyle }) {
   const springX = useSpring(magX, { stiffness: 280, damping: 28 });
   const springY = useSpring(magY, { stiffness: 280, damping: 28 });
 
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (outerRef.current) {
+      rectRef.current = outerRef.current.getBoundingClientRect();
+    }
+  };
+
   const handleMouseMove = (e) => {
     if (isDragging) return;
-    const rect = outerRef.current?.getBoundingClientRect();
+    let rect = rectRef.current;
+    if (!rect) {
+      if (outerRef.current) {
+        rect = outerRef.current.getBoundingClientRect();
+        rectRef.current = rect;
+      }
+    }
     if (!rect) return;
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
@@ -61,8 +75,8 @@ function ServiceCard({ title, tag, scrollTargetId, desktopStyle }) {
       className="absolute"
       style={{ ...desktopStyle, zIndex: isDragging ? 50 : 'auto' }}
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => { setIsHovered(false); resetMag(); }}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => { setIsHovered(false); rectRef.current = null; resetMag(); }}
+      onMouseEnter={handleMouseEnter}
     >
       {/* Magnetic spring wrapper */}
       <motion.div className="absolute inset-0" style={{ x: springX, y: springY }}>

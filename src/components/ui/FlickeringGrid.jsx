@@ -14,7 +14,6 @@ const FlickeringGrid = React.memo(({
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [isInView, setIsInView] = useState(false);
-  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
   const memoizedColor = useMemo(() => {
     const toRGBA = (colorStr) => {
@@ -104,13 +103,13 @@ const FlickeringGrid = React.memo(({
     let gridParams = null;
 
     if (canvas && container && ctx) {
-      const updateCanvasSize = () => {
-        const newWidth = width || container.clientWidth;
-        const newHeight = height || container.clientHeight;
-        setCanvasSize({ width: newWidth, height: newHeight });
+      const updateCanvasSize = (w, h) => {
+        const newWidth = width || w || container.clientWidth;
+        const newHeight = height || h || container.clientHeight;
         gridParams = setupCanvas(canvas, newWidth, newHeight);
       };
 
+      // Initial sizes
       updateCanvasSize();
 
       let lastTime = 0;
@@ -133,8 +132,15 @@ const FlickeringGrid = React.memo(({
         animationFrameId = requestAnimationFrame(animate);
       };
 
-      resizeObserver = new ResizeObserver(() => {
-        updateCanvasSize();
+      resizeObserver = new ResizeObserver((entries) => {
+        if (!entries || entries.length === 0) return;
+        const entry = entries[0];
+        // Read width and height from ResizeObserver entry to avoid forced layout calculations
+        const w = entry.contentRect.width;
+        const h = entry.contentRect.height;
+        requestAnimationFrame(() => {
+          updateCanvasSize(w, h);
+        });
       });
       resizeObserver.observe(container);
 
@@ -173,10 +179,6 @@ const FlickeringGrid = React.memo(({
       <canvas
         ref={canvasRef}
         className="pointer-events-none"
-        style={{
-          width: canvasSize.width,
-          height: canvasSize.height,
-        }}
       />
     </div>
   );

@@ -667,47 +667,64 @@ export default function CaseTemplate() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
-
   // Track active section on scroll
   useEffect(() => {
-    // ── rAF + ticking guard ────────────────────────────────────────────────────
-    // offsetTop / offsetHeight — layout-свойства. Если раньше браузер рендерил
-    // какой-либо DOM, их чтение заставляет браузер немедленно
-    // пересчитать layout (Forced Reflow). Внутри rAF layout уже актуален.
-    let ticking = false;
+    let sectionPositions = [];
 
-    const computeActiveSection = () => {
-      const scrollPosition = window.scrollY;
+    const updateSectionPositions = () => {
       const sections = ['case-about', 'case-process', 'case-challenge', 'case-showcase', 'case-mobile-showcase', 'case-outro', 'case-custom'];
-
-      let currentSection = 'case-about';
+      const positions = [];
       for (const sectionId of sections) {
         const el = document.getElementById(sectionId);
         if (el) {
-          const top = el.offsetTop - 240;
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            currentSection = sectionId;
-          }
+          positions.push({
+            id: sectionId,
+            top: el.offsetTop - 240,
+            height: el.offsetHeight
+          });
         }
       }
-      setActiveSection(currentSection);
-      ticking = false;
+      sectionPositions = positions;
     };
 
+    updateSectionPositions();
+
+    // Re-calculate after short delay to ensure elements are sized and loaded,
+    // and on window resize.
+    const resizeTimeout = setTimeout(updateSectionPositions, 500);
+
+    const handleResize = () => {
+      requestAnimationFrame(updateSectionPositions);
+    };
+
+    let ticking = false;
     const handleScroll = () => {
       if (!ticking) {
         ticking = true;
-        requestAnimationFrame(computeActiveSection);
+        requestAnimationFrame(() => {
+          const scrollPosition = window.scrollY;
+          let currentSection = 'case-about';
+          for (const section of sectionPositions) {
+            if (scrollPosition >= section.top && scrollPosition < section.top + section.height) {
+              currentSection = section.id;
+            }
+          }
+          setActiveSection(currentSection);
+          ticking = false;
+        });
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    computeActiveSection();
+    window.addEventListener('resize', handleResize, { passive: true });
+    handleScroll();
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
   }, [id, data]);
-
   // Determine next case for navigation
   const currentIndex = casesList.findIndex(c => c.slug === id);
   let nextCase = null;
