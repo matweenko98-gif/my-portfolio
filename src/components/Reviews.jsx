@@ -95,6 +95,9 @@ export default function Reviews() {
   const reviewsData = contentData.reviews;
 
   const [isMobile, setIsMobile] = useState(false);
+  const reviewsOffsetTopRef = useRef(0);
+  const reviewsHeightRef = useRef(0);
+  const containerHeightRef = useRef(0);
 
   useEffect(() => {
     const handleResizeWidth = () => {
@@ -111,18 +114,17 @@ export default function Reviews() {
     const updateStyles = () => {
       if (!reviewsRef.current || !trackRef.current || !containerRef.current) return;
 
-      // ── BATCH READ #1: все geometry-чтения до любой записи ──────────────────
-      // getBoundingClientRect вызывает Forced Reflow если браузер ещё не знает
-      // актуальный layout. Здесь мы читаем все нужные значения ДО записи стилей,
-      // чтобы движок не сбрасывал layout между read/write парами.
-      const rect = reviewsRef.current.getBoundingClientRect();
-      const scrollableHeight = rect.height - window.innerHeight;
+      const height = reviewsHeightRef.current || window.innerHeight;
+      const scrollableHeight = height - window.innerHeight;
       if (scrollableHeight <= 0) { ticking = false; return; }
 
-      const progress = Math.max(0, Math.min(1, -rect.top / scrollableHeight));
+      const offsetTop = reviewsOffsetTopRef.current || 0;
+      const relativeScroll = window.scrollY - offsetTop;
+      const progress = Math.max(0, Math.min(1, relativeScroll / scrollableHeight));
+
       const currentIsMobile = window.innerWidth < 768;
       const visibleItems = getVisibleItems(reviewsData.items, currentIsMobile);
-      const { columnHeights } = buildTrackLayout(
+      const { columnHeights, columnStaggers } = buildTrackLayout(
         visibleItems,
         currentIsMobile,
         currentIsMobile ? 36 : 18
@@ -130,26 +132,36 @@ export default function Reviews() {
       const maxColHeight = Math.max(...columnHeights);
       const totalScroll = maxColHeight * SCROLL_ROTATIONS;
 
-      // Читаем containerRect один раз
-      const containerRect = containerRef.current.getBoundingClientRect();
+      const translateY = -progress * totalScroll;
+      const containerHeight = containerHeightRef.current || 400;
+      const containerCenterY = containerHeight / 2;
 
-      // Читаем все cardRect за один проход — ДО любых записей
+      // Translate track in compositor
+      trackRef.current.style.transform = `translate3d(0, ${translateY}px, 0)`;
+
+      // Scale cards purely via math (no getBoundingClientRect calls)
       const cards = cardsRef.current;
-      const cardScales = new Array(cards.length);
-      for (let i = 0; i < cards.length; i++) {
-        const el = cards[i];
-        if (!el) { cardScales[i] = null; continue; }
-        const cardRect = el.getBoundingClientRect();
-        const cardCenterY = cardRect.top + cardRect.height / 2;
-        cardScales[i] = getCenterScale(containerRect.height, cardCenterY, containerRect.top);
-      }
+      for (let cycle = 0; cycle < TRACK_COPIES; cycle++) {
+        for (let idx = 0; idx < visibleItems.length; idx++) {
+          const review = visibleItems[idx];
+          const cardIndex = cycle * visibleItems.length + idx;
+          const el = cards[cardIndex];
+          if (!el) continue;
 
-      // ── BATCH WRITE: все записи style после чтений ───────────────────────────
-      trackRef.current.style.transform = `translate3d(0, ${-progress * totalScroll}px, 0)`;
+          const colIdx = review.colIdx;
+          const colStagger = columnStaggers[colIdx];
+          const cardTop = colStagger + review.trackY + cycle * columnHeights[colIdx];
+          const cardHeight = review.renderedHeight;
+          const cardCenterY = cardTop + cardHeight / 2 + translateY;
 
-      for (let i = 0; i < cards.length; i++) {
-        if (cards[i] !== null && cards[i] !== undefined && cardScales[i] !== null) {
-          cards[i].style.transform = `scale(${cardScales[i]})`;
+          const distFromCenter = Math.abs(cardCenterY - containerCenterY);
+          const maxDist = containerHeight * 0.55;
+          const normDist = Math.min(1, distFromCenter / maxDist);
+          const t = 1 - normDist;
+          const easeT = t * t * (3 - 2 * t);
+          const scale = 0.94 + 0.06 * easeT;
+
+          el.style.transform = `scale(${scale})`;
         }
       }
 
@@ -157,7 +169,7 @@ export default function Reviews() {
     };
 
     const setSectionHeight = () => {
-      if (!reviewsRef.current) return;
+      if (!reviewsRef.current || !containerRef.current) return;
 
       const currentIsMobile = window.innerWidth < 768;
       const visibleItems = getVisibleItems(reviewsData.items, currentIsMobile);
@@ -169,7 +181,13 @@ export default function Reviews() {
       const maxColHeight = Math.max(...columnHeights);
       const scrollPx = maxColHeight * SCROLL_ROTATIONS;
 
-      reviewsRef.current.style.height = `${window.innerHeight + scrollPx}px`;
+      const calculatedHeight = window.innerHeight + scrollPx;
+      reviewsRef.current.style.height = `${calculatedHeight}px`;
+
+      // Cache measurements
+      reviewsOffsetTopRef.current = reviewsRef.current.offsetTop;
+      reviewsHeightRef.current = calculatedHeight;
+      containerHeightRef.current = containerRef.current.offsetHeight;
     };
 
     const onScroll = () => {
@@ -186,12 +204,20 @@ export default function Reviews() {
 
     setSectionHeight();
     updateStyles();
+
+    // Additional layout settle delay check
+    const settleTimeout = setTimeout(() => {
+      setSectionHeight();
+      updateStyles();
+    }, 600);
+
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
 
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
+      clearTimeout(settleTimeout);
     };
   }, [reviewsData]);
 

@@ -32,13 +32,15 @@ const FlickeringGrid = React.memo(({
     return toRGBA(color);
   }, [color]);
 
+  // Keep grid parameters in a ref to avoid triggering re-renders during setup/resize
+  const gridParamsRef = useRef(null);
+
   const setupCanvas = useCallback(
     (canvas, widthVal, heightVal) => {
       const dpr = window.devicePixelRatio || 1;
       canvas.width = widthVal * dpr;
       canvas.height = heightVal * dpr;
-      canvas.style.width = `${widthVal}px`;
-      canvas.style.height = `${heightVal}px`;
+      
       const cols = Math.ceil(widthVal / (squareSize + gridGap));
       const rows = Math.ceil(heightVal / (squareSize + gridGap));
 
@@ -47,7 +49,7 @@ const FlickeringGrid = React.memo(({
         squares[i] = Math.random() * maxOpacity;
       }
 
-      return { cols, rows, squares, dpr };
+      gridParamsRef.current = { cols, rows, squares, dpr, w: widthVal, h: heightVal };
     },
     [squareSize, gridGap, maxOpacity]
   );
@@ -74,18 +76,19 @@ const FlickeringGrid = React.memo(({
       dpr
     ) => {
       ctx.clearRect(0, 0, widthVal, heightVal);
-      ctx.fillStyle = "transparent";
-      ctx.fillRect(0, 0, widthVal, heightVal);
-
+      
+      const step = (squareSize + gridGap) * dpr;
+      const size = squareSize * dpr;
+      
       for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
           const opacity = squares[i * rows + j];
           ctx.fillStyle = `${memoizedColor}${opacity})`;
           ctx.fillRect(
-            i * (squareSize + gridGap) * dpr,
-            j * (squareSize + gridGap) * dpr,
-            squareSize * dpr,
-            squareSize * dpr
+            i * step,
+            j * step,
+            size,
+            size
           );
         }
       }
@@ -93,92 +96,90 @@ const FlickeringGrid = React.memo(({
     [memoizedColor, squareSize, gridGap]
   );
 
+  // Setup Observers
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
-    const ctx = canvas?.getContext("2d") ?? null;
+    if (!canvas || !container) return;
+
+    let resizeObserver = new ResizeObserver((entries) => {
+      if (!entries || entries.length === 0) return;
+      const entry = entries[0];
+      const w = width || entry.contentRect.width || container.clientWidth;
+      const h = height || entry.contentRect.height || container.clientHeight;
+      
+      setupCanvas(canvas, w, h);
+    });
+    resizeObserver.observe(container);
+
+    let intersectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
+    intersectionObserver.observe(canvas);
+
+    return () => {
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+    };
+  }, [setupCanvas, width, height]);
+
+  // Animation Loop
+  useEffect(() => {
+    if (!isInView) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
     let animationFrameId = null;
-    let resizeObserver = null;
-    let intersectionObserver = null;
-    let gridParams = null;
+    let lastTime = performance.now();
 
-    if (canvas && container && ctx) {
-      const updateCanvasSize = (w, h) => {
-        const newWidth = width || w || container.clientWidth;
-        const newHeight = height || h || container.clientHeight;
-        gridParams = setupCanvas(canvas, newWidth, newHeight);
-      };
-
-      // Initial sizes
-      updateCanvasSize();
-
-      let lastTime = 0;
-      const animate = (time) => {
-        if (!isInView || !gridParams) return;
-
-        const deltaTime = (time - lastTime) / 1000;
-        lastTime = time;
-
-        updateSquares(gridParams.squares, deltaTime);
-        drawGrid(
-          ctx,
-          canvas.width,
-          canvas.height,
-          gridParams.cols,
-          gridParams.rows,
-          gridParams.squares,
-          gridParams.dpr
-        );
+    const animate = (time) => {
+      const gridParams = gridParamsRef.current;
+      if (!gridParams) {
         animationFrameId = requestAnimationFrame(animate);
-      };
-
-      resizeObserver = new ResizeObserver((entries) => {
-        if (!entries || entries.length === 0) return;
-        const entry = entries[0];
-        // Read width and height from ResizeObserver entry to avoid forced layout calculations
-        const w = entry.contentRect.width;
-        const h = entry.contentRect.height;
-        requestAnimationFrame(() => {
-          updateCanvasSize(w, h);
-        });
-      });
-      resizeObserver.observe(container);
-
-      intersectionObserver = new IntersectionObserver(
-        ([entry]) => {
-          setIsInView(entry.isIntersecting);
-        },
-        { threshold: 0 }
-      );
-      intersectionObserver.observe(canvas);
-
-      if (isInView) {
-        animationFrameId = requestAnimationFrame(animate);
+        return;
       }
-    }
+
+      const deltaTime = (time - lastTime) / 1000;
+      lastTime = time;
+
+      updateSquares(gridParams.squares, deltaTime);
+      drawGrid(
+        ctx,
+        canvas.width,
+        canvas.height,
+        gridParams.cols,
+        gridParams.rows,
+        gridParams.squares,
+        gridParams.dpr
+      );
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
 
     return () => {
       if (animationFrameId !== null) {
         cancelAnimationFrame(animationFrameId);
       }
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
-      if (intersectionObserver) {
-        intersectionObserver.disconnect();
-      }
     };
-  }, [setupCanvas, updateSquares, drawGrid, width, height, isInView]);
+  }, [isInView, updateSquares, drawGrid]);
 
   return (
     <div
       ref={containerRef}
-      className={`h-full w-full ${className || ""}`}
+      className={`relative h-full w-full ${className || ""}`}
       {...props}
     >
       <canvas
         ref={canvasRef}
-        className="pointer-events-none"
+        className="pointer-events-none absolute inset-0 w-full h-full"
       />
     </div>
   );

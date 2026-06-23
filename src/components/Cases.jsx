@@ -242,7 +242,7 @@ export default function Cases() {
                           <img
                             src={caseCardImg(image)}
                             alt={title}
-                            loading={idx === 0 ? 'eager' : 'lazy'}
+                            loading="lazy"
                             decoding="async"
                             width={650}
                             height={488}
