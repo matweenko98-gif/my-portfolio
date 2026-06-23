@@ -3,7 +3,7 @@
   font-style: normal;
   font-weight: 100;
   font-display: swap;
-  src: url('/fonts/InterTight-Thin.woff2') format('woff2');
+  src: url('/fonts/InterTight-ExtraLight.woff2') format('woff2');
 }
 
 @font-face {
@@ -11,7 +11,7 @@
   font-style: italic;
   font-weight: 100;
   font-display: swap;
-  src: url('/fonts/InterTight-ThinItalic.woff2') format('woff2');
+  src: url('/fonts/InterTight-ExtraLightItalic.woff2') format('woff2');
 }
 
 @font-face {
@@ -51,7 +51,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/InterTight-Regular.woff2') format('woff2');
+  src: url('/fonts/InterTight-Medium.woff2') format('woff2');
 }
 
 @font-face {
@@ -75,7 +75,7 @@
   font-style: italic;
   font-weight: 500;
   font-display: swap;
-  src: url('/fonts/InterTight-MediumItalic.woff2') format('woff2');
+  src: url('/fonts/InterTight-Italic.woff2') format('woff2');
 }
 
 @font-face {
@@ -83,7 +83,7 @@
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('/fonts/InterTight-SemiBold.woff2') format('woff2');
+  src: url('/fonts/InterTight-Bold.woff2') format('woff2');
 }
 
 @font-face {
@@ -91,7 +91,7 @@
   font-style: italic;
   font-weight: 600;
   font-display: swap;
-  src: url('/fonts/InterTight-SemiBoldItalic.woff2') format('woff2');
+  src: url('/fonts/InterTight-BoldItalic.woff2') format('woff2');
 }
 
 @font-face {
@@ -141,6 +141,7 @@
   font-display: swap;
   src: url('/fonts/InterTight-BlackItalic.woff2') format('woff2');
 }
+
 
 @tailwind base;
 @tailwind components;
