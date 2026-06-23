@@ -316,7 +316,7 @@ const contentData = {
   // Данные для Workflow (процесс работы и стандарты)
   workflow: {
     title: "Прозрачный процесс разработки",
-    gifPath: "/images/working-process.gif.gif",
+    gifPath: "/images/working-process.gif.webm",
     gifAlt: "Процесс работы",
     steps: [
       {
@@ -382,50 +382,50 @@ const contentData = {
     items: [
       {
         id: "rev1",
-        imageUrl: "/images/otziv.png/1.png",
-        aspectRatio: 1.139,
+        imageUrl: "/images/otziv.png/1.jpg",
+        aspectRatio: 1.865,
         desktopOnly: false
       },
       {
         id: "rev2",
-        imageUrl: "/images/otziv.png/2.png",
-        aspectRatio: 2.195,
+        imageUrl: "/images/otziv.png/2.jpg",
+        aspectRatio: 4.500,
         desktopOnly: false
       },
       {
         id: "rev3",
-        imageUrl: "/images/otziv.png/3.png",
-        aspectRatio: 4.096,
+        imageUrl: "/images/otziv.png/3.jpg",
+        aspectRatio: 1.797,
         desktopOnly: true
       },
       {
         id: "rev4",
-        imageUrl: "/images/otziv.png/4.png",
-        aspectRatio: 1.388,
+        imageUrl: "/images/otziv.png/4.jpg",
+        aspectRatio: 2.506,
         desktopOnly: true
       },
       {
         id: "rev5",
-        imageUrl: "/images/otziv.png/5.png",
-        aspectRatio: 1.800,
+        imageUrl: "/images/otziv.png/5.jpg",
+        aspectRatio: 1.138,
         desktopOnly: false
       },
       {
         id: "rev6",
-        imageUrl: "/images/otziv.png/6.png",
-        aspectRatio: 2.510,
+        imageUrl: "/images/otziv.png/6.jpg",
+        aspectRatio: 2.195,
         desktopOnly: true
       },
       {
         id: "rev7",
-        imageUrl: "/images/otziv.png/7.png",
-        aspectRatio: 4.511,
+        imageUrl: "/images/otziv.png/7.jpg",
+        aspectRatio: 1.386,
         desktopOnly: false
       },
       {
         id: "rev8",
-        imageUrl: "/images/otziv.png/8.png",
-        aspectRatio: 1.869,
+        imageUrl: "/images/otziv.png/8.jpg",
+        aspectRatio: 4.091,
         desktopOnly: true
       }
     ]

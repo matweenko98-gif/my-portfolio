@@ -166,7 +166,7 @@ export default function Workflow() {
             className="group bg-[#1A1A1A] border border-neutral-800 rounded-md p-0 flex flex-col justify-between transition-all duration-300 lg:hover:-translate-y-1 lg:hover:bg-neutral-900/60 lg:hover:border-neutral-700 w-[290px] min-w-[290px] lg:w-[320px] lg:min-w-[320px] h-auto min-h-[290px] lg:h-[285px] shrink-0 snap-align-start lg:snap-align-none relative animate-fadeIn"
             style={{ animationDelay: '0ms' }}
           >
-            <img src={contentData.workflow.gifPath} alt={contentData.workflow.gifAlt} className="w-full h-full object-cover rounded-[2px]" />
+            <video src={contentData.workflow.gifPath} autoPlay loop muted playsInline className="w-full h-full object-cover rounded-[2px]" />
           </div>
           {steps.map((step, idx) => {
             const stepResults = {
