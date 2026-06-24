@@ -52,7 +52,7 @@ export default defineConfig(({ mode }) => ({
   },
 
   optimizeDeps: {
-    esbuildOptions: {
+    rolldownOptions: {
       target: 'es2022',
     },
   },

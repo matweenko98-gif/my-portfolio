@@ -49,51 +49,9 @@ const FlickeringGrid = React.memo(({
         squares[i] = Math.random() * maxOpacity;
       }
 
-      gridParamsRef.current = { cols, rows, squares, dpr, w: widthVal, h: heightVal };
+      gridParamsRef.current = { cols, rows, squares, dpr, w: widthVal, h: heightVal, shouldRedrawAll: true };
     },
     [squareSize, gridGap, maxOpacity]
-  );
-
-  const updateSquares = useCallback(
-    (squares, deltaTime) => {
-      for (let i = 0; i < squares.length; i++) {
-        if (Math.random() < flickerChance * deltaTime) {
-          squares[i] = Math.random() * maxOpacity;
-        }
-      }
-    },
-    [flickerChance, maxOpacity]
-  );
-
-  const drawGrid = useCallback(
-    (
-      ctx,
-      widthVal,
-      heightVal,
-      cols,
-      rows,
-      squares,
-      dpr
-    ) => {
-      ctx.clearRect(0, 0, widthVal, heightVal);
-      
-      const step = (squareSize + gridGap) * dpr;
-      const size = squareSize * dpr;
-      
-      for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-          const opacity = squares[i * rows + j];
-          ctx.fillStyle = `${memoizedColor}${opacity})`;
-          ctx.fillRect(
-            i * step,
-            j * step,
-            size,
-            size
-          );
-        }
-      }
-    },
-    [memoizedColor, squareSize, gridGap]
   );
 
   // Setup Observers
@@ -148,16 +106,43 @@ const FlickeringGrid = React.memo(({
       const deltaTime = (time - lastTime) / 1000;
       lastTime = time;
 
-      updateSquares(gridParams.squares, deltaTime);
-      drawGrid(
-        ctx,
-        canvas.width,
-        canvas.height,
-        gridParams.cols,
-        gridParams.rows,
-        gridParams.squares,
-        gridParams.dpr
-      );
+      const { cols, rows, squares, dpr, shouldRedrawAll } = gridParams;
+      const step = (squareSize + gridGap) * dpr;
+      const size = squareSize * dpr;
+
+      if (shouldRedrawAll) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < cols; i++) {
+          for (let j = 0; j < rows; j++) {
+            const opacity = squares[i * rows + j];
+            if (opacity > 0) {
+              ctx.fillStyle = `${memoizedColor}${opacity})`;
+              ctx.fillRect(i * step, j * step, size, size);
+            }
+          }
+        }
+        gridParams.shouldRedrawAll = false;
+      } else {
+        // Only update and redraw changed cells to optimize CPU performance
+        for (let i = 0; i < cols; i++) {
+          for (let j = 0; j < rows; j++) {
+            if (Math.random() < flickerChance * deltaTime) {
+              const idx = i * rows + j;
+              const oldOpacity = squares[idx];
+              const newOpacity = Math.random() * maxOpacity;
+              
+              if (oldOpacity !== newOpacity) {
+                squares[idx] = newOpacity;
+                ctx.clearRect(i * step, j * step, size, size);
+                if (newOpacity > 0) {
+                  ctx.fillStyle = `${memoizedColor}${newOpacity})`;
+                  ctx.fillRect(i * step, j * step, size, size);
+                }
+              }
+            }
+          }
+        }
+      }
 
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -169,7 +154,7 @@ const FlickeringGrid = React.memo(({
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [isInView, updateSquares, drawGrid]);
+  }, [isInView, squareSize, gridGap, flickerChance, maxOpacity, memoizedColor]);
 
   return (
     <div

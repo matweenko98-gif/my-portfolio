@@ -5,7 +5,7 @@
  * 
  * При редактировании обязательно сохраняйте синтаксис JavaScript (кавычки, запятые и скобки).
  */
-import avatarImg from '../images.svg/avatar.jpg';
+import avatarImg from '../images.svg/avatar.webp';
 
 const contentData = {
   // Данные для Sidebar (левая фиксированная панель)
@@ -382,49 +382,49 @@ const contentData = {
     items: [
       {
         id: "rev1",
-        imageUrl: "/images/otziv.png/1.jpg",
+        imageUrl: "/images/otziv.png/1.webp",
         aspectRatio: 1.865,
         desktopOnly: false
       },
       {
         id: "rev2",
-        imageUrl: "/images/otziv.png/2.jpg",
+        imageUrl: "/images/otziv.png/2.webp",
         aspectRatio: 4.500,
         desktopOnly: false
       },
       {
         id: "rev3",
-        imageUrl: "/images/otziv.png/3.jpg",
+        imageUrl: "/images/otziv.png/3.webp",
         aspectRatio: 1.797,
         desktopOnly: true
       },
       {
         id: "rev4",
-        imageUrl: "/images/otziv.png/4.jpg",
+        imageUrl: "/images/otziv.png/4.webp",
         aspectRatio: 2.506,
         desktopOnly: true
       },
       {
         id: "rev5",
-        imageUrl: "/images/otziv.png/5.jpg",
+        imageUrl: "/images/otziv.png/5.webp",
         aspectRatio: 1.138,
         desktopOnly: false
       },
       {
         id: "rev6",
-        imageUrl: "/images/otziv.png/6.jpg",
+        imageUrl: "/images/otziv.png/6.webp",
         aspectRatio: 2.195,
         desktopOnly: true
       },
       {
         id: "rev7",
-        imageUrl: "/images/otziv.png/7.jpg",
+        imageUrl: "/images/otziv.png/7.webp",
         aspectRatio: 1.386,
         desktopOnly: false
       },
       {
         id: "rev8",
-        imageUrl: "/images/otziv.png/8.jpg",
+        imageUrl: "/images/otziv.png/8.webp",
         aspectRatio: 4.091,
         desktopOnly: true
       }

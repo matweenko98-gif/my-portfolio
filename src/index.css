@@ -17,6 +17,14 @@
 @font-face {
   font-family: 'Inter Tight';
   font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/InterTight-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter Tight';
+  font-style: normal;
   font-weight: 500;
   font-display: swap;
   src: url('/fonts/InterTight-Medium.woff2') format('woff2');
