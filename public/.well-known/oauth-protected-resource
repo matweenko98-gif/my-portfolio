@@ -1,0 +1,13 @@
+{
+  "resource": "https://design-matweenko.vercel.app/api",
+  "authorization_servers": [
+    "https://design-matweenko.vercel.app"
+  ],
+  "scopes_supported": [
+    "read",
+    "write"
+  ],
+  "bearer_methods_supported": [
+    "header"
+  ]
+}

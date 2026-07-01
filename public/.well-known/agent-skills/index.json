@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "portfolio-query",
+      "type": "skill-md",
+      "description": "Querying portfolio information and contacts",
+      "url": "https://design-matweenko.vercel.app/skills/portfolio-query/SKILL.md",
+      "digest": "sha256:5b717b9a0bd9ce5a74bc231150b3bc22532c3220e15a23c75099658005eeb1e0"
+    }
+  ]
+}

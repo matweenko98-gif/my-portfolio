@@ -1,0 +1,12 @@
+{
+  "serverInfo": {
+    "name": "design-matweenko-portfolio-mcp",
+    "version": "1.0.0"
+  },
+  "endpoint": "https://design-matweenko.vercel.app/mcp",
+  "capabilities": {
+    "tools": {},
+    "resources": {},
+    "prompts": {}
+  }
+}

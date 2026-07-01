@@ -1,0 +1,25 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://design-matweenko.vercel.app/api",
+      "service-desc": [
+        {
+          "href": "https://design-matweenko.vercel.app/api/openapi.yaml",
+          "type": "application/yaml"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://design-matweenko.vercel.app/docs/api",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://design-matweenko.vercel.app/api/status",
+          "type": "application/json"
+        }
+      ]
+    }
+  ]
+}

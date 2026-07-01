@@ -182,10 +182,13 @@ export default function Reviews() {
       const scrollPx = maxColHeight * SCROLL_ROTATIONS;
 
       const calculatedHeight = window.innerHeight + scrollPx;
-      reviewsRef.current.style.height = `${calculatedHeight}px`;
+      if (reviewsRef.current.style.height !== `${calculatedHeight}px`) {
+        reviewsRef.current.style.height = `${calculatedHeight}px`;
+      }
 
       // Cache measurements
-      reviewsOffsetTopRef.current = reviewsRef.current.offsetTop;
+      const rect = reviewsRef.current.getBoundingClientRect();
+      reviewsOffsetTopRef.current = rect.top + window.scrollY;
       reviewsHeightRef.current = calculatedHeight;
       containerHeightRef.current = containerRef.current.offsetHeight;
     };
@@ -205,11 +208,16 @@ export default function Reviews() {
     setSectionHeight();
     updateStyles();
 
-    // Additional layout settle delay check
-    const settleTimeout = setTimeout(() => {
-      setSectionHeight();
-      updateStyles();
-    }, 600);
+    // Настраиваем ResizeObserver для отслеживания изменений размеров страницы (загрузки lazy-секций)
+    const mainContent = document.getElementById('main-content-wrapper');
+    let resizeObserver;
+    if (mainContent) {
+      resizeObserver = new ResizeObserver(() => {
+        setSectionHeight();
+        updateStyles();
+      });
+      resizeObserver.observe(mainContent);
+    }
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
@@ -217,7 +225,9 @@ export default function Reviews() {
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
-      clearTimeout(settleTimeout);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
     };
   }, [reviewsData]);
 

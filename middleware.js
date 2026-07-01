@@ -1,6 +1,3 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
 const markdownContent = `# Ksenia Matveenko — UI/UX Designer, Frontend Developer & AI Prompt Engineer / Веб-дизайнер и разработчик интерфейсов
 
 Welcome to the LLM-friendly version of my portfolio. / Добро пожаловать в текстовую версию моего портфолио.
@@ -100,9 +97,6 @@ const openidConfigurationJson = `{
   "subject_types_supported": [
     "public"
   ],
-  "id_token_signing_alg_values_supported": [
-    "RS256"
-  ],
   "agent_auth": {
     "skill": "https://design-matweenko.vercel.app/auth.md",
     "register_uri": "https://design-matweenko.vercel.app/oauth/register",
@@ -141,7 +135,6 @@ The API and OAuth discovery documents are available at:
 - **API Catalog**: \`/.well-known/api-catalog\`
 - **Protected Resource Metadata**: \`/.well-known/oauth-protected-resource\`
 - **Authorization Server Metadata**: \`/.well-known/oauth-authorization-server\` (and \`/openid-configuration\`)
-- **MCP Server Card**: \`/.well-known/mcp/server-card.json\`
 
 ## Agent Registration
 
@@ -210,147 +203,81 @@ Query the professional portfolio information of Ksenia Matveenko.
 - Query homepage or read llms.txt to fetch contact info, tax UNP status, and service tiers.
 `;
 
-function markdownNegotiationPlugin() {
-  return {
-    name: 'markdown-negotiation',
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        const accept = req.headers['accept'] || '';
-        const url = req.url ? new URL(req.url, `http://${req.headers.host || 'localhost'}`) : null;
-        const pathname = url ? url.pathname : '';
-        if (pathname === '/.well-known/api-catalog') {
-          res.setHeader('Content-Type', 'application/linkset+json; charset=utf-8');
-          res.end(apiCatalogJson);
-        } else if (pathname === '/.well-known/openid-configuration' || pathname === '/.well-known/oauth-authorization-server') {
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(openidConfigurationJson);
-        } else if (pathname === '/.well-known/oauth-protected-resource') {
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(oauthProtectedResourceJson);
-        } else if (pathname === '/.well-known/mcp/server-card.json') {
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(mcpServerCardJson);
-        } else if (pathname === '/.well-known/agent-skills/index.json') {
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(agentSkillsJson);
-        } else if (pathname === '/skills/portfolio-query/SKILL.md') {
-          res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-          res.end(skillMdContent);
-        } else if (pathname === '/auth.md') {
-          res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-          res.end(authMdContent);
-        } else if (accept.includes('text/markdown') && (pathname === '/' || pathname === '/index.html')) {
-          res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-          res.setHeader('x-markdown-tokens', String(Math.ceil(markdownContent.length / 4)));
-          res.end(markdownContent);
-        } else {
-          next();
-        }
-      });
-    },
-    configurePreviewServer(server) {
-      server.middlewares.use((req, res, next) => {
-        const accept = req.headers['accept'] || '';
-        const url = req.url ? new URL(req.url, `http://${req.headers.host || 'localhost'}`) : null;
-        const pathname = url ? url.pathname : '';
-        if (pathname === '/.well-known/api-catalog') {
-          res.setHeader('Content-Type', 'application/linkset+json; charset=utf-8');
-          res.end(apiCatalogJson);
-        } else if (pathname === '/.well-known/openid-configuration' || pathname === '/.well-known/oauth-authorization-server') {
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(openidConfigurationJson);
-        } else if (pathname === '/.well-known/oauth-protected-resource') {
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(oauthProtectedResourceJson);
-        } else if (pathname === '/.well-known/mcp/server-card.json') {
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(mcpServerCardJson);
-        } else if (pathname === '/.well-known/agent-skills/index.json') {
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(agentSkillsJson);
-        } else if (pathname === '/skills/portfolio-query/SKILL.md') {
-          res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-          res.end(skillMdContent);
-        } else if (pathname === '/auth.md') {
-          res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-          res.end(authMdContent);
-        } else if (accept.includes('text/markdown') && (pathname === '/' || pathname === '/index.html')) {
-          res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-          res.setHeader('x-markdown-tokens', String(Math.ceil(markdownContent.length / 4)));
-          res.end(markdownContent);
-        } else {
-          next();
-        }
-      });
-    }
-  };
+export default function middleware(request) {
+  const url = new URL(request.url);
+  const accept = request.headers.get('accept') || '';
+
+  if (url.pathname === '/.well-known/api-catalog') {
+    return new Response(apiCatalogJson, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/linkset+json; charset=utf-8'
+      }
+    });
+  }
+
+  if (url.pathname === '/.well-known/openid-configuration' || url.pathname === '/.well-known/oauth-authorization-server') {
+    return new Response(openidConfigurationJson, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    });
+  }
+
+  if (url.pathname === '/.well-known/oauth-protected-resource') {
+    return new Response(oauthProtectedResourceJson, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    });
+  }
+
+  if (url.pathname === '/.well-known/mcp/server-card.json') {
+    return new Response(mcpServerCardJson, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    });
+  }
+
+  if (url.pathname === '/.well-known/agent-skills/index.json') {
+    return new Response(agentSkillsJson, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    });
+  }
+
+  if (url.pathname === '/skills/portfolio-query/SKILL.md') {
+    return new Response(skillMdContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/markdown; charset=utf-8'
+      }
+    });
+  }
+
+  if (url.pathname === '/auth.md') {
+    return new Response(authMdContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/markdown; charset=utf-8'
+      }
+    });
+  }
+
+  if (accept.includes('text/markdown') && (url.pathname === '/' || url.pathname === '/index.html')) {
+    const tokensCount = Math.ceil(markdownContent.length / 4);
+    return new Response(markdownContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/markdown; charset=utf-8',
+        'x-markdown-tokens': String(tokensCount)
+      }
+    });
+  }
 }
-
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
-  plugins: [react(), markdownNegotiationPlugin()],
-
-  server: {
-    headers: {
-      'Link': '</llms.txt>; rel="describedby"; type="text/markdown"'
-    }
-  },
-
-  preview: {
-    headers: {
-      'Link': '</llms.txt>; rel="describedby"; type="text/markdown"'
-    }
-  },
-
-  build: {
-    target: 'es2022',
-
-    // ─── Source Maps ──────────────────────────────────────────────────────────
-    // В продакшене source maps отключены:
-    //   - не утяжеляют сборку (карты могут весить столько же, сколько сам код)
-    //   - не раскрывают исходный код пользователям в DevTools
-    // В dev-режиме (`vite`) карты включены автоматически через Vite HMR.
-    sourcemap: mode === 'development',
-
-    rollupOptions: {
-      output: {
-        // ─── Manual chunk strategy ────────────────────────────────────────────
-        // Разбиваем vendor-зависимости на стабильные чанки с длинным кешем.
-        // React-core грузится сразу (нужен для любой страницы).
-        // framer-motion и lucide-react выделены отдельно — они тяжёлые
-        // (~100 KB min+gz) и меняются реже своего кода.
-        manualChunks(id) {
-          // React runtime — критический, отдельный чанк с max-age кешем
-          if (id.includes('node_modules/react/') ||
-              id.includes('node_modules/react-dom/') ||
-              id.includes('node_modules/react-router') ||
-              id.includes('node_modules/scheduler/')) {
-            return 'vendor-react';
-          }
-          // Анимационная библиотека — тяжёлая, меняется редко
-          if (id.includes('node_modules/framer-motion')) {
-            return 'vendor-framer';
-          }
-          // Иконки — тяжёлые (tree-shaking работает, но лучше изолировать)
-          if (id.includes('node_modules/lucide-react')) {
-            return 'vendor-lucide';
-          }
-          // Supabase SDK
-          if (id.includes('node_modules/@supabase')) {
-            return 'vendor-supabase';
-          }
-          // Остальные node_modules
-          if (id.includes('node_modules/')) {
-            return 'vendor-misc';
-          }
-        },
-      },
-    },
-  },
-
-  optimizeDeps: {
-    rolldownOptions: {
-      target: 'es2022',
-    },
-  },
-}))

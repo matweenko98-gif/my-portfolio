@@ -40,21 +40,16 @@ export default function HomePage() {
       for (const sectionId of sections) {
         const el = document.getElementById(sectionId);
         if (el) {
+          const rect = el.getBoundingClientRect();
           positions.push({
             id: sectionId,
-            top: el.offsetTop - 240,
-            height: el.offsetHeight
+            top: rect.top + window.scrollY - 240,
+            height: rect.height
           });
         }
       }
       sectionPositions = positions;
     };
-
-    // Первоначальный расчет
-    updateSectionPositions();
-
-    // Задержка для правильного вычисления ленивых секций после рендера
-    const resizeTimeout = setTimeout(updateSectionPositions, 500);
 
     const handleResize = () => {
       requestAnimationFrame(updateSectionPositions);
@@ -78,15 +73,30 @@ export default function HomePage() {
       });
     };
 
+    // Настраиваем ResizeObserver для отслеживания изменений размеров страницы (загрузки lazy-секций)
+    const mainContent = document.getElementById('main-content-wrapper');
+    let resizeObserver;
+    if (mainContent) {
+      resizeObserver = new ResizeObserver(() => {
+        updateSectionPositions();
+        handleScroll();
+      });
+      resizeObserver.observe(mainContent);
+    }
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
-    // Начальное состояние
+    
+    // Первоначальный расчет
+    updateSectionPositions();
     handleScroll();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimeout);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
     };
   }, []);
 
@@ -109,7 +119,7 @@ export default function HomePage() {
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
           className="relative flex-1 w-full lg:w-[calc(100%-260px)] lg:max-w-[calc(100%-260px)] lg:ml-[260px] min-h-screen flex flex-col bg-white min-w-0 overflow-x-clip"
         >
-          <div className="relative z-10 flex flex-col w-full">
+          <div id="main-content-wrapper" className="relative z-10 flex flex-col w-full">
             {/* Hero грузится синхронно — критический контент первого экрана */}
             <Hero />
 
