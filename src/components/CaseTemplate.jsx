@@ -778,6 +778,9 @@ export default function CaseTemplate() {
     { label: "Год", value: data.meta?.year }
   ].filter(item => item.value && item.value.trim() !== '');
 
+  const hasAbout = !!(data.about?.text && data.about.text.trim() !== '');
+  const hasButton = !!(data.challenge?.liveUrl && data.challenge.liveUrl !== "" && data.challenge.liveUrl !== "#");
+
   return (
     <div className="flex min-h-screen flex-col lg:flex-row bg-transparent font-sans text-zinc-900">
       {/* Fixed Sidebar on Left */}
@@ -872,26 +875,42 @@ export default function CaseTemplate() {
           {/* ══════════════════════════════════════════════════════════
           Блок 2: Мета-данные и краткое описание
           ══════════════════════════════════════════════════════════ */}
-          {metaItems.length > 0 && (
+          {(metaItems.length > 0 || (data.challenge?.liveUrl && data.challenge.liveUrl !== "" && data.challenge.liveUrl !== "#")) && (
             <motion.section
               {...sectionReveal}
-              className="border-t border-b\u00a0border-neutral-200/60 bg-white"
+              className="border-t border-neutral-200/60 bg-white"
             >
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-neutral-200/60">
-                {metaItems.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="px-6 md:px-12 lg:px-16 py-8 bg-white"
+              {metaItems.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-neutral-200/60">
+                  {metaItems.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="px-6 md:px-12 lg:px-16 py-8 bg-white"
+                    >
+                      <span className="block text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
+                        {item.label}
+                      </span>
+                      <span className="block text-[14px] md:text-[15px] font-medium text-black tracking-tight">
+                        {item.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {data.challenge?.liveUrl && data.challenge.liveUrl !== "" && data.challenge.liveUrl !== "#" && (
+                <div className={`px-6 md:px-12 lg:px-16 py-6 flex justify-start bg-white ${metaItems.length > 0 ? 'border-t border-neutral-200/60' : ''}`}>
+                  <a
+                    href={data.challenge.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FF5B23] text-white hover:bg-[#e04f1e] rounded-sm text-[13px] font-semibold transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md no-underline"
                   >
-                    <span className="block text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
-                      {item.label}
-                    </span>
-                    <span className="block text-[14px] md:text-[15px] font-medium text-black tracking-tight">
-                      {item.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                    <span>Смотреть сайт</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </a>
+                </div>
+              )}
             </motion.section>
           )}
 
@@ -916,7 +935,12 @@ export default function CaseTemplate() {
           Блок 3: Процесс работы (Design Process)
           ══════════════════════════════════════════════════════════ */}
           {data.visibility?.process !== false && Array.isArray(data.process) && data.process.length > 0 && (
-            <section id="case-process" className="py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white border-t border-neutral-100">
+            <section
+              id="case-process"
+              className={`py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white ${
+                hasAbout || !hasButton ? 'border-t border-neutral-100' : ''
+              }`}
+            >
               <div className="mb-12">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-4">
                   Дизайн-процесс
@@ -1076,20 +1100,6 @@ export default function CaseTemplate() {
                       </div>
                     )}
                   </div>
-
-                  {data.challenge.liveUrl && data.challenge.liveUrl !== "" && data.challenge.liveUrl !== "#" && (
-                    <div>
-                      <a
-                        href={data.challenge.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FF5B23] text-white hover:bg-[#e04f1e] rounded-sm text-[13px] font-semibold transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md no-underline"
-                      >
-                        <span>Смотреть live</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </a>
-                    </div>
-                  )}
                 </div>
               </div>
             </section>
