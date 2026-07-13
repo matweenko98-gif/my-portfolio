@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Hero from './Hero';
 import contentData from '../contentData';
@@ -23,6 +24,21 @@ function SectionFallback() {
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState('hero');
+  const location = useLocation();
+
+  // Scroll to hash element if present in url (e.g. /#services)
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.substring(1);
+      const timer = setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 350); // slight delay to allow lazy-loaded sections to mount
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash]);
 
   useEffect(() => {
     document.title = "Ксения Матвеенко — Дизайн & Разработка премиальных сайтов";

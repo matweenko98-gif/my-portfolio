@@ -7,6 +7,7 @@ import CookieBanner from './components/CookieBanner';
 // Каждый маршрут вынесен в отдельный чанк через dynamic import.
 // Они НЕ входят в главный bundle и подгружаются только при переходе на маршрут.
 const HomePage        = lazy(() => import('./components/HomePage'));
+const AllCases        = lazy(() => import('./components/AllCases'));
 const CaseTemplate    = lazy(() => import('./components/CaseTemplate'));
 const AdminWorkspace  = lazy(() => import('./components/AdminWorkspace'));
 const LegalPage       = lazy(() => import('./components/LegalPage'));
@@ -45,6 +46,7 @@ export default function App() {
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
           <Route path="/"                  element={<HomePage />} />
+          <Route path="/cases"             element={<AllCases />} />
           <Route path="/case/:id"          element={<CaseTemplate />} />
           <Route path="/admin-keis"        element={<AdminWorkspace />} />
           <Route path="/privacy-policy"    element={<LegalPage type="privacy" />} />

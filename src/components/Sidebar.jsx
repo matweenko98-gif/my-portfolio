@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
 import contentData from '../contentData';
 import { avatarImg } from '../utils/imageUtils';
 
 export default function Sidebar({ activeSection }) {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const menuItems = contentData.sidebar.navigation;
 
   const handleLinkClick = (e, id) => {
     e.preventDefault();
     setIsOpen(false);
-    const target = document.getElementById(id);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    if (location.pathname !== '/') {
+      navigate(`/#${id}`);
+    } else {
+      const target = document.getElementById(id);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   };
 

@@ -97,23 +97,9 @@ export default function Cases() {
     fetchOtherProjects();
   }, []);
 
-  const handleToggle = () => {
-    if (showAll) {
-      setShowAll(false);
-      setTimeout(() => {
-        const el = document.getElementById('case-card-2');
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-      }, 100);
-    } else {
-      setShowAll(true);
-    }
-  };
-
-  const visibleCases = showAll ? cases : cases.slice(0, INITIAL_VISIBLE);
+  const visibleCases = cases.slice(0, INITIAL_VISIBLE);
   const hiddenCount = cases.length - INITIAL_VISIBLE;
-  const hasMore = !showAll && hiddenCount > 0;
+  const hasMore = hiddenCount > 0;
 
   // ── Framer Motion варианты ──
   const containerVariants = {
@@ -328,22 +314,15 @@ export default function Cases() {
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="flex justify-center mt-10"
             >
-              <button
-                type="button"
-                onClick={handleToggle}
-                className={`group inline-flex items-center gap-3 px-6 py-3 rounded-sm text-[13px] font-medium tracking-wide transition-all duration-250 hover:shadow-sm ${
-                  !showAll
-                    ? 'bg-[#E0FB4A] border border-[#E0FB4A] text-zinc-950 hover:bg-[#d5f53c] hover:border-[#d5f53c]'
-                    : 'bg-white border border-zinc-200 text-zinc-900 hover:border-zinc-400 hover:text-zinc-950'
-                }`}
+              <Link
+                to="/cases"
+                className="group inline-flex items-center gap-3 px-6 py-3 rounded-sm text-[13px] font-medium tracking-wide transition-all duration-250 hover:shadow-sm bg-[#E0FB4A] border border-[#E0FB4A] text-zinc-950 hover:bg-[#d5f53c] hover:border-[#d5f53c] no-underline"
               >
-                <span>{!showAll ? 'Показать еще' : 'Скрыть'}</span>
-                {!showAll ? (
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-black text-[11px] font-semibold text-white transition-colors duration-200">
-                    {hiddenCount}
-                  </span>
-                ) : null}
-              </button>
+                <span>Показать еще</span>
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-black text-[11px] font-semibold text-white transition-colors duration-200">
+                  {hiddenCount}
+                </span>
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>

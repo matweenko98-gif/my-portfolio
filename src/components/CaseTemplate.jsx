@@ -801,13 +801,14 @@ export default function CaseTemplate() {
           >
             {/* Back navigation button — fixed top-left */}
             <div className="absolute top-6 left-6 md:left-12 z-20">
-              <Link
-                to="/"
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-zinc-200 text-zinc-900 hover:text-black hover:border-zinc-400 rounded-sm text-[12px] font-medium transition-colors bg-white shadow-sm cursor-pointer no-underline"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Назад на главную</span>
-              </Link>
+                <span>Назад</span>
+              </button>
             </div>
 
             <div className="pt-24 pb-12 px-6 md:px-12 lg:px-16">
