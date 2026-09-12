@@ -11,6 +11,7 @@ const AllCases        = lazy(() => import('./components/AllCases'));
 const CaseTemplate    = lazy(() => import('./components/CaseTemplate'));
 const AdminWorkspace  = lazy(() => import('./components/AdminWorkspace'));
 const LegalPage       = lazy(() => import('./components/LegalPage'));
+const BriefPage       = lazy(() => import('./components/BriefPage'));
 
 // ─── Fallback-заглушка при загрузке чанка ────────────────────────────────────
 function PageSkeleton() {
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="/"                  element={<HomePage />} />
           <Route path="/cases"             element={<AllCases />} />
           <Route path="/case/:id"          element={<CaseTemplate />} />
+          <Route path="/brief"              element={<BriefPage />} />
           <Route path="/admin-keis"        element={<AdminWorkspace />} />
           <Route path="/privacy-policy"    element={<LegalPage type="privacy" />} />
           <Route path="/terms"             element={<LegalPage type="terms" />} />

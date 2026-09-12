@@ -15,6 +15,12 @@ export default function Sidebar({ activeSection }) {
     e.preventDefault();
     setIsOpen(false);
     
+    if (id === 'brief') {
+      navigate('/brief');
+      window.scrollTo(0, 0);
+      return;
+    }
+
     if (location.pathname !== '/') {
       navigate(`/#${id}`);
     } else {
@@ -80,7 +86,15 @@ export default function Sidebar({ activeSection }) {
         </div>
 
         {/* Mobile footer links */}
-        <div className="mt-auto mb-10 pt-6 border-t border-zinc-100 w-2/3 flex flex-col items-center gap-2.5 justify-center">
+        <div className="mt-auto mb-8 pt-6 border-t border-zinc-100 w-3/4 flex flex-col items-center gap-3 justify-center">
+          <button
+            type="button"
+            onClick={(e) => handleLinkClick(e, 'brief')}
+            className="w-full flex items-center justify-center gap-2 bg-[#FF5B23] hover:bg-[#e04e1c] text-white font-medium text-sm py-3 px-4 rounded-sm transition-all duration-200 shadow-sm cursor-pointer border-none"
+          >
+            <span>Заполнить бриф</span>
+            <span className="text-white text-xs">→</span>
+          </button>
           <a
             href={contentData.sidebar.socialLinks.max}
             className="inline-flex items-center gap-1.5 group cursor-pointer text-[14px] font-normal text-zinc-900 whitespace-nowrap"
@@ -161,8 +175,16 @@ export default function Sidebar({ activeSection }) {
           </ul>
         </nav>
 
-        {/* Sidebar Footer — text links */}
+        {/* Sidebar Footer — brief button & text links */}
         <div className="shrink-0 mt-auto border-t border-neutral-100/60 pt-4 sidebar-footer">
+          <button
+            type="button"
+            onClick={(e) => handleLinkClick(e, 'brief')}
+            className="w-full mb-3 flex items-center justify-center gap-2 bg-[#FF5B23] hover:bg-[#e04e1c] text-white font-medium text-[13px] py-2.5 px-3 rounded-sm transition-all duration-200 shadow-sm hover:shadow cursor-pointer border-none"
+          >
+            <span>Заполнить бриф</span>
+            <span className="text-white text-xs">→</span>
+          </button>
           <div className="flex flex-col gap-2.5">
             <a
               href={contentData.sidebar.socialLinks.max}
