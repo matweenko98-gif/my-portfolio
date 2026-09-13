@@ -24,7 +24,7 @@ const contentData = {
       { id: "workflow", label: "Процесс работы" },
       { id: "reviews", label: "Отзывы" },
       { id: "faq", label: "Вопросы и ответы" },
-      { id: "contacts", label: "Обсудить проект" }
+      { id: "contacts", label: "Контакты" }
     ],
     socialLinks: {
       telegram: "https://t.me/ksen_web",

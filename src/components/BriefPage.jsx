@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Check, Send, ArrowLeft, Clock, HelpCircle } from 'lucide-react';
+import {
+  ArrowLeft,
+  Clock,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+  Send,
+  Sparkles,
+  LayoutGrid,
+  Target,
+  Compass,
+  Palette,
+  CreditCard,
+  UserCheck,
+} from 'lucide-react';
 import Sidebar from './Sidebar';
-import Contacts from './Contacts';
-import KineticMarquee from './ui/KineticMarquee';
 import { FlickeringGrid } from './ui/FlickeringGrid';
 import contentData from '../contentData';
 
@@ -40,16 +52,20 @@ const sendTelegramBrief = async (formattedText) => {
 
 export default function BriefPage() {
   useEffect(() => {
-    document.title = 'Бриф на разработку сайта | Матвеенко Ксения';
+    document.title = 'Интерактивный бриф | Матвеенко Ксения';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute(
         'content',
-        'Быстрый бриф на разработку сайта, UX/UI дизайн или веб-приложение.'
+        'Быстрый пошаговый квиз-бриф на разработку сайта, UX/UI дизайна или веб-приложения.'
       );
     }
     window.scrollTo(0, 0);
   }, []);
+
+  // Состояние текущего шага квиза (0...5)
+  const [currentStep, setCurrentStep] = useState(0);
+  const [direction, setDirection] = useState(1); // 1 = next, -1 = prev
 
   // Состояние формы
   const [formData, setFormData] = useState({
@@ -75,7 +91,7 @@ export default function BriefPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
-  // Список услуг для выбора
+  // Список вариантов
   const serviceOptions = [
     'Одностраничный сайт',
     'Многостраничный сайт',
@@ -86,7 +102,6 @@ export default function BriefPage() {
     'Другое',
   ];
 
-  // Варианты целей
   const goalOptions = [
     'Увеличить продажи и поток заявок',
     'Премиально презентовать компанию и услуги',
@@ -96,7 +111,6 @@ export default function BriefPage() {
     'Другое',
   ];
 
-  // Варианты имеющихся материалов
   const materialOptions = [
     'Логотип и брендбук',
     'Готовые тексты для сайта',
@@ -105,7 +119,6 @@ export default function BriefPage() {
     'Ничего нет, нужна помощь с нуля',
   ];
 
-  // Варианты бюджета
   const budgetOptions = [
     'До $500 (~45 000 ₽)',
     '$500 – $1 000 (~45 000 – 90 000 ₽)',
@@ -114,7 +127,6 @@ export default function BriefPage() {
     'Обсудим индивидуально',
   ];
 
-  // Варианты сроков
   const timelineOptions = [
     'Срочно (до 7 дней)',
     '2–3 недели',
@@ -122,7 +134,55 @@ export default function BriefPage() {
     'Не спешим / гибкие сроки',
   ];
 
-  // Переключение чекбоксов
+  const totalSteps = 6;
+
+  // Названия, описания и иконки шагов
+  const stepMeta = [
+    {
+      stepNum: '01',
+      title: 'Какая задача или веб-продукт вам требуется?',
+      subtitle: 'Выберите одну или несколько категорий услуг (можно выбрать несколько):',
+      fieldKey: 'services',
+      icon: LayoutGrid,
+    },
+    {
+      stepNum: '02',
+      title: 'Какая главная цель будущего проекта?',
+      subtitle: 'Выберите ключевую бизнес-задачу, которую должен решить сайт или сервис:',
+      fieldKey: 'goal',
+      icon: Target,
+    },
+    {
+      stepNum: '03',
+      title: 'Расскажите о вашем продукте и конкурентах',
+      subtitle: 'Это поможет лучше понять специфику вашей ниши и предложений:',
+      fieldKey: 'product',
+      icon: Compass,
+    },
+    {
+      stepNum: '04',
+      title: 'Имеющиеся материалы и пожелания по стилю',
+      subtitle: 'Отметьте, что уже есть в наличии и укажите стилистические предпочтения:',
+      fieldKey: 'materials',
+      icon: Palette,
+    },
+    {
+      stepNum: '05',
+      title: 'Ориентировочный бюджет и желаемые сроки',
+      subtitle: 'Укажите рамки, чтобы мы предложили оптимальное техническое решение:',
+      fieldKey: 'budget',
+      icon: CreditCard,
+    },
+    {
+      stepNum: '06',
+      title: 'Куда прислать предварительный расчёт?',
+      subtitle: 'Укажите контакты для связи и получения коммерческого предложения:',
+      fieldKey: 'contact',
+      icon: UserCheck,
+    },
+  ];
+
+  // Переключение чекбоксов (множественный выбор)
   const toggleCheckbox = (field, value) => {
     setFormData((prev) => {
       const currentArr = prev[field];
@@ -134,8 +194,35 @@ export default function BriefPage() {
     });
   };
 
-  // Валидация
-  const validate = () => {
+  // Одиночный выбор
+  const setSingleOption = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Переход к следующему шагу
+  const handleNext = () => {
+    if (currentStep < totalSteps - 1) {
+      setDirection(1);
+      setCurrentStep((prev) => prev + 1);
+    }
+  };
+
+  // Переход к предыдущему шагу
+  const handlePrev = () => {
+    if (currentStep > 0) {
+      setDirection(-1);
+      setCurrentStep((prev) => prev - 1);
+    }
+  };
+
+  // Прямой переход по табу
+  const goToStep = (stepIdx) => {
+    setDirection(stepIdx > currentStep ? 1 : -1);
+    setCurrentStep(stepIdx);
+  };
+
+  // Валидация на 6 шаге
+  const validateFinalStep = () => {
     const newErrors = {};
     if (!formData.name.trim()) {
       newErrors.name = 'Укажите ваше имя';
@@ -164,7 +251,7 @@ export default function BriefPage() {
     }
 
     return `
-📋 <b>НОВЫЙ БРИФ С САЙТА</b>
+📋 <b>НОВЫЙ КВИЗ-БРИФ С САЙТА</b>
 ───────────────────────
 👤 <b>Имя:</b> ${formData.name || 'Не указано'}
 📱 <b>Контакт:</b> ${formData.contact}
@@ -176,39 +263,33 @@ export default function BriefPage() {
 📝 <b>О продукте/услуге:</b>
 ${formData.productDesc || 'Не заполнено'}
 
-⚔️ <b>Конкуренты (прямые/косвенные):</b>
+⚔️ <b>Конкуренты/Рефералы:</b>
 ${formData.competitors || 'Не заполнено'}
 
 📦 <b>Имеющиеся материалы:</b> ${formData.materials.length > 0 ? formData.materials.join(', ') : 'Не выбрано'}
 🎨 <b>Пожелания по стилю:</b>
 ${formData.style || 'Не заполнено'}
 
-💰 <b>Ориентировочный бюджет:</b> ${formData.budget || 'Не указан'}
-⏳ <b>Желаемые сроки:</b> ${formData.timeline || 'Не указаны'}
+💰 <b>Бюджет:</b> ${formData.budget || 'Не указан'}
+⏳ <b>Сроки:</b> ${formData.timeline || 'Не указаны'}
 
 💬 <b>Комментарии:</b>
 ${formData.notes || 'Нет'}
 `.trim();
   };
 
-  // Обработчик отправки
+  // Обработчик финальной отправки
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError('');
 
-    if (!validate()) {
-      const firstErrEl = document.querySelector('.has-error');
-      if (firstErrEl) {
-        firstErrEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+    if (!validateFinalStep()) {
       return;
     }
 
     setIsSubmitting(true);
-
     const messageText = buildBriefTelegramMessage();
     const success = await sendTelegramBrief(messageText);
-
     setIsSubmitting(false);
 
     if (success) {
@@ -216,10 +297,28 @@ ${formData.notes || 'Нет'}
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       setSubmitError(
-        `Не удалось отправить бриф автоматически. Пожалуйста, напишите напрямую в Telegram ${contentData.sidebar.socialLinks.telegramUsername}`
+        `Не удалось отправить бриф автоматически. Напишите напрямую в Telegram: ${contentData.sidebar.socialLinks.telegramUsername}`
       );
     }
   };
+
+  // Анимация смещения слайда
+  const slideVariants = {
+    enter: (dir) => ({
+      x: dir > 0 ? 30 : -30,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (dir) => ({
+      x: dir < 0 ? 30 : -30,
+      opacity: 0,
+    }),
+  };
+
+  const CurrentStepIcon = stepMeta[currentStep].icon;
 
   return (
     <>
@@ -228,7 +327,7 @@ ${formData.notes || 'Нет'}
         <FlickeringGrid flickerChance={0.08} gridGap={6} maxOpacity={0.12} squareSize={4} />
       </div>
 
-      {/* Main Content Layout */}
+      {/* Main Content Layout — full width */}
       <div className="flex min-h-screen flex-col lg:flex-row bg-transparent font-sans text-zinc-900">
         <Sidebar activeSection="brief" />
 
@@ -246,9 +345,9 @@ ${formData.notes || 'Нет'}
             <div className="border-l border-neutral-200/30 h-full" />
           </div>
 
-          <div className="relative z-10 py-8 px-5 md:py-14 md:px-10 lg:px-14 flex flex-col w-full max-w-3xl">
+          <div className="relative z-10 py-8 px-4 sm:px-8 md:py-12 md:px-10 lg:px-12 flex flex-col w-full">
             {/* Back link */}
-            <div className="mb-6">
+            <div className="mb-4">
               <Link
                 to="/"
                 className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 hover:text-black transition-colors duration-200 no-underline group"
@@ -258,498 +357,725 @@ ${formData.notes || 'Нет'}
               </Link>
             </div>
 
-            {/* Header & Clean Minimalist Time Badge */}
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-100 border border-zinc-200 text-zinc-700 text-xs font-medium rounded-full">
-                  <Clock className="w-3.5 h-3.5 text-[#FF5B23]" />
-                  <span>Время заполнения: ~5 мин</span>
+            {/* Selling Banner Header — Full width title in one line */}
+            <div className="mb-6 pb-6 border-b border-zinc-100">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className="font-mono text-[10px] tracking-widest text-[#FF5B23] uppercase font-bold bg-orange-50 px-2 py-0.5 rounded border border-orange-100">
+                  [ ИНТЕРАКТИВНЫЙ БРИФ • 6 ШАГОВ ]
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-zinc-100 border border-zinc-200 text-zinc-700 text-[11px] font-medium rounded-sm">
+                  <Clock className="w-3 h-3 text-[#FF5B23]" />
+                  <span>~3 минуты на заполнение</span>
                 </span>
               </div>
 
-              <h1 className="text-3xl md:text-5xl font-light tracking-tight text-black mb-4 leading-tight">
-                Заполните бриф
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] xl:text-[46px] font-light tracking-tight text-black mb-2 leading-tight whitespace-normal xl:whitespace-nowrap overflow-hidden text-ellipsis">
+                Расчёт стоимости и сроков проекта
               </h1>
-
-              {/* Clean Minimalist Notice Banner */}
-              <div className="p-3.5 bg-zinc-50 border border-zinc-200/90 text-zinc-600 text-xs rounded-sm leading-relaxed font-normal">
-                Заполнение всех полей не является обязательным — обязательно укажите только <b>Имя</b> и <b>Контакт для связи</b>, а остальные поля заполняйте по желанию.
-              </div>
+              <p className="text-xs md:text-sm text-zinc-500 font-normal leading-relaxed max-w-4xl">
+                Ответьте на несколько вопросов, чтобы получить индивидуальное коммерческое предложение, предварительную смету и варианты решения задачи.
+              </p>
             </div>
 
-            <AnimatePresence mode="wait">
-              {isSubmitted ? (
-                /* Success State */
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="bg-zinc-900 text-white rounded-md p-8 md:p-12 border border-zinc-800 shadow-2xl my-8 text-center flex flex-col items-center"
-                >
-                  <div className="w-16 h-16 rounded-full bg-[#FF5B23] text-white flex items-center justify-center mb-6 shadow-lg">
-                    <Check className="w-8 h-8" strokeWidth={3} />
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
+            {/* If Submitted: Premium Success State */}
+            {isSubmitted ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-zinc-950 border border-zinc-900 rounded-sm p-8 md:p-14 text-center flex flex-col items-center gap-6 my-6 text-white"
+              >
+                <div className="w-16 h-16 rounded-full bg-white text-zinc-950 flex items-center justify-center font-bold text-2xl border border-zinc-200">
+                  ✓
+                </div>
+                <div>
+                  <h2 className="text-2xl md:text-4xl font-light tracking-tight text-white mb-3">
                     Бриф успешно отправлен!
                   </h2>
-                  <p className="text-zinc-300 text-base max-w-lg leading-relaxed mb-8 font-light">
-                    Спасибо! Я внимательно ознакомлюсь с вашими ответами и свяжусь с вами в ближайшее время.
+                  <p className="text-sm text-zinc-400 max-w-md mx-auto leading-relaxed">
+                    Спасибо за подробную информацию. Я ознакомлюсь с вашими ответами и свяжусь с вами по указанным контактам в течение 2–4 часов.
                   </p>
-                  <div className="flex flex-wrap gap-4 justify-center">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsSubmitted(false);
-                        setFormData({
-                          name: '',
-                          contact: '',
-                          currentSite: '',
-                          services: [],
-                          customService: '',
-                          goal: '',
-                          customGoal: '',
-                          productDesc: '',
-                          competitors: '',
-                          materials: [],
-                          style: '',
-                          budget: '',
-                          timeline: '',
-                          notes: '',
-                        });
-                      }}
-                      className="px-6 py-3 bg-white text-zinc-900 font-semibold text-sm rounded-sm hover:bg-zinc-100 transition-colors cursor-pointer"
-                    >
-                      Заполнить еще раз
-                    </button>
-                    <Link
-                      to="/"
-                      className="px-6 py-3 border border-zinc-700 text-white font-semibold text-sm rounded-sm hover:bg-zinc-800 transition-colors no-underline"
-                    >
-                      Вернуться на главную
-                    </Link>
-                  </div>
-                </motion.div>
-              ) : (
-                /* Compact Form State */
-                <motion.form
-                  key="form"
-                  onSubmit={handleSubmit}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex flex-col gap-6"
-                >
-                  {/* БЛОК 1: Контакты */}
-                  <section className="bg-white border border-zinc-200/90 rounded-md p-5 md:p-6 shadow-sm">
-                    <div className="flex items-center gap-3 mb-5 pb-3 border-b border-zinc-100">
-                      <span className="w-7 h-7 rounded-full bg-[#FF5B23] text-white text-xs font-bold flex items-center justify-center shrink-0 shadow-xs">
-                        01
-                      </span>
-                      <h2 className="text-lg md:text-xl font-medium tracking-tight text-zinc-900">
-                        Контактные данные
-                      </h2>
-                    </div>
+                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className={errors.name ? 'has-error' : ''}>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
-                          Имя <span className="text-[#FF5B23]">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          placeholder="Ваше имя"
-                          className={`w-full px-3.5 py-2.5 bg-zinc-200/50 border rounded-sm text-sm text-zinc-900 placeholder-zinc-450 focus:outline-none focus:bg-white focus:border-zinc-900 transition-colors ${
-                            errors.name ? 'border-red-500 bg-red-50/40' : 'border-zinc-300/80'
-                          }`}
-                        />
-                        {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
-                      </div>
-
-                      <div className={errors.contact ? 'has-error' : ''}>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
-                          Telegram, телефон или WhatsApp <span className="text-[#FF5B23]">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.contact}
-                          onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                          placeholder="@username, +375 29 123-45-67"
-                          className={`w-full px-3.5 py-2.5 bg-zinc-200/50 border rounded-sm text-sm text-zinc-900 placeholder-zinc-450 focus:outline-none focus:bg-white focus:border-zinc-900 transition-colors ${
-                            errors.contact ? 'border-red-500 bg-red-50/40' : 'border-zinc-300/80'
-                          }`}
-                        />
-                        {errors.contact && <p className="text-xs text-red-500 mt-1">{errors.contact}</p>}
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
-                          Ссылка на текущий сайт (если есть)
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.currentSite}
-                          onChange={(e) => setFormData({ ...formData, currentSite: e.target.value })}
-                          placeholder="https://example.com"
-                          className="w-full px-3.5 py-2.5 bg-zinc-200/50 border border-zinc-300/80 rounded-sm text-sm text-zinc-900 placeholder-zinc-450 focus:outline-none focus:bg-white focus:border-zinc-900 transition-colors"
-                        />
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* БЛОК 2: Услуги и цели */}
-                  <section className="bg-white border border-zinc-200/90 rounded-md p-5 md:p-6 shadow-sm">
-                    <div className="flex items-center gap-3 mb-5 pb-3 border-b border-zinc-100">
-                      <span className="w-7 h-7 rounded-full bg-[#FF5B23] text-white text-xs font-bold flex items-center justify-center shrink-0 shadow-xs">
-                        02
-                      </span>
-                      <h2 className="text-lg md:text-xl font-medium tracking-tight text-zinc-900">
-                        Услуги и цель проекта
-                      </h2>
-                    </div>
-
-                    <div className="mb-6">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-2.5">
-                        Какие услуги вам необходимы? (выберите варианты)
-                      </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {serviceOptions.map((service) => {
-                          const isSelected = formData.services.includes(service);
-                          return (
-                            <button
-                              key={service}
-                              type="button"
-                              onClick={() => toggleCheckbox('services', service)}
-                              className={`flex items-center justify-between p-3 text-left text-xs md:text-sm rounded-sm border cursor-pointer transition-all ${
-                                isSelected
-                                  ? 'bg-[#111111] text-white border-[#111111] font-medium shadow-xs'
-                                  : 'bg-zinc-200/40 text-zinc-800 border-zinc-300/70 hover:border-zinc-400 hover:bg-white'
-                              }`}
-                            >
-                              <span>{service}</span>
-                              <div
-                                className={`w-4 h-4 rounded-xs border flex items-center justify-center transition-colors ${
-                                  isSelected ? 'border-[#FF5B23] bg-[#FF5B23] text-white' : 'border-zinc-400'
-                                }`}
-                              >
-                                {isSelected && <Check className="w-3 h-3" strokeWidth={3} />}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {formData.services.includes('Другое') && (
-                        <div className="mt-2.5">
-                          <input
-                            type="text"
-                            value={formData.customService}
-                            onChange={(e) => setFormData({ ...formData, customService: e.target.value })}
-                            placeholder="Уточните услугу..."
-                            className="w-full px-3.5 py-2 bg-zinc-200/50 border border-zinc-300/80 rounded-sm text-sm text-zinc-900 placeholder-zinc-450 focus:outline-none focus:bg-white focus:border-zinc-900"
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-2.5">
-                        Какова главная цель проекта?
-                      </label>
-                      <div className="flex flex-col gap-2">
-                        {goalOptions.map((goal) => {
-                          const isSelected = formData.goal === goal;
-                          return (
-                            <button
-                              key={goal}
-                              type="button"
-                              onClick={() => setFormData({ ...formData, goal: isSelected ? '' : goal })}
-                              className={`flex items-center gap-3 p-2.5 text-left text-xs md:text-sm rounded-sm border cursor-pointer transition-all ${
-                                isSelected
-                                  ? 'bg-zinc-900 text-white border-zinc-900 font-medium'
-                                  : 'bg-zinc-200/40 text-zinc-800 border-zinc-300/70 hover:border-zinc-400 hover:bg-white'
-                              }`}
-                            >
-                              <div
-                                className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                                  isSelected ? 'border-[#FF5B23] bg-[#FF5B23]' : 'border-zinc-400'
-                                }`}
-                              >
-                                {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                              </div>
-                              <span>{goal}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {formData.goal === 'Другое' && (
-                        <div className="mt-2.5">
-                          <input
-                            type="text"
-                            value={formData.customGoal}
-                            onChange={(e) => setFormData({ ...formData, customGoal: e.target.value })}
-                            placeholder="Уточните цель вашего проекта..."
-                            className="w-full px-3.5 py-2 bg-zinc-200/50 border border-zinc-300/80 rounded-sm text-sm text-zinc-900 placeholder-zinc-450 focus:outline-none focus:bg-white focus:border-zinc-900"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </section>
-
-                  {/* БЛОК 3: Продукт и конкуренты */}
-                  <section className="bg-white border border-zinc-200/90 rounded-md p-5 md:p-6 shadow-sm">
-                    <div className="flex items-center gap-3 mb-5 pb-3 border-b border-zinc-100">
-                      <span className="w-7 h-7 rounded-full bg-[#FF5B23] text-white text-xs font-bold flex items-center justify-center shrink-0 shadow-xs">
-                        03
-                      </span>
-                      <h2 className="text-lg md:text-xl font-medium tracking-tight text-zinc-900">
-                        Продукт и конкуренты
-                      </h2>
-                    </div>
-
-                    <div className="flex flex-col gap-4">
-                      <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
-                          Опишите ваш продукт или услугу (чем занимаетесь, ключевые преимущества)
-                        </label>
-                        <textarea
-                          rows={3}
-                          value={formData.productDesc}
-                          onChange={(e) => setFormData({ ...formData, productDesc: e.target.value })}
-                          placeholder="Направления, продукты, ключевые особенности бизнеса..."
-                          className="w-full px-3.5 py-2.5 bg-zinc-200/50 border border-zinc-300/80 rounded-sm text-sm text-zinc-900 placeholder-zinc-450 focus:outline-none focus:bg-white focus:border-zinc-900 transition-colors"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
-                          Конкуренты (ссылки или названия)
-                        </label>
-                        <p className="text-[11px] text-zinc-500 font-normal mb-1.5">
-                          Укажите главных конкурентов (как прямых, так и косвенных) и напишите, что именно вам в них нравится или не нравится
-                        </p>
-                        <textarea
-                          rows={3}
-                          value={formData.competitors}
-                          onChange={(e) => setFormData({ ...formData, competitors: e.target.value })}
-                          placeholder="Например: site1.com (нравится визуал), site2.com (хорошая структура)..."
-                          className="w-full px-3.5 py-2.5 bg-zinc-200/50 border border-zinc-300/80 rounded-sm text-sm text-zinc-900 placeholder-zinc-450 focus:outline-none focus:bg-white focus:border-zinc-900 transition-colors"
-                        />
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* БЛОК 4: Визуал и материалы */}
-                  <section className="bg-white border border-zinc-200/90 rounded-md p-5 md:p-6 shadow-sm">
-                    <div className="flex items-center gap-3 mb-5 pb-3 border-b border-zinc-100">
-                      <span className="w-7 h-7 rounded-full bg-[#FF5B23] text-white text-xs font-bold flex items-center justify-center shrink-0 shadow-xs">
-                        04
-                      </span>
-                      <h2 className="text-lg md:text-xl font-medium tracking-tight text-zinc-900">
-                        Визуал и имеющиеся материалы
-                      </h2>
-                    </div>
-
-                    <div className="mb-5">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-2.5">
-                        Что из материалов у вас уже есть в наличии?
-                      </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {materialOptions.map((mat) => {
-                          const isSelected = formData.materials.includes(mat);
-                          return (
-                            <button
-                              key={mat}
-                              type="button"
-                              onClick={() => toggleCheckbox('materials', mat)}
-                              className={`flex items-center justify-between p-3 text-left text-xs md:text-sm rounded-sm border cursor-pointer transition-all ${
-                                isSelected
-                                  ? 'bg-[#111111] text-white border-[#111111] font-medium shadow-xs'
-                                  : 'bg-zinc-200/40 text-zinc-800 border-zinc-300/70 hover:border-zinc-400 hover:bg-white'
-                              }`}
-                            >
-                              <span>{mat}</span>
-                              <div
-                                className={`w-4 h-4 rounded-xs border flex items-center justify-center transition-colors ${
-                                  isSelected ? 'border-[#FF5B23] bg-[#FF5B23] text-white' : 'border-zinc-400'
-                                }`}
-                              >
-                                {isSelected && <Check className="w-3 h-3" strokeWidth={3} />}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
-                        Пожелания по стилистике и настроению сайта (минимализм, сочный/динамичный, премиум, строгий)
-                      </label>
-                      <textarea
-                        rows={3}
-                        value={formData.style}
-                        onChange={(e) => setFormData({ ...formData, style: e.target.value })}
-                        placeholder="Пожелания по цветам, стилю, настроению..."
-                        className="w-full px-3.5 py-2.5 bg-zinc-200/50 border border-zinc-300/80 rounded-sm text-sm text-zinc-900 placeholder-zinc-450 focus:outline-none focus:bg-white focus:border-zinc-900 transition-colors"
+                <div className="pt-4 flex flex-col sm:flex-row gap-3 w-full max-w-md">
+                  <a
+                    href={contentData.sidebar.socialLinks.telegram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-[#FF5B23] hover:bg-[#e04e1c] text-white font-medium text-xs uppercase tracking-wider py-4 px-6 rounded-sm text-center no-underline transition-colors shadow-sm"
+                  >
+                    Написать в Telegram ↗
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSubmitted(false);
+                      setCurrentStep(0);
+                    }}
+                    className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 font-medium text-xs uppercase tracking-wider py-4 px-6 rounded-sm transition-colors cursor-pointer"
+                  >
+                    Заполнить ещё раз
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              /* Quiz Interactive Full Width Container + Live Summary Sidebar */
+              <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
+                
+                {/* Main Interactive Quiz Card — Clean white card with clear border */}
+                <div className="flex-1 w-full bg-white border border-zinc-200 rounded-sm overflow-hidden flex flex-col">
+                  
+                  {/* Progress Line & Step Tabs */}
+                  <div className="border-b border-zinc-100 bg-zinc-50/70 p-4 md:p-6 pb-4">
+                    {/* Top Progress bar */}
+                    <div className="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden mb-4">
+                      <motion.div
+                        className="bg-[#FF5B23] h-full rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
+                        transition={{ duration: 0.4, ease: 'easeOut' }}
                       />
                     </div>
-                  </section>
 
-                  {/* БЛОК 5: Бюджет и сроки */}
-                  <section className="bg-white border border-zinc-200/90 rounded-md p-5 md:p-6 shadow-sm">
-                    <div className="flex items-center gap-3 mb-5 pb-3 border-b border-zinc-100">
-                      <span className="w-7 h-7 rounded-full bg-[#FF5B23] text-white text-xs font-bold flex items-center justify-center shrink-0 shadow-xs">
-                        05
-                      </span>
-                      <h2 className="text-lg md:text-xl font-medium tracking-tight text-zinc-900">
-                        Бюджет и сроки
-                      </h2>
-                    </div>
-
-                    <div className="mb-6">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-2.5">
-                        Планируемый бюджет на проект
-                      </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                        {budgetOptions.map((b) => {
-                          const isSelected = formData.budget === b;
-                          return (
-                            <button
-                              key={b}
-                              type="button"
-                              onClick={() => setFormData({ ...formData, budget: isSelected ? '' : b })}
-                              className={`p-3 text-center text-xs font-medium rounded-sm border cursor-pointer transition-all ${
-                                isSelected
-                                  ? 'bg-[#111111] text-[#E0FB4A] border-[#111111] font-bold shadow-xs'
-                                  : 'bg-zinc-200/40 text-zinc-800 border-zinc-300/70 hover:border-zinc-400 hover:bg-white'
-                              }`}
-                            >
-                              {b}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-2.5">
-                        Желаемые сроки запуска
-                      </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
-                        {timelineOptions.map((t) => {
-                          const isSelected = formData.timeline === t;
-                          return (
-                            <button
-                              key={t}
-                              type="button"
-                              onClick={() => setFormData({ ...formData, timeline: isSelected ? '' : t })}
-                              className={`p-3 text-center text-xs font-medium rounded-sm border cursor-pointer transition-all ${
-                                isSelected
-                                  ? 'bg-[#111111] text-[#E0FB4A] border-[#111111] font-bold shadow-xs'
-                                  : 'bg-zinc-200/40 text-zinc-800 border-zinc-300/70 hover:border-zinc-400 hover:bg-white'
-                              }`}
-                            >
-                              {t}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* БЛОК 6: Дополнительно */}
-                  <section className="bg-white border border-zinc-200/90 rounded-md p-5 md:p-6 shadow-sm">
-                    <div className="flex items-center gap-3 mb-5 pb-3 border-b border-zinc-100">
-                      <span className="w-7 h-7 rounded-full bg-[#FF5B23] text-white text-xs font-bold flex items-center justify-center shrink-0 shadow-xs">
-                        06
-                      </span>
-                      <h2 className="text-lg md:text-xl font-medium tracking-tight text-zinc-900">
-                        Дополнительные пожелания
-                      </h2>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
-                        Есть ли особенности или комментарии к проекту?
-                      </label>
-                      <textarea
-                        rows={3}
-                        value={formData.notes}
-                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                        placeholder="Особенности, пожелания по функционалу..."
-                        className="w-full px-3.5 py-2.5 bg-zinc-200/50 border border-zinc-300/80 rounded-sm text-sm text-zinc-900 placeholder-zinc-450 focus:outline-none focus:bg-white focus:border-zinc-900 transition-colors"
-                      />
-                    </div>
-                  </section>
-
-                  {/* Error Notification */}
-                  {submitError && (
-                    <div className="p-4 bg-red-50 border border-red-200 rounded-sm text-red-700 text-sm flex items-start gap-3">
-                      <HelpCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                      <span>{submitError}</span>
-                    </div>
-                  )}
-
-                  {/* Policy Consent Checkbox & Submit Button */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2 pb-10">
-                    <div className="flex flex-col">
-                      <label className="flex items-start gap-2.5 text-xs text-zinc-600 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={agreedToPolicy}
-                          onChange={(e) => {
-                            setAgreedToPolicy(e.target.checked);
-                            if (errors.policy) setErrors({ ...errors, policy: null });
-                          }}
-                          className="mt-0.5 w-4 h-4 rounded-xs border-zinc-350 text-[#FF5B23] focus:ring-0 cursor-pointer accent-[#FF5B23]"
-                        />
-                        <span>
-                          Нажимая кнопку, вы соглашаетесь с{' '}
-                          <Link
-                            to="/privacy-policy"
-                            target="_blank"
-                            className="underline text-zinc-900 hover:text-[#FF5B23] font-medium"
-                          >
-                            политикой конфиденциальности
-                          </Link>
+                    {/* Step Metadata & Navigation Dots */}
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="font-mono text-xs font-bold tracking-widest text-white bg-zinc-950 px-2.5 py-1 rounded-sm">
+                          ШАГ {stepMeta[currentStep].stepNum} / 0{totalSteps}
                         </span>
-                      </label>
-                      {errors.policy && (
-                        <p className="text-xs text-red-500 mt-1 pl-6">{errors.policy}</p>
+                        <span className="text-xs font-medium text-zinc-700 hidden sm:inline">
+                          — {stepMeta[currentStep].title}
+                        </span>
+                      </div>
+
+                      {/* Step clickable pills */}
+                      <div className="flex items-center gap-1.5">
+                        {stepMeta.map((s, idx) => (
+                          <button
+                            key={s.stepNum}
+                            type="button"
+                            onClick={() => goToStep(idx)}
+                            aria-label={`Перейти к шагу ${idx + 1}`}
+                            className={`w-7 h-7 rounded-sm text-xs font-mono font-bold transition-all duration-200 cursor-pointer flex items-center justify-center border ${
+                              currentStep === idx
+                                ? 'bg-[#FF5B23] text-white border-[#FF5B23]'
+                                : idx < currentStep
+                                ? 'bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800'
+                                : 'bg-zinc-100 text-zinc-500 border-zinc-200 hover:border-zinc-300 hover:text-zinc-900'
+                            }`}
+                          >
+                            {idx + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step Content Box */}
+                  <div className="p-5 sm:p-8 min-h-[400px] flex flex-col justify-between">
+                    <AnimatePresence mode="wait" custom={direction}>
+                      <motion.div
+                        key={currentStep}
+                        custom={direction}
+                        variants={slideVariants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                        className="w-full flex-1 flex flex-col"
+                      >
+                        {/* Step Header with Clean Icon */}
+                        <div className="flex items-start gap-4 mb-6 pb-4 border-b border-zinc-100">
+                          <div className="w-11 h-11 rounded-sm bg-zinc-950 text-white flex items-center justify-center shrink-0">
+                            <CurrentStepIcon className="w-5 h-5 stroke-[1.8]" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl md:text-2xl font-normal text-zinc-950 tracking-tight mb-1">
+                              {stepMeta[currentStep].title}
+                            </h2>
+                            <p className="text-xs md:text-sm text-zinc-500 font-normal">
+                              {stepMeta[currentStep].subtitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* STEP 1: SERVICES (Clean choice cards) */}
+                        {currentStep === 0 && (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {serviceOptions.map((service, idx) => {
+                                const isChecked = formData.services.includes(service);
+                                const itemNum = String(idx + 1).padStart(2, '0');
+                                return (
+                                  <button
+                                    key={service}
+                                    type="button"
+                                    onClick={() => toggleCheckbox('services', service)}
+                                    className={`flex items-center justify-between p-3.5 text-left border rounded-sm transition-all duration-200 cursor-pointer select-none group ${
+                                      isChecked
+                                        ? 'border-zinc-950 bg-zinc-950 text-white'
+                                        : 'border-zinc-200/90 bg-zinc-50 hover:border-zinc-900 hover:bg-zinc-100/70 text-zinc-900'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span
+                                        className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${
+                                          isChecked
+                                            ? 'bg-white text-zinc-950'
+                                            : 'bg-zinc-200 text-zinc-600 group-hover:bg-zinc-300'
+                                        }`}
+                                      >
+                                        [{itemNum}]
+                                      </span>
+                                      <span className="text-xs md:text-sm font-medium pr-2">
+                                        {service}
+                                      </span>
+                                    </div>
+                                    <span
+                                      className={`w-4 h-4 rounded-sm flex items-center justify-center shrink-0 border transition-all ${
+                                        isChecked
+                                          ? 'bg-[#FF5B23] border-[#FF5B23] text-white'
+                                          : 'border-zinc-300 bg-white group-hover:border-zinc-900'
+                                      }`}
+                                    >
+                                      {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {formData.services.includes('Другое') && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="pt-2"
+                              >
+                                <input
+                                  type="text"
+                                  value={formData.customService}
+                                  onChange={(e) =>
+                                    setFormData({ ...formData, customService: e.target.value })
+                                  }
+                                  placeholder="Укажите ваш вариант или специфику..."
+                                  className="w-full px-4 py-3 text-xs md:text-sm bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-[#FF5B23] focus:ring-1 focus:ring-[#FF5B23] text-zinc-900 font-normal placeholder:text-zinc-400 placeholder:text-[11px] sm:placeholder:text-xs placeholder:font-normal transition-colors"
+                                />
+                              </motion.div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* STEP 2: GOAL (Single Radio Cards) */}
+                        {currentStep === 1 && (
+                          <div className="space-y-4">
+                            <div className="flex flex-col gap-2.5">
+                              {goalOptions.map((goal, idx) => {
+                                const isSelected = formData.goal === goal;
+                                const itemNum = String(idx + 1).padStart(2, '0');
+                                return (
+                                  <button
+                                    key={goal}
+                                    type="button"
+                                    onClick={() => setSingleOption('goal', goal)}
+                                    className={`flex items-center justify-between p-3.5 text-left border rounded-sm transition-all duration-200 cursor-pointer select-none group ${
+                                      isSelected
+                                        ? 'border-zinc-950 bg-zinc-950 text-white'
+                                        : 'border-zinc-200/90 bg-zinc-50 hover:border-zinc-900 hover:bg-zinc-100/70 text-zinc-900'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span
+                                        className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${
+                                          isSelected
+                                            ? 'bg-white text-zinc-950'
+                                            : 'bg-zinc-200 text-zinc-600 group-hover:bg-zinc-300'
+                                        }`}
+                                      >
+                                        [{itemNum}]
+                                      </span>
+                                      <span className="text-xs md:text-sm font-medium pr-2">
+                                        {goal}
+                                      </span>
+                                    </div>
+                                    <span
+                                      className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 border transition-all ${
+                                        isSelected
+                                          ? 'border-[#FF5B23] bg-[#FF5B23] text-white'
+                                          : 'border-zinc-300 bg-white group-hover:border-zinc-900'
+                                      }`}
+                                    >
+                                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {formData.goal === 'Другое' && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="pt-2"
+                              >
+                                <input
+                                  type="text"
+                                  value={formData.customGoal}
+                                  onChange={(e) =>
+                                    setFormData({ ...formData, customGoal: e.target.value })
+                                  }
+                                  placeholder="Укажите вашу индивидуальную цель..."
+                                  className="w-full px-4 py-3 text-xs md:text-sm bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-[#FF5B23] focus:ring-1 focus:ring-[#FF5B23] text-zinc-900 font-normal placeholder:text-zinc-400 placeholder:text-[11px] sm:placeholder:text-xs placeholder:font-normal transition-colors"
+                                />
+                              </motion.div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* STEP 3: PRODUCT & COMPETITORS (Clean Text Inputs) */}
+                        {currentStep === 2 && (
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                                Опишите продукт или сферу деятельности
+                              </label>
+                              <textarea
+                                rows={3}
+                                value={formData.productDesc}
+                                onChange={(e) =>
+                                  setFormData({ ...formData, productDesc: e.target.value })
+                                }
+                                placeholder="Чем занимается компания, кто основные клиенты, в чём ключевая ценность..."
+                                className="w-full px-4 py-3 text-xs md:text-sm bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-[#FF5B23] focus:ring-1 focus:ring-[#FF5B23] text-zinc-900 font-normal placeholder:text-zinc-400 placeholder:text-[11px] sm:placeholder:text-xs placeholder:font-normal resize-y transition-colors"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                                Ссылка на текущий сайт (если есть)
+                              </label>
+                              <input
+                                type="text"
+                                value={formData.currentSite}
+                                onChange={(e) =>
+                                  setFormData({ ...formData, currentSite: e.target.value })
+                                }
+                                placeholder="https://example.com"
+                                className="w-full px-4 py-3 text-xs md:text-sm bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-[#FF5B23] focus:ring-1 focus:ring-[#FF5B23] text-zinc-900 font-normal placeholder:text-zinc-400 placeholder:text-[11px] sm:placeholder:text-xs placeholder:font-normal transition-colors"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                                Конкуренты или сайты-ориентиры
+                              </label>
+                              <input
+                                type="text"
+                                value={formData.competitors}
+                                onChange={(e) =>
+                                  setFormData({ ...formData, competitors: e.target.value })
+                                }
+                                placeholder="Укажите 1-3 ссылки или названия компаний, чья подача вам нравится..."
+                                className="w-full px-4 py-3 text-xs md:text-sm bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-[#FF5B23] focus:ring-1 focus:ring-[#FF5B23] text-zinc-900 font-normal placeholder:text-zinc-400 placeholder:text-[11px] sm:placeholder:text-xs placeholder:font-normal transition-colors"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* STEP 4: MATERIALS & STYLE (Checkboxes + Textarea) */}
+                        {currentStep === 3 && (
+                          <div className="space-y-5">
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-2.5">
+                                Что из исходных материалов у вас есть?
+                              </label>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                {materialOptions.map((mat, idx) => {
+                                  const isChecked = formData.materials.includes(mat);
+                                  const itemNum = String(idx + 1).padStart(2, '0');
+                                  return (
+                                    <button
+                                      key={mat}
+                                      type="button"
+                                      onClick={() => toggleCheckbox('materials', mat)}
+                                      className={`flex items-center justify-between p-3.5 text-left border rounded-sm transition-all duration-200 cursor-pointer select-none group ${
+                                        isChecked
+                                          ? 'border-zinc-950 bg-zinc-950 text-white'
+                                          : 'border-zinc-200/90 bg-zinc-50 hover:border-zinc-900 hover:bg-zinc-100/70 text-zinc-900'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2.5">
+                                        <span
+                                          className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${
+                                            isChecked
+                                              ? 'bg-white text-zinc-950'
+                                              : 'bg-zinc-200 text-zinc-600 group-hover:bg-zinc-300'
+                                          }`}
+                                        >
+                                          [{itemNum}]
+                                        </span>
+                                        <span className="text-xs font-medium pr-2">{mat}</span>
+                                      </div>
+                                      <span
+                                        className={`w-4 h-4 rounded-sm flex items-center justify-center shrink-0 border transition-all ${
+                                          isChecked
+                                            ? 'bg-[#FF5B23] border-[#FF5B23] text-white'
+                                            : 'border-zinc-300 bg-white group-hover:border-zinc-900'
+                                        }`}
+                                      >
+                                        {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                                Пожелания по стилистике и настроению
+                              </label>
+                              <textarea
+                                rows={3}
+                                value={formData.style}
+                                onChange={(e) =>
+                                  setFormData({ ...formData, style: e.target.value })
+                                }
+                                placeholder="Минимализм, темная тема, технологичность, яркие акценты, строгость или эмоциональность..."
+                                className="w-full px-4 py-3 text-xs md:text-sm bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-[#FF5B23] focus:ring-1 focus:ring-[#FF5B23] text-zinc-900 font-normal placeholder:text-zinc-400 placeholder:text-[11px] sm:placeholder:text-xs placeholder:font-normal resize-y transition-colors"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* STEP 5: BUDGET & TIMELINE (Radio options) */}
+                        {currentStep === 4 && (
+                          <div className="space-y-6">
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-2.5">
+                                Ориентировочный бюджет на реализацию
+                              </label>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                {budgetOptions.map((bud, idx) => {
+                                  const isSelected = formData.budget === bud;
+                                  const itemNum = String(idx + 1).padStart(2, '0');
+                                  return (
+                                    <button
+                                      key={bud}
+                                      type="button"
+                                      onClick={() => setSingleOption('budget', bud)}
+                                      className={`flex items-center justify-between p-3.5 text-left border rounded-sm transition-all duration-200 cursor-pointer select-none group ${
+                                        isSelected
+                                          ? 'border-zinc-950 bg-zinc-950 text-white font-medium'
+                                          : 'border-zinc-200/90 bg-zinc-50 hover:border-zinc-900 hover:bg-zinc-100/70 text-zinc-900'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2.5">
+                                        <span
+                                          className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${
+                                            isSelected
+                                              ? 'bg-white text-zinc-950'
+                                              : 'bg-zinc-200 text-zinc-600 group-hover:bg-zinc-300'
+                                          }`}
+                                        >
+                                          [{itemNum}]
+                                        </span>
+                                        <span className="text-xs font-medium">{bud}</span>
+                                      </div>
+                                      <span
+                                        className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 border transition-all ${
+                                          isSelected
+                                            ? 'border-[#FF5B23] bg-[#FF5B23] text-white'
+                                            : 'border-zinc-300 bg-white group-hover:border-zinc-900'
+                                        }`}
+                                      >
+                                        {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-2.5">
+                                Желаемые сроки запуска
+                              </label>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                {timelineOptions.map((time, idx) => {
+                                  const isSelected = formData.timeline === time;
+                                  const itemNum = String(idx + 1).padStart(2, '0');
+                                  return (
+                                    <button
+                                      key={time}
+                                      type="button"
+                                      onClick={() => setSingleOption('timeline', time)}
+                                      className={`flex items-center justify-between p-3.5 text-left border rounded-sm transition-all duration-200 cursor-pointer select-none group ${
+                                        isSelected
+                                          ? 'border-zinc-950 bg-zinc-950 text-white font-medium'
+                                          : 'border-zinc-200/90 bg-zinc-50 hover:border-zinc-900 hover:bg-zinc-100/70 text-zinc-900'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2.5">
+                                        <span
+                                          className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-sm ${
+                                            isSelected
+                                              ? 'bg-white text-zinc-950'
+                                              : 'bg-zinc-200 text-zinc-600 group-hover:bg-zinc-300'
+                                          }`}
+                                        >
+                                          [{itemNum}]
+                                        </span>
+                                        <span className="text-xs font-medium">{time}</span>
+                                      </div>
+                                      <span
+                                        className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 border transition-all ${
+                                          isSelected
+                                            ? 'border-[#FF5B23] bg-[#FF5B23] text-white'
+                                            : 'border-zinc-300 bg-white group-hover:border-zinc-900'
+                                        }`}
+                                      >
+                                        {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* STEP 6: CONTACTS & SUBMIT */}
+                        {currentStep === 5 && (
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                                Ваше имя <span className="text-[#FF5B23]">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) =>
+                                  setFormData({ ...formData, name: e.target.value })
+                                }
+                                placeholder="Алексей"
+                                className={`w-full px-4 py-3 text-xs md:text-sm bg-white border rounded-sm focus:outline-none focus:ring-1 text-zinc-900 font-normal placeholder:text-zinc-400 placeholder:text-[11px] sm:placeholder:text-xs placeholder:font-normal transition-colors ${
+                                  errors.name
+                                    ? 'border-red-500 bg-red-50/30'
+                                    : 'border-zinc-300 focus:border-[#FF5B23] focus:ring-[#FF5B23]'
+                                }`}
+                              />
+                              {errors.name && (
+                                <p className="text-[11px] text-red-500 mt-1 font-medium">
+                                  {errors.name}
+                                </p>
+                              )}
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                                Telegram / Телефон / WhatsApp <span className="text-[#FF5B23]">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={formData.contact}
+                                onChange={(e) =>
+                                  setFormData({ ...formData, contact: e.target.value })
+                                }
+                                placeholder="@username или +7 (999) 000-00-00"
+                                className={`w-full px-4 py-3 text-xs md:text-sm bg-white border rounded-sm focus:outline-none focus:ring-1 text-zinc-900 font-normal placeholder:text-zinc-400 placeholder:text-[11px] sm:placeholder:text-xs placeholder:font-normal transition-colors ${
+                                  errors.contact
+                                    ? 'border-red-500 bg-red-50/30'
+                                    : 'border-zinc-300 focus:border-[#FF5B23] focus:ring-[#FF5B23]'
+                                }`}
+                              />
+                              {errors.contact && (
+                                <p className="text-[11px] text-red-500 mt-1 font-medium">
+                                  {errors.contact}
+                                </p>
+                              )}
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                                Комментарий или дополнительные вопросы
+                              </label>
+                              <textarea
+                                rows={2}
+                                value={formData.notes}
+                                onChange={(e) =>
+                                  setFormData({ ...formData, notes: e.target.value })
+                                }
+                                placeholder="Любая дополнительная информация, удобное время для связи..."
+                                className="w-full px-4 py-3 text-xs md:text-sm bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-[#FF5B23] focus:ring-1 focus:ring-[#FF5B23] text-zinc-900 font-normal placeholder:text-zinc-400 placeholder:text-[11px] sm:placeholder:text-xs placeholder:font-normal resize-y transition-colors"
+                              />
+                            </div>
+
+                            <div className="pt-2">
+                              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                                <input
+                                  type="checkbox"
+                                  checked={agreedToPolicy}
+                                  onChange={(e) => setAgreedToPolicy(e.target.checked)}
+                                  className="mt-0.5 accent-[#FF5B23] cursor-pointer"
+                                />
+                                <span className="text-xs text-zinc-500 leading-snug">
+                                  Нажимая кнопку «Отправить бриф», я даю согласие на обработку персональных данных в соответствии с{' '}
+                                  <Link
+                                    to="/privacy-policy"
+                                    target="_blank"
+                                    className="text-zinc-900 underline hover:text-[#FF5B23] transition-colors"
+                                  >
+                                    Политикой конфиденциальности
+                                  </Link>
+                                </span>
+                              </label>
+                              {errors.policy && (
+                                <p className="text-[11px] text-red-500 mt-1 font-medium">
+                                  {errors.policy}
+                                </p>
+                              )}
+                            </div>
+
+                            {submitError && (
+                              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-sm">
+                                {submitError}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </motion.div>
+                    </AnimatePresence>
+
+                    {/* Navigation Buttons Footer */}
+                    <div className="pt-6 mt-6 border-t border-zinc-100 flex items-center justify-between gap-4">
+                      <button
+                        type="button"
+                        onClick={handlePrev}
+                        disabled={currentStep === 0}
+                        className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-sm text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                          currentStep === 0
+                            ? 'opacity-0 pointer-events-none'
+                            : 'bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300'
+                        }`}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        <span>Назад</span>
+                      </button>
+
+                      {currentStep < totalSteps - 1 ? (
+                        <button
+                          type="button"
+                          onClick={handleNext}
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-950 hover:bg-[#FF5B23] text-white font-medium text-xs uppercase tracking-wider rounded-sm transition-colors duration-200 shadow-sm cursor-pointer border-none"
+                        >
+                          <span>Далее</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleSubmit}
+                          disabled={isSubmitting}
+                          className="inline-flex items-center gap-2 px-7 py-3 bg-[#FF5B23] hover:bg-[#e04e1c] text-white font-medium text-xs uppercase tracking-wider rounded-sm transition-colors duration-200 shadow-sm cursor-pointer border-none disabled:opacity-50"
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              <span>Отправка...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Отправить бриф</span>
+                              <Send className="w-3.5 h-3.5" />
+                            </>
+                          )}
+                        </button>
                       )}
                     </div>
 
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-3 bg-[#FF5B23] hover:bg-[#e04e1c] text-white font-bold text-base py-3.5 px-8 rounded-sm transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-[1px] disabled:opacity-50 cursor-pointer border-none"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          <span>Отправка брифа...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-5 h-5 text-white" />
-                          <span>Отправить бриф</span>
-                        </>
-                      )}
-                    </button>
                   </div>
-                </motion.form>
-              )}
-            </AnimatePresence>
-          </div>
+                </div>
 
-          {/* Complete Footer Section (Contacts + Marquee & Legal info) */}
-          <div className="w-full border-t border-neutral-800">
-            <Contacts />
-            <KineticMarquee />
+                {/* Desktop Live Selections Summary Sidebar */}
+                <div className="hidden lg:flex w-72 flex-col bg-zinc-950 text-white p-6 rounded-sm shadow-sm border border-zinc-900 shrink-0 sticky top-6">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800 mb-4">
+                    <span className="font-mono text-[11px] font-bold text-white tracking-wider uppercase flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#FF5B23]" />
+                      ВЫБРАНО В БРИФЕ
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-500">
+                      {currentStep + 1}/6
+                    </span>
+                  </div>
+
+                  <div className="space-y-4 text-xs">
+                    {/* Services summary */}
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-zinc-500 tracking-wider mb-1">
+                        Услуги:
+                      </span>
+                      {formData.services.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {formData.services.map((s) => (
+                            <span key={s} className="bg-zinc-800 border border-zinc-700 text-white text-[11px] px-2 py-0.5 rounded-sm font-medium">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-zinc-600 italic">Не выбрано</span>
+                      )}
+                    </div>
+
+                    {/* Goal summary */}
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-zinc-500 tracking-wider mb-1">
+                        Цель:
+                      </span>
+                      {formData.goal ? (
+                        <span className="text-zinc-200 font-medium block leading-snug">
+                          {formData.goal}
+                        </span>
+                      ) : (
+                        <span className="text-zinc-600 italic">Не выбрано</span>
+                      )}
+                    </div>
+
+                    {/* Materials summary */}
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-zinc-500 tracking-wider mb-1">
+                        Материалы:
+                      </span>
+                      {formData.materials.length > 0 ? (
+                        <span className="text-zinc-300 font-medium block leading-snug">
+                          {formData.materials.join(', ')}
+                        </span>
+                      ) : (
+                        <span className="text-zinc-600 italic">Не указано</span>
+                      )}
+                    </div>
+
+                    {/* Budget & Timeline summary */}
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-zinc-500 tracking-wider mb-1">
+                        Бюджет / Сроки:
+                      </span>
+                      <div className="flex flex-col gap-1 text-zinc-300 font-medium">
+                        {formData.budget && <div>💰 {formData.budget}</div>}
+                        {formData.timeline && <div>⏳ {formData.timeline}</div>}
+                        {!formData.budget && !formData.timeline && (
+                          <span className="text-zinc-600 italic">Не указано</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-zinc-800 text-[11px] text-zinc-500 text-center font-mono">
+                    Все ответы будут отправлены напрямую разработчику
+                  </div>
+                </div>
+
+              </div>
+            )}
           </div>
         </motion.main>
       </div>

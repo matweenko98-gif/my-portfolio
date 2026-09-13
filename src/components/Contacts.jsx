@@ -175,20 +175,20 @@ export default function Contacts() {
             </div>
 
             {/* Phone & Email — desktop only */}
-            <div className="hidden lg:flex mt-16 lg:mt-20 mb-6 items-end justify-between relative z-0">
+            <div className="hidden lg:flex flex-col items-start gap-2 mt-12 lg:mt-16 mb-4 relative z-0">
               <button
                 type="button"
                 onClick={handleCopyPhone}
-                className="text-left bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/phone flex items-start"
+                className="text-left bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/phone flex items-baseline gap-4"
               >
-                <span className="text-[90px] xl:text-[100px] font-extralight tracking-tighter text-white group-hover/phone:text-[#E0FB4A] transition-colors duration-300 leading-none select-all whitespace-nowrap">
+                <span className="text-[72px] xl:text-[90px] font-extralight tracking-tighter text-white group-hover/phone:text-[#FF5B23] transition-colors duration-300 leading-none select-all whitespace-nowrap">
                   {contacts.phone}
                 </span>
-                <span className="ml-4 mt-2 shrink-0 text-neutral-500 group-hover/phone:text-white transition-colors duration-300">
+                <span className="shrink-0 text-neutral-500 group-hover/phone:text-white transition-colors duration-300">
                   {phoneCopied ? (
-                    <Check className="w-8 h-8 text-[#E0FB4A]" />
+                    <Check className="w-7 h-7 text-[#FF5B23]" />
                   ) : (
-                    <Copy className="w-8 h-8" />
+                    <Copy className="w-7 h-7" />
                   )}
                 </span>
               </button>
@@ -196,16 +196,16 @@ export default function Contacts() {
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                className="bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/email flex items-center gap-2 mb-3 text-neutral-455 hover:text-white transition-colors duration-300 select-all"
+                className="bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/email flex items-center gap-3 text-neutral-300 hover:text-white transition-colors duration-300 select-all pt-1"
               >
-                <span className="text-xs font-normal tracking-wide">
-                  verameeva77@mail.ru
+                <span className="text-xl md:text-2xl font-light tracking-wide text-neutral-300 group-hover/email:text-[#FF5B23] transition-colors duration-300">
+                  {contacts.email || 'verameeva77@mail.ru'}
                 </span>
-                <span className="text-neutral-550 group-hover/email:text-white transition-colors duration-300">
+                <span className="text-neutral-500 group-hover/email:text-white transition-colors duration-300">
                   {emailCopied ? (
-                    <Check className="w-3.5 h-3.5 text-[#E0FB4A]" />
+                    <Check className="w-4.5 h-4.5 text-emerald-400" />
                   ) : (
-                    <Copy className="w-3.5 h-3.5" />
+                    <Copy className="w-4 h-4" />
                   )}
                 </span>
               </button>
@@ -312,18 +312,18 @@ export default function Contacts() {
           </div>
 
           {/* ── Mobile only: phone & email — order-4 ── */}
-          <div className="lg:hidden order-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 mt-8 w-full">
+          <div className="lg:hidden order-4 flex flex-col items-start gap-2.5 pb-2 mt-8 w-full">
             <button
               type="button"
               onClick={handleCopyPhone}
               className="text-left bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/phone flex items-center gap-3"
             >
-              <span className="text-3xl sm:text-4xl font-extralight tracking-tighter text-white group-hover/phone:text-[#E0FB4A] transition-colors duration-300 leading-none select-all whitespace-nowrap">
+              <span className="text-3xl sm:text-4xl font-extralight tracking-tighter text-white group-hover/phone:text-[#FF5B23] transition-colors duration-300 leading-none select-all whitespace-nowrap">
                 {contacts.phone}
               </span>
               <span className="shrink-0 text-neutral-500 group-hover/phone:text-white transition-colors duration-300">
                 {phoneCopied ? (
-                  <Check className="w-5 h-5 text-[#E0FB4A]" />
+                  <Check className="w-5 h-5 text-[#FF5B23]" />
                 ) : (
                   <Copy className="w-5 h-5" />
                 )}
@@ -333,16 +333,16 @@ export default function Contacts() {
             <button
               type="button"
               onClick={handleCopyEmail}
-              className="bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/email flex items-center gap-2 select-all text-neutral-455 hover:text-white transition-colors duration-300"
+              className="bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/email flex items-center gap-2.5 select-all text-neutral-300 hover:text-white transition-colors duration-300"
             >
-              <span className="text-xs font-normal tracking-wide">
-                verameeva77@mail.ru
+              <span className="text-base sm:text-lg font-light tracking-wide text-neutral-300 group-hover/email:text-[#FF5B23]">
+                {contacts.email || 'verameeva77@mail.ru'}
               </span>
-              <span className="text-neutral-550 group-hover/email:text-white transition-colors duration-300">
+              <span className="text-neutral-500 group-hover/email:text-white transition-colors duration-300">
                 {emailCopied ? (
-                  <Check className="w-3.5 h-3.5 text-[#E0FB4A]" />
+                  <Check className="w-4 h-4 text-emerald-400" />
                 ) : (
-                  <Copy className="w-3.5 h-3.5" />
+                  <Copy className="w-4 h-4" />
                 )}
               </span>
             </button>

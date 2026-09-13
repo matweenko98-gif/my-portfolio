@@ -41,7 +41,51 @@ function PageSkeleton() {
   );
 }
 
+import contentData from './contentData';
+import { supabase } from './lib/supabaseClient';
+
 export default function App() {
+  React.useEffect(() => {
+    // Sync contact settings from local cache
+    const cached = localStorage.getItem('site_contacts_settings');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed.phone) contentData.contacts.phone = parsed.phone;
+        if (parsed.email) contentData.contacts.email = parsed.email;
+        if (parsed.telegramUrl) {
+          if (contentData.contacts.messengers?.telegram) contentData.contacts.messengers.telegram.url = parsed.telegramUrl;
+          if (contentData.sidebar?.socialLinks) contentData.sidebar.socialLinks.telegram = parsed.telegramUrl;
+        }
+        if (parsed.maxUrl) {
+          if (contentData.contacts.messengers?.max) contentData.contacts.messengers.max.url = parsed.maxUrl;
+          if (contentData.sidebar?.socialLinks) contentData.sidebar.socialLinks.max = parsed.maxUrl;
+        }
+      } catch (e) {}
+    }
+
+    // Fetch remote settings from Supabase
+    const fetchRemoteSettings = async () => {
+      try {
+        const { data } = await supabase.from('site_settings').select('*').eq('id', 'contacts').single();
+        if (data && data.data) {
+          const settings = data.data;
+          if (settings.phone) contentData.contacts.phone = settings.phone;
+          if (settings.email) contentData.contacts.email = settings.email;
+          if (settings.telegramUrl) {
+            if (contentData.contacts.messengers?.telegram) contentData.contacts.messengers.telegram.url = settings.telegramUrl;
+            if (contentData.sidebar?.socialLinks) contentData.sidebar.socialLinks.telegram = settings.telegramUrl;
+          }
+          if (settings.maxUrl) {
+            if (contentData.contacts.messengers?.max) contentData.contacts.messengers.max.url = settings.maxUrl;
+            if (contentData.sidebar?.socialLinks) contentData.sidebar.socialLinks.max = settings.maxUrl;
+          }
+          localStorage.setItem('site_contacts_settings', JSON.stringify(settings));
+        }
+      } catch (e) {}
+    };
+    fetchRemoteSettings();
+  }, []);
   return (
     <>
       <Suspense fallback={<PageSkeleton />}>

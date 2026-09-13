@@ -228,10 +228,71 @@ export default function AdminWorkspace() {
   const [otherLinkUrl, setOtherLinkUrl] = useState('');
   const [savingOther, setSavingOther] = useState(false);
 
+  // Contact settings state
+  const [contactPhone, setContactPhone] = useState(contentData.contacts?.phone || '+375 25 914 09 59');
+  const [contactEmail, setContactEmail] = useState(contentData.contacts?.email || 'verameeva77@mail.ru');
+  const [contactTelegramUrl, setContactTelegramUrl] = useState(contentData.sidebar?.socialLinks?.telegram || 'https://t.me/ksen_web');
+  const [contactMaxUrl, setContactMaxUrl] = useState(contentData.sidebar?.socialLinks?.max || 'https://max.ru/u/f9LHodD0cOLc1tgODx5Hvuln4-rgmfFJqN4Q5OLgnaxmSTG2FxgU9ZVRnGg');
+  const [savingContacts, setSavingContacts] = useState(false);
+
   // Toast notification state
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   // Item to delete state
   const [itemToDelete, setItemToDelete] = useState(null);
+
+  useEffect(() => {
+    const cached = localStorage.getItem('site_contacts_settings');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed.phone) setContactPhone(parsed.phone);
+        if (parsed.email) setContactEmail(parsed.email);
+        if (parsed.telegramUrl) setContactTelegramUrl(parsed.telegramUrl);
+        if (parsed.maxUrl) setContactMaxUrl(parsed.maxUrl);
+      } catch (e) {}
+    }
+  }, []);
+
+  const handleSaveContacts = async (e) => {
+    e.preventDefault();
+    setSavingContacts(true);
+    try {
+      const contactObj = {
+        phone: contactPhone,
+        email: contactEmail,
+        telegramUrl: contactTelegramUrl,
+        maxUrl: contactMaxUrl,
+      };
+
+      try {
+        await supabase
+          .from('site_settings')
+          .upsert({ id: 'contacts', data: contactObj });
+      } catch (err) {
+        console.warn('Supabase site_settings upsert note:', err);
+      }
+
+      localStorage.setItem('site_contacts_settings', JSON.stringify(contactObj));
+
+      contentData.contacts.phone = contactPhone;
+      contentData.contacts.email = contactEmail;
+      if (contentData.contacts.messengers) {
+        if (contentData.contacts.messengers.telegram) contentData.contacts.messengers.telegram.url = contactTelegramUrl;
+        if (contentData.contacts.messengers.max) contentData.contacts.messengers.max.url = contactMaxUrl;
+      }
+      if (contentData.sidebar && contentData.sidebar.socialLinks) {
+        contentData.sidebar.socialLinks.telegram = contactTelegramUrl;
+        contentData.sidebar.socialLinks.max = contactMaxUrl;
+      }
+
+      setToast({ show: true, message: 'Контактные данные и ссылки успешно сохранены!', type: 'success' });
+    } catch (err) {
+      console.error('Error saving contacts:', err);
+      setToast({ show: true, message: 'Ошибка при сохранении: ' + err.message, type: 'error' });
+    } finally {
+      setSavingContacts(false);
+    }
+  };
 
   // Auto dismiss toast after 3 seconds
   useEffect(() => {
@@ -869,7 +930,7 @@ export default function AdminWorkspace() {
           </Link>
 
           <h2 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] mb-4">
-            {activeTab === 'cases' ? '[ Управление кейсами ]' : '[ Управление другими проектами ]'}
+            {activeTab === 'cases' ? '[ Управление кейсами ]' : activeTab === 'other' ? '[ Управление другими проектами ]' : '[ Контактные данные ]'}
           </h2>
 
           <div className="border-t border-zinc-100 my-4" />
@@ -1098,9 +1159,20 @@ export default function AdminWorkspace() {
           >
             Другие проекты
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('contacts')}
+            className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+              activeTab === 'contacts'
+                ? 'border-black text-black font-bold'
+                : 'border-transparent text-zinc-400 hover:text-black font-semibold'
+            }`}
+          >
+            Контакты и ссылки
+          </button>
         </div>
 
-        {activeTab === 'cases' ? (
+        {activeTab === 'cases' && (
           <>
             {/* Toggle Mode header action */}
             {editingId !== null && (
@@ -1913,7 +1985,9 @@ export default function AdminWorkspace() {
 
             </form>
           </>
-        ) : (
+        )}
+
+        {activeTab === 'other' && (
           <>
             {/* TAB 2: OTHER PROJECTS SINGLE FORM */}
             {editingOtherId !== null && (
@@ -2012,6 +2086,84 @@ export default function AdminWorkspace() {
               </div>
             </form>
           </>
+        )}
+
+        {activeTab === 'contacts' && (
+          <form onSubmit={handleSaveContacts} className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-light tracking-tighter text-black mb-1">
+                Контакты и социальные ссылки
+              </h1>
+              <p className="text-xs text-zinc-500 font-medium">
+                Здесь можно легко изменить номер телефона, почту под номером, ссылки на Telegram и MAX на всём сайте.
+              </p>
+            </div>
+
+            <div className="bg-zinc-50 border border-zinc-200 rounded-sm p-6 space-y-5">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-800 mb-1">
+                  Номер телефона в футере
+                </label>
+                <input
+                  type="text"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  placeholder="+375 25 914 09 59"
+                  className="w-full px-4 py-2.5 text-xs bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-black font-medium text-zinc-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-800 mb-1">
+                  Email адрес под номером телефона
+                </label>
+                <input
+                  type="email"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  placeholder="verameeva77@mail.ru"
+                  className="w-full px-4 py-2.5 text-xs bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-black font-medium text-zinc-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-800 mb-1">
+                  Ссылка на Telegram (https://t.me/...)
+                </label>
+                <input
+                  type="text"
+                  value={contactTelegramUrl}
+                  onChange={(e) => setContactTelegramUrl(e.target.value)}
+                  placeholder="https://t.me/ksen_web"
+                  className="w-full px-4 py-2.5 text-xs bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-[#FF5B23] font-medium text-zinc-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-800 mb-1">
+                  Ссылка на MAX
+                </label>
+                <input
+                  type="text"
+                  value={contactMaxUrl}
+                  onChange={(e) => setContactMaxUrl(e.target.value)}
+                  placeholder="https://max.ru/u/..."
+                  className="w-full px-4 py-2.5 text-xs bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-[#FF5B23] font-medium text-zinc-900"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-zinc-200">
+              <button
+                type="submit"
+                disabled={savingContacts}
+                className="inline-flex items-center justify-center gap-2 bg-[#FF5B23] hover:bg-[#e04f1e] text-white text-xs font-bold uppercase tracking-wider py-3.5 px-6 rounded-sm transition-colors duration-200 cursor-pointer shadow-sm border-none disabled:opacity-50"
+              >
+                {savingContacts && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>{savingContacts ? 'Сохранение...' : 'Сохранить контакты и ссылки'}</span>
+              </button>
+            </div>
+          </form>
         )}
       </main>
 {/* Toast Notification */}

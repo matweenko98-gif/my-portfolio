@@ -21,6 +21,12 @@ export default function Sidebar({ activeSection }) {
       return;
     }
 
+    if (id === 'cases') {
+      navigate('/cases');
+      window.scrollTo(0, 0);
+      return;
+    }
+
     if (location.pathname !== '/') {
       navigate(`/#${id}`);
     } else {
@@ -70,7 +76,7 @@ export default function Sidebar({ activeSection }) {
             return (
               <a
                 key={item.id}
-                href={`#${item.id}`}
+                href={item.id === 'cases' ? '/cases' : item.id === 'brief' ? '/brief' : `#${item.id}`}
                 onClick={(e) => handleLinkClick(e, item.id)}
                 className="group flex items-center gap-3 py-2.5 w-full"
               >
@@ -159,7 +165,7 @@ export default function Sidebar({ activeSection }) {
                     }`}
                   />
                   <a
-                    href={`#${item.id}`}
+                    href={item.id === 'cases' ? '/cases' : item.id === 'brief' ? '/brief' : `#${item.id}`}
                     onClick={(e) => handleLinkClick(e, item.id)}
                     className={`block pl-4 py-2 xl:py-2.5 text-[13px] xl:text-[14px] transition-colors duration-200 no-underline ${
                       isActive
