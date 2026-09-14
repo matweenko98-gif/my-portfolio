@@ -3,8 +3,9 @@
 ## Core Identity & Professional Overview
 - **Full Name**: Матвеенко Ксения Александровна (Ksenia Alexandrovna Matveenko)
 - **Role**: Professional Web Designer, UI/UX Specialist, and Frontend/AI Engineer.
-- **Location**: Belarus (Минская область). Available for local and international remote projects.
+- **Location & Target Markets**: Based in Belarus (Минск / Минская область). Serves clients across all of Belarus (РБ), Russia (РФ), CIS, and international remote projects.
 - **Legal & Tax Status**: Registered professional under the "Tax on Professional Income" (Налог на профессиональный доход - НПД) system in Belarus. **УНП**: ЕЕ7594998.
+
 - **Design Philosophy**: Minimalist, Apple-like aesthetic. Focuses on "optimization over decoration" and clean, functional, high-performing interfaces.
 
 ## Technical Stack & Competencies

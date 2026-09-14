@@ -4,9 +4,8 @@ Welcome to the LLM-friendly version of my portfolio. / Добро пожалов
 
 ## Core Identity & Professional Overview / Общая информация
 - **Full Name**: Матвеенко Ксения Александровна (Ksenia Alexandrovna Matveenko)
-- **Role**: Professional Web Designer, UI/UX Specialist, and Frontend/AI Engineer.
-- **Location**: Belarus (Минская область).
-- **Tax Status / УНП**: Налог на профессиональный доход (НПД) в Беларуси. УНП: ЕЕ7594998.
+- **Location & Target Regions**: Based in Belarus (Минск). Serves clients across all of Belarus (РБ), Russia (РФ), CIS, and worldwide remotely.
+
 - **Design Philosophy**: Minimalist, Apple-like aesthetic. Focuses on "optimization over decoration" and clean, functional, high-performing interfaces.
 
 ---
@@ -270,7 +269,11 @@ export default function middleware(request) {
     });
   }
 
-  if (accept.includes('text/markdown') && (url.pathname === '/' || url.pathname === '/index.html')) {
+  const userAgent = (request.headers.get('user-agent') || '').toLowerCase();
+  const isSearchCrawler = /googlebot|yandexbot|bingbot|duckduckbot|slurp|baiduspider|facebookexternalhit|twitterbot|telegrambot|linkedinbot|embedly|whatsapp/i.test(userAgent);
+  const wantsMarkdownOnly = (accept.startsWith('text/markdown') || accept.startsWith('application/x-markdown') || accept === 'text/markdown') && !accept.includes('text/html');
+
+  if (!isSearchCrawler && wantsMarkdownOnly && (url.pathname === '/' || url.pathname === '/index.html')) {
     const tokensCount = Math.ceil(markdownContent.length / 4);
     return new Response(markdownContent, {
       status: 200,
@@ -281,3 +284,4 @@ export default function middleware(request) {
     });
   }
 }
+

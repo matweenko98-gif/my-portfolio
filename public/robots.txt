@@ -1,12 +1,14 @@
 User-agent: *
-Content-Signal: ai-train=no, search=yes, ai-input=no
 Allow: /
+Disallow: /admin-keis
+
+Host: https://design-matweenko.vercel.app
 Sitemap: https://design-matweenko.vercel.app/sitemap.xml
 
-# Запрещаем роботу картинок Google индексировать папку с отзывами
+# Запрещаем роботам картинок индексировать специфическое изображение отзывов
 User-agent: Googlebot-Image
-Disallow: /images/otziv.png/
+Disallow: /images/otziv.png
 
-# Запрещаем роботу картинок Яндекса то же самое
 User-agent: YandexImages
-Disallow: /images/otziv.png/
+Disallow: /images/otziv.png
+

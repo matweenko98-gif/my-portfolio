@@ -624,6 +624,19 @@ export default function CaseTemplate() {
     fetchCaseData();
   }, [id]);
 
+  // Динамическое обновление SEO мета-тегов для кейса
+  useEffect(() => {
+    if (data) {
+      const caseTitle = data.title || data.card_title || 'Проект';
+      document.title = `${caseTitle} — Кейс Ксении Матвеенко`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', data.meta_description || data.subtitle || data.card_description || `Подробный кейс по дизайну и разработке: ${caseTitle}. Ксения Матвеенко.`);
+      }
+    }
+  }, [data]);
+
+
   // Fetch cases list for navigation
   useEffect(() => {
     const fetchAllCases = async () => {
