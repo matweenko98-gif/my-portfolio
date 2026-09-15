@@ -31,6 +31,26 @@ const FALLBACK_OTHER_PROJECTS = [
   }
 ];
 
+const getCaseImage = (project) => {
+  if (!project) return null;
+  const direct = project.card_image || project.cardImage || project.imageMain || project.hero_image || project.heroImage;
+  if (direct && typeof direct === 'string' && direct.trim().length > 0) return direct;
+  
+  if (contentData?.cases?.items) {
+    const localMatch = contentData.cases.items.find(
+      item => 
+        (item.slug && project.slug && item.slug === project.slug) ||
+        (item.id && project.id && String(item.id) === String(project.id)) ||
+        (item.title && project.title && item.title.toLowerCase() === project.title.toLowerCase())
+    );
+    if (localMatch) {
+      const localImg = localMatch.card_image || localMatch.cardImage || localMatch.imageMain || localMatch.hero_image || localMatch.heroImage;
+      if (localImg && typeof localImg === 'string' && localImg.trim().length > 0) return localImg;
+    }
+  }
+  return null;
+};
+
 export default function Cases() {
   const [cases, setCases] = useState([]);
   const [otherProjects, setOtherProjects] = useState([]);
@@ -196,7 +216,7 @@ export default function Cases() {
               const isInDev = !!project.is_in_development || !!project.inDevelopment;
               const isAi = !!project.is_ai_concept || !!project.isAiConcept || (project.tags && project.tags.some(t => t.toLowerCase().includes('ии') || t.toLowerCase().includes('ai')));
               const title = project.card_title || project.title || project.name || '(Без\u00a0названия)';
-              const image = project.card_image || project.imageMain;
+              const image = getCaseImage(project);
               const tags = Array.isArray(project.card_tags) ? project.card_tags : (project.tags || []);
               const slug = project.slug || String(idx + 1);
 

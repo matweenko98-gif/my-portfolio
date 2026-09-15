@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Plus, Trash2, Upload, Loader2, ArrowLeft, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import contentData from '../contentData';
 
 // Helper to convert and resize image to WebP on the fly
 function convertToWebP(file, maxWidth = 1600, quality = 0.82) {
