@@ -8,6 +8,7 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
   const [containerSize, setContainerSize] = useState({ width: 1280, height: 720 });
   const [isDragging, setIsDragging] = useState(false);
   const scrollContainerRef = useRef(null);
+  const iframeRef = useRef(null);
   const dragStartRef = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
   useEffect(() => {
@@ -48,12 +49,21 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
     };
   }, [isOpen]);
 
-  // Reset scale mode to 'fit' on opening modal
+  // Reset scale mode to 'fit' and scroll iframe & container to top on opening modal
   useEffect(() => {
     if (isOpen) {
       setScaleMode('fit');
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = 0;
+        scrollContainerRef.current.scrollLeft = 0;
+      }
+      if (iframeRef.current) {
+        try {
+          iframeRef.current.contentWindow?.scrollTo(0, 0);
+        } catch (e) {}
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, concept]);
 
   if (!isOpen || !concept) return null;
 
@@ -64,6 +74,7 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
 
   // Unscaled frame target dimensions
   const unscaledWidth = currentViewMode === 'mobile' ? 375 : 1280;
+  const baseUnscaledHeight = currentViewMode === 'mobile' ? 812 : 832;
 
   // Available container space inside modal body
   const paddingMarginX = 24;
@@ -71,7 +82,7 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
   const availableWidth = Math.max(280, containerSize.width - paddingMarginX);
   const availableHeight = Math.max(300, containerSize.height - paddingMarginY);
 
-  // Auto-fit scale factor
+  // Auto-fit scale factor based on width
   const autoScale = Math.min(1.0, availableWidth / unscaledWidth);
 
   const effectiveScale =
@@ -81,18 +92,20 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
       ? autoScale
       : Number(scaleMode);
 
-  // Outer frame dimensions fill available height (restores full tall preview)
+  // Outer frame dimensions: proportional scaling matching true desktop/mobile viewport
   const outerWidth =
     currentViewMode === 'mobile'
       ? Math.round(375 * effectiveScale)
       : Math.round(unscaledWidth * effectiveScale);
 
-  const outerHeight =
-    currentViewMode === 'mobile'
-      ? Math.min(availableHeight, Math.round(670 * effectiveScale))
-      : availableHeight;
+  const rawOuterHeight = Math.round(baseUnscaledHeight * effectiveScale);
 
-  // Unscaled height matches scaled outerHeight
+  const outerHeight =
+    scaleMode === 'fit'
+      ? Math.min(availableHeight, rawOuterHeight)
+      : rawOuterHeight;
+
+  // Unscaled height matches scaled outerHeight to eliminate trailing empty space
   const unscaledIframeHeight = Math.round(
     outerHeight / Math.max(0.1, effectiveScale)
   );
@@ -268,7 +281,7 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
-            className={`flex-1 w-full h-[calc(100%-56px)] bg-zinc-950 overflow-x-auto overflow-y-hidden p-2 sm:p-4 flex touch-pan-x ${
+            className={`flex-1 w-full h-[calc(100%-56px)] bg-zinc-950 overflow-x-auto overflow-y-auto p-2 sm:p-4 flex touch-pan-x touch-pan-y ${
               isDragging ? 'cursor-grabbing' : effectiveScale >= 1 ? 'cursor-grab' : 'cursor-default'
             }`}
           >
@@ -300,8 +313,16 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
                 className="relative"
               >
                 <iframe
+                  ref={iframeRef}
                   src={demoUrl}
                   title={title}
+                  onLoad={() => {
+                    try {
+                      if (iframeRef.current) {
+                        iframeRef.current.contentWindow?.scrollTo(0, 0);
+                      }
+                    } catch (e) {}
+                  }}
                   className="w-full h-full border-none bg-white pointer-events-auto"
                   sandbox="allow-scripts allow-same-origin allow-forms"
                 />
