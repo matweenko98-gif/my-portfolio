@@ -695,6 +695,70 @@ export default function CaseTemplate() {
     window.scrollTo(0, 0);
   }, [id]);
 
+  // Track active section on scroll
+  useEffect(() => {
+    let sectionPositions = [];
+
+    const updateSectionPositions = () => {
+      const sections = ['case-about', 'case-process', 'case-challenge', 'case-showcase', 'case-mobile-showcase', 'case-outro', 'case-custom'];
+      const positions = [];
+      for (const sectionId of sections) {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          positions.push({
+            id: sectionId,
+            top: el.offsetTop - 240,
+            height: el.offsetHeight
+          });
+        }
+      }
+      sectionPositions = positions;
+    };
+
+    updateSectionPositions();
+
+    const resizeTimeout = setTimeout(updateSectionPositions, 500);
+
+    const handleResize = () => {
+      requestAnimationFrame(updateSectionPositions);
+    };
+
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          const scrollPosition = window.scrollY;
+          let currentSection = 'case-about';
+          for (const section of sectionPositions) {
+            if (scrollPosition >= section.top && scrollPosition < section.top + section.height) {
+              currentSection = section.id;
+            }
+          }
+          setActiveSection(currentSection);
+          ticking = false;
+        });
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
+  }, [id, data]);
+
+  // Determine next case for navigation
+  const currentIndex = casesList.findIndex(c => c.slug === id);
+  let nextCase = null;
+  if (currentIndex !== -1 && casesList.length > 0) {
+    nextCase = casesList[(currentIndex + 1) % casesList.length];
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white text-zinc-900 font-sans">
@@ -715,7 +779,7 @@ export default function CaseTemplate() {
           onClose={() => setIsAiModalOpen(false)}
           concept={data}
         />
-        <span className="px-3 py-1 rounded text-xs font-bold uppercase tracking-wider bg-[#FF5B23] text-white mb-4">
+        <span className="px-3 py-1 rounded text-xs font-bold uppercase tracking-wider bg-[#FF5B23] text-[#111111] mb-4">
           ИИ-КОНЦЕПТ
         </span>
         <h1 className="text-3xl md:text-5xl font-light tracking-tight text-white mb-3 max-w-xl">
@@ -751,98 +815,6 @@ export default function CaseTemplate() {
         <h1 className="text-4xl font-light tracking-tight text-black mb-4">Проект не найден</h1>
         <p className="text-sm text-zinc-500 mb-8 max-w-sm">Кейс с адресом "{id}" не существует в базе данных или был удален.</p>
         <Link
-          to="/cases"
-          className="inline-flex items-center gap-2 px-4 py-2 border border-zinc-200 text-zinc-900 hover:text-black hover:border-zinc-400 rounded-sm text-[12px] font-medium transition-colors bg-white shadow-sm cursor-pointer no-underline"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Все проекты</span>
-        </Link>
-      </div>
-    );
-  }
-
-  // Track active section on scroll
-  useEffect(() => {
-    let sectionPositions = [];
-
-    const updateSectionPositions = () => {
-      const sections = ['case-about', 'case-process', 'case-challenge', 'case-showcase', 'case-mobile-showcase', 'case-outro', 'case-custom'];
-      const positions = [];
-      for (const sectionId of sections) {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          positions.push({
-            id: sectionId,
-            top: el.offsetTop - 240,
-            height: el.offsetHeight
-          });
-        }
-      }
-      sectionPositions = positions;
-    };
-
-    updateSectionPositions();
-
-    // Re-calculate after short delay to ensure elements are sized and loaded,
-    // and on window resize.
-    const resizeTimeout = setTimeout(updateSectionPositions, 500);
-
-    const handleResize = () => {
-      requestAnimationFrame(updateSectionPositions);
-    };
-
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(() => {
-          const scrollPosition = window.scrollY;
-          let currentSection = 'case-about';
-          for (const section of sectionPositions) {
-            if (scrollPosition >= section.top && scrollPosition < section.top + section.height) {
-              currentSection = section.id;
-            }
-          }
-          setActiveSection(currentSection);
-          ticking = false;
-        });
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleResize, { passive: true });
-    handleScroll();
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimeout);
-    };
-  }, [id, data]);
-  // Determine next case for navigation
-  const currentIndex = casesList.findIndex(c => c.slug === id);
-  let nextCase = null;
-  if (currentIndex !== -1 && casesList.length > 0) {
-    nextCase = casesList[(currentIndex + 1) % casesList.length];
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-white text-zinc-900 font-sans">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#FF5B23]" />
-          <span className="text-xs font-semibold tracking-wider uppercase">Загрузка проекта...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white text-zinc-900 font-sans p-6 text-center">
-        <h1 className="text-4xl font-light tracking-tight text-black mb-4">Проект не найден</h1>
-        <p className="text-sm text-zinc-500 mb-8 max-w-sm">Кейс с адресом "{id}" не существует в базе данных или был удален.</p>
-        <Link
           to="/"
           className="inline-flex items-center gap-2 px-4 py-2 border border-zinc-200 text-zinc-900 hover:text-black hover:border-zinc-400 rounded-sm text-[12px] font-medium transition-colors bg-white shadow-sm cursor-pointer no-underline"
         >
@@ -853,16 +825,22 @@ export default function CaseTemplate() {
     );
   }
 
-  const outroImages = data.outro?.images || (data.outro?.image ? [data.outro.image] : []);
+  const heroImageSrc = data.heroImage || data.hero_image;
+  const aboutText = typeof data.about === 'string' ? data.about : (data.about?.text || data.about_text || '');
+  const outroImages = data.outro?.images || (data.outro?.image ? [data.outro.image] : (Array.isArray(data.outro_images) ? data.outro_images : []));
+  const liveUrl = data.challenge?.liveUrl || data.live_url || data.demoUrl || data.demo_url;
+  const panoramaImages = data.panorama_images || data.panoramaImages || [];
+  const mobileFeatures = data.mobile_features || data.mobileFeatures || [];
+  const customBlocks = data.custom_blocks || data.customBlocks || [];
 
   const caseSections = [
-    data.about?.text && { id: 'case-about', label: 'О\u00a0проекте' },
-    (data.visibility?.process !== false && data.process?.length > 0) && { id: 'case-process', label: 'Процесс' },
-    (data.visibility?.challenge !== false && (data.challenge?.task || data.challenge?.solution)) && { id: 'case-challenge', label: 'Задача' },
-    (data.visibility?.desktop !== false && data.features?.length > 0) && { id: 'case-showcase', label: 'Десктоп' },
-    (data.visibility?.mobile !== false && data.mobile_features?.length > 0) && { id: 'case-mobile-showcase', label: 'Мобильные' },
+    aboutText && { id: 'case-about', label: 'О\u00a0проекте' },
+    (data.visibility?.process !== false && Array.isArray(data.process) && data.process.length > 0) && { id: 'case-process', label: 'Процесс' },
+    (data.visibility?.challenge !== false && (data.challenge?.task || data.challenge?.solution || liveUrl)) && { id: 'case-challenge', label: 'Задача' },
+    (data.visibility?.desktop !== false && Array.isArray(data.features) && data.features.length > 0) && { id: 'case-showcase', label: 'Десктоп' },
+    (data.visibility?.mobile !== false && mobileFeatures.length > 0) && { id: 'case-mobile-showcase', label: 'Мобильные' },
     (data.visibility?.outro !== false && outroImages.length > 0) && { id: 'case-outro', label: 'Результат' },
-    (data.visibility?.custom !== false && data.custom_blocks?.length > 0) && { id: 'case-custom', label: 'Инфо' }
+    (data.visibility?.custom !== false && customBlocks.length > 0) && { id: 'case-custom', label: 'Инфо' }
   ].filter(Boolean);
 
   const metaItems = [
@@ -942,7 +920,7 @@ export default function CaseTemplate() {
             </div>
 
             {/* Hero image placeholder or real image — full width */}
-            {data.heroImage && (
+            {(heroImageSrc || data.heroImage) && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -953,7 +931,7 @@ export default function CaseTemplate() {
                 {/* aspect-ratio задан через padding-trick контейнера, явный width/height предотвращает CLS */}
                 <div className="w-full border border-neutral-200/60 rounded-sm overflow-hidden bg-neutral-100 shadow-sm">
                   <img
-                    src={caseHeroImg(data.heroImage)}
+                    src={caseHeroImg(heroImageSrc || data.heroImage)}
                     alt={data.title || data.card_title}
                     loading="eager"
                     decoding="async"
@@ -969,7 +947,7 @@ export default function CaseTemplate() {
           {/* ══════════════════════════════════════════════════════════
           Блок 2: Мета-данные и краткое описание
           ══════════════════════════════════════════════════════════ */}
-          {(metaItems.length > 0 || (data.challenge?.liveUrl && data.challenge.liveUrl !== "" && data.challenge.liveUrl !== "#")) && (
+          {(metaItems.length > 0 || (liveUrl && liveUrl !== "" && liveUrl !== "#")) && (
             <motion.section
               {...sectionReveal}
               className="border-t border-neutral-200/60 bg-white"
@@ -992,10 +970,10 @@ export default function CaseTemplate() {
                 </div>
               )}
 
-              {data.challenge?.liveUrl && data.challenge.liveUrl !== "" && data.challenge.liveUrl !== "#" && (
+              {liveUrl && liveUrl !== "" && liveUrl !== "#" && (
                 <div className={`px-6 md:px-12 lg:px-16 py-6 flex justify-start bg-white ${metaItems.length > 0 ? 'border-t border-neutral-200/60' : ''}`}>
                   <a
-                    href={data.challenge.liveUrl}
+                    href={liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FF5B23] text-white hover:bg-[#e04f1e] rounded-sm text-[13px] font-semibold transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md no-underline"
@@ -1008,7 +986,7 @@ export default function CaseTemplate() {
             </motion.section>
           )}
 
-          {data.about?.text && (
+          {aboutText && (
             <motion.section
               {...sectionReveal}
               id="case-about"
@@ -1019,7 +997,7 @@ export default function CaseTemplate() {
                   Описание проекта
                 </p>
                 <p className="text-base md:text-lg text-neutral-700 font-light leading-relaxed tracking-tight">
-                  {data.about.text}
+                  {aboutText}
                 </p>
               </div>
             </motion.section>
@@ -1032,7 +1010,7 @@ export default function CaseTemplate() {
             <section
               id="case-process"
               className={`py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white ${
-                hasAbout || !hasButton ? 'border-t border-neutral-100' : ''
+                aboutText || !liveUrl ? 'border-t border-neutral-100' : ''
               }`}
             >
               <div className="mb-12">
@@ -1112,8 +1090,8 @@ export default function CaseTemplate() {
           {/* ══════════════════════════════════════════════════════════
           Блок 4: Бесконечный панорамный шоукейс
           ══════════════════════════════════════════════════════════ */}
-          {data.visibility?.panorama !== false && Array.isArray(data.panorama_images) && data.panorama_images.length > 0 && (
-            <section id="case-marquee-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b\u00a0border-neutral-100 overflow-hidden relative">
+          {data.visibility?.panorama !== false && panoramaImages.length > 0 && (
+            <section id="case-marquee-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b border-neutral-100 overflow-hidden relative">
               <style>{marqueeStyle}</style>
 
               <div className="px-6 md:px-12 lg:px-16 mb-12">
@@ -1129,13 +1107,13 @@ export default function CaseTemplate() {
                 {/* Row 1: Left to Right */}
                 <div className="relative w-full flex overflow-hidden">
                   <div className="flex gap-6 w-max animate-marquee-ltr">
-                    {data.panorama_images.map((imgUrl, idx) => (
+                    {panoramaImages.map((imgUrl, idx) => (
                       <div key={`ltr-1-${idx}`} className="w-[300px] md:w-[450px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden shrink-0">
                         <img src={panoramaImg(imgUrl)} alt={`Панорама ${idx + 1}`} loading="lazy" decoding="async" width={900} height={506} className="w-full h-full object-cover" />
                       </div>
                     ))}
                     {/* Duplicate for infinite effect */}
-                    {data.panorama_images.map((imgUrl, idx) => (
+                    {panoramaImages.map((imgUrl, idx) => (
                       <div key={`ltr-2-${idx}`} className="w-[300px] md:w-[450px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden shrink-0">
                         <img src={panoramaImg(imgUrl)} alt={`Панорама ${idx + 1}`} loading="lazy" decoding="async" width={900} height={506} className="w-full h-full object-cover" />
                       </div>
@@ -1144,15 +1122,15 @@ export default function CaseTemplate() {
                 </div>
 
                 {/* Row 2: Right to Left */}
-                {data.panorama_images.length > 1 && (
+                {panoramaImages.length > 1 && (
                   <div className="relative w-full flex overflow-hidden">
                     <div className="flex gap-6 w-max animate-marquee-rtl">
-                      {[...data.panorama_images].reverse().map((imgUrl, idx) => (
+                      {[...panoramaImages].reverse().map((imgUrl, idx) => (
                         <div key={`rtl-1-${idx}`} className="w-[300px] md:w-[450px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden shrink-0">
                           <img src={panoramaImg(imgUrl)} alt={`Панорама ${idx + 1}`} loading="lazy" decoding="async" width={900} height={506} className="w-full h-full object-cover" />
                         </div>
                       ))}
-                      {[...data.panorama_images].reverse().map((imgUrl, idx) => (
+                      {[...panoramaImages].reverse().map((imgUrl, idx) => (
                         <div key={`rtl-2-${idx}`} className="w-[300px] md:w-[450px] aspect-[16/9] bg-neutral-100 border border-neutral-200/60 rounded-sm overflow-hidden shrink-0">
                           <img src={panoramaImg(imgUrl)} alt={`Панорама ${idx + 1}`} loading="lazy" decoding="async" width={900} height={506} className="w-full h-full object-cover" />
                         </div>
@@ -1168,7 +1146,7 @@ export default function CaseTemplate() {
           Блок 5: Задача и Решение (The Challenge)
           ══════════════════════════════════════════════════════════ */}
           {data.visibility?.challenge !== false && (data.challenge?.task || data.challenge?.solution) && (
-            <section id="case-challenge" className="py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white border-b\u00a0border-neutral-100">
+            <section id="case-challenge" className="py-20 md:py-28 px-6 md:px-12 lg:px-16 bg-white border-b border-neutral-100">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
                 <div className="lg:col-span-4">
                   <p className="text-[11px] font-bold uppercase tracking-widest text-[#FF5B23] mb-4">
@@ -1203,7 +1181,7 @@ export default function CaseTemplate() {
           Блок 6: Ключевые десктопные экраны (Desktop Horizontal Scroll)
           ══════════════════════════════════════════════════════════ */}
           {data.visibility?.desktop !== false && Array.isArray(data.features) && data.features.length > 0 && (
-            <section id="case-showcase" className="py-20 md:py-28 bg-white border-b\u00a0border-neutral-100 overflow-hidden">
+            <section id="case-showcase" className="py-20 md:py-28 bg-white border-b border-neutral-100 overflow-hidden">
               <div className="flex flex-col md:flex-row justify-between md:items-end px-6 md:px-12 lg:px-16 mb-6 md:mb-10 gap-4">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
@@ -1277,8 +1255,8 @@ export default function CaseTemplate() {
           {/* ══════════════════════════════════════════════════════════
           Блок 7: Мобильная версия (Mobile Responsive Carousel)
           ══════════════════════════════════════════════════════════ */}
-          {data.visibility?.mobile !== false && Array.isArray(data.mobile_features) && data.mobile_features.length > 0 && (
-            <section id="case-mobile-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b\u00a0border-neutral-100 overflow-hidden">
+          {data.visibility?.mobile !== false && mobileFeatures.length > 0 && (
+            <section id="case-mobile-showcase" className="py-20 md:py-28 bg-[#FAFAFA] border-t border-b border-neutral-100 overflow-hidden">
               <div className="flex flex-col md:flex-row justify-between md:items-end px-6 md:px-12 lg:px-16 mb-6 md:mb-10 gap-4">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
@@ -1311,7 +1289,7 @@ export default function CaseTemplate() {
                 className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pl-6 md:pl-12 lg:pl-16 pr-6 md:pr-12 lg:pr-16 pb-6 scroll-pl-6 md:scroll-pl-12 lg:scroll-pl-16 scroll-pr-6 md:scroll-pr-12 lg:scroll-pr-16"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                {data.mobile_features.map((screen, idx) => (
+                {mobileFeatures.map((screen, idx) => (
                   <div
                     key={idx}
                     className="w-[60vw] sm:w-[40vw] md:w-[25vw] lg:w-[18vw] shrink-0 snap-start flex flex-col"
@@ -1384,10 +1362,10 @@ export default function CaseTemplate() {
           {/* ══════════════════════════════════════════════════════════
           Блок Custom Blocks: Кастомные блоки контента
           ══════════════════════════════════════════════════════════ */}
-          {data.visibility?.custom !== false && Array.isArray(data.custom_blocks) && data.custom_blocks.length > 0 && (
+          {data.visibility?.custom !== false && customBlocks.length > 0 && (
             <section id="case-custom" className="py-16 px-6 md:px-12 lg:px-16 bg-white border-t border-neutral-100">
               <div className="space-y-12">
-                {data.custom_blocks.map((block, idx) => (
+                {customBlocks.map((block, idx) => (
                   <div key={idx} className="w-full">
                     {block.type === 'text' ? (
                       <div className="max-w-4xl">

@@ -1,360 +1,215 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Monitor, Smartphone, ExternalLink, X, Move } from 'lucide-react';
+import { ExternalLink, ArrowLeft, Monitor } from 'lucide-react';
 
 export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
-  const [viewMode, setViewMode] = useState('desktop'); // 'desktop' | 'mobile'
-  const [scaleMode, setScaleMode] = useState('fit'); // 'fit' | 0.25 | 0.5 | 0.75 | 1.0
-  const [containerSize, setContainerSize] = useState({ width: 1280, height: 720 });
-  const [iframeContentHeight, setIframeContentHeight] = useState(5000);
-  const [isDragging, setIsDragging] = useState(false);
-  const scrollContainerRef = useRef(null);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1280);
   const iframeRef = useRef(null);
-  const dragStartRef = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
+  // Apply proportional scaling for desktop concepts whenever container width < 1440px
+  const applyIframeScale = useCallback(() => {
+    try {
+      if (!iframeRef.current) return;
+      const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
+      if (!doc || !doc.body) return;
+
+      const isDesktopOnly = concept?.is_desktop_only !== false && concept?.isDesktopOnly !== false;
+      const containerWidth = iframeRef.current.parentElement?.clientWidth || window.innerWidth;
+      const TARGET_DESKTOP_WIDTH = 1440;
+
+      if (isDesktopOnly && containerWidth > 0 && containerWidth < TARGET_DESKTOP_WIDTH) {
+        const scale = containerWidth / TARGET_DESKTOP_WIDTH;
+
+        // Freeze internal iframe canvas at 1440px so no layout reflow occurs
+        doc.documentElement.style.minWidth = `${TARGET_DESKTOP_WIDTH}px`;
+        doc.documentElement.style.width = `${TARGET_DESKTOP_WIDTH}px`;
+        doc.documentElement.style.overflowX = 'hidden';
+
+        doc.body.style.minWidth = `${TARGET_DESKTOP_WIDTH}px`;
+        doc.body.style.width = `${TARGET_DESKTOP_WIDTH}px`;
+        doc.body.style.zoom = `${scale}`;
+      } else {
+        doc.documentElement.style.minWidth = '';
+        doc.documentElement.style.width = '';
+        doc.documentElement.style.overflowX = '';
+
+        doc.body.style.minWidth = '';
+        doc.body.style.width = '';
+        doc.body.style.zoom = '';
+      }
+    } catch (e) {
+      // Ignore cross-origin limitations if external iframe
+    }
+  }, [concept]);
+
+  // Handle window resize to re-scale if mobile screen size changes
   useEffect(() => {
+    if (!isOpen) return;
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      applyIframeScale();
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isOpen, applyIframeScale]);
+
+  const savedScrollRef = useRef(0);
+
+  // Lock background body & html scroll, save & restore exact scroll position
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Capture exact scroll Y on main page before locking overflow
+    const currentY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+    if (currentY > 0) {
+      savedScrollRef.current = currentY;
+    }
+
+    const origBodyOverflow = document.body.style.overflow;
+    const origHtmlOverflow = document.documentElement.style.overflow;
+    const origBodyPosition = document.body.style.position;
+    const origBodyTop = document.body.style.top;
+    const origBodyWidth = document.body.style.width;
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = origBodyOverflow;
+      document.documentElement.style.overflow = origHtmlOverflow;
+      document.body.style.position = origBodyPosition;
+      document.body.style.top = origBodyTop;
+      document.body.style.width = origBodyWidth;
+
       window.removeEventListener('keydown', handleKeyDown);
+
+      // Restore exact scroll position on portfolio page after unmount
+      const targetY = savedScrollRef.current;
+      setTimeout(() => {
+        window.scrollTo({ top: targetY, left: 0, behavior: 'instant' });
+      }, 20);
     };
   }, [isOpen, onClose]);
 
-  // Measure content document height inside iframe
-  const measureIframe = () => {
-    try {
-      if (iframeRef.current) {
-        const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
-        if (doc) {
-          const bodyH = doc.body?.scrollHeight || 0;
-          const htmlH = doc.documentElement?.scrollHeight || 0;
-          const maxH = Math.max(bodyH, htmlH);
-          if (maxH > 500 && maxH !== iframeContentHeight) {
-            setIframeContentHeight(maxH);
-          }
-        }
-      }
-    } catch (e) {}
-  };
-
-  // Track scroll container size for precise auto-scale calculations
-  useEffect(() => {
-    if (!isOpen || !scrollContainerRef.current) return;
-
-    const updateSize = () => {
-      if (scrollContainerRef.current) {
-        setContainerSize({
-          width: scrollContainerRef.current.clientWidth,
-          height: scrollContainerRef.current.clientHeight
-        });
-      }
-    };
-
-    updateSize();
-    window.addEventListener('resize', updateSize);
-    const observer = new ResizeObserver(updateSize);
-    observer.observe(scrollContainerRef.current);
-
-    return () => {
-      window.removeEventListener('resize', updateSize);
-      observer.disconnect();
-    };
-  }, [isOpen]);
-
-  // Reset scale mode to 'fit' and scroll iframe & container to top on opening modal
-  useEffect(() => {
-    if (isOpen) {
-      setScaleMode('fit');
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTop = 0;
-        scrollContainerRef.current.scrollLeft = 0;
-      }
-      if (iframeRef.current) {
-        try {
-          iframeRef.current.contentWindow?.scrollTo(0, 0);
-        } catch (e) {}
-      }
-    }
-  }, [isOpen, concept]);
-
   if (!isOpen || !concept) return null;
+  if (typeof document === 'undefined') return null;
 
   const demoUrl = concept.demo_url || concept.demoUrl || '/demos/apex-detailing/index.html';
   const title = concept.card_title || concept.title || concept.name || 'ИИ-Концепт';
   const isDesktopOnly = !!concept.is_desktop_only || !!concept.isDesktopOnly;
-  const currentViewMode = isDesktopOnly ? 'desktop' : viewMode;
 
-  // Unscaled frame target dimensions
-  const unscaledWidth = currentViewMode === 'mobile' ? 375 : 1280;
+  const BASE_DESKTOP_WIDTH = 1440;
+  const containerScale = windowWidth < BASE_DESKTOP_WIDTH ? windowWidth / BASE_DESKTOP_WIDTH : 1;
 
-  // Available container space inside modal body
-  const paddingMarginX = 24;
-  const paddingMarginY = 24;
-  const availableWidth = Math.max(280, containerSize.width - paddingMarginX);
-  const availableHeight = Math.max(300, containerSize.height - paddingMarginY);
-
-  // Auto-fit scale factor based on width
-  const autoScale = Math.min(1.0, availableWidth / unscaledWidth);
-
-  const effectiveScale =
-    currentViewMode === 'mobile'
-      ? Math.min(1.0, availableWidth / 375)
-      : scaleMode === 'fit'
-      ? autoScale
-      : Number(scaleMode);
-
-  // Outer frame dimensions: fills 100% available height on screen
-  const outerWidth =
-    currentViewMode === 'mobile'
-      ? Math.round(375 * effectiveScale)
-      : Math.round(unscaledWidth * effectiveScale);
-
-  const totalScaledHeight = Math.round(iframeContentHeight * effectiveScale);
-
-  // Takes 100% of available screen height
-  const outerHeight = Math.min(availableHeight, totalScaledHeight);
-
-  // Unscaled iframe height matches full document height
-  const unscaledIframeHeight = iframeContentHeight;
-
-  // Mouse Drag-to-Scroll handlers
-  const handleMouseDown = (e) => {
-    if (e.button !== 0) return; // Main button only
-    setIsDragging(true);
-    if (scrollContainerRef.current) {
-      dragStartRef.current = {
-        x: e.clientX,
-        y: e.clientY,
-        scrollLeft: scrollContainerRef.current.scrollLeft,
-        scrollTop: scrollContainerRef.current.scrollTop
-      };
-    }
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging || !scrollContainerRef.current) return;
-    e.preventDefault();
-    const dx = e.clientX - dragStartRef.current.x;
-    const dy = e.clientY - dragStartRef.current.y;
-    scrollContainerRef.current.scrollLeft = dragStartRef.current.scrollLeft - dx;
-    scrollContainerRef.current.scrollTop = dragStartRef.current.scrollTop - dy;
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  return (
+  return createPortal(
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[9999] flex flex-col bg-black/85 backdrop-blur-md font-sans p-2 sm:p-4 select-none"
-        onClick={onClose}
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 z-[99999] flex flex-col bg-[#0B0C0E] font-sans overflow-hidden select-none"
       >
-        {/* Modal Window Wrapper */}
-        <motion.div
-          initial={{ scale: 0.96, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.96, opacity: 0 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="relative w-full h-full max-w-[1440px] mx-auto flex flex-col rounded-xl overflow-hidden border border-zinc-700/80 bg-zinc-950 shadow-[0_25px_70px_rgba(0,0,0,0.85)]"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Top Control Toolbar Header */}
-          <header className="h-14 px-3 sm:px-4 md:px-6 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between gap-2 text-white shrink-0 z-30">
-            {/* Left: Window Dots & Concept Title */}
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-                <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-green-500/80 inline-block" />
-              </div>
+        {/* Top Header Bar — Styled to match portfolio site design */}
+        <header className="h-14 sm:h-16 px-4 md:px-6 bg-white border-b border-zinc-200/80 flex items-center justify-between gap-3 text-zinc-900 shrink-0 z-50 shadow-sm">
+          {/* Left: Back to Portfolio & Concept Title */}
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 border border-zinc-200 text-zinc-900 hover:text-black hover:border-zinc-400 rounded-sm text-[12px] font-semibold transition-colors bg-white shadow-sm cursor-pointer no-underline shrink-0"
+              title="Закрыть и вернуться в портфолио (Esc)"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Назад</span>
+            </button>
 
-              <div className="h-4 w-[1px] bg-zinc-700 hidden sm:block shrink-0" />
+            <div className="h-4 w-[1px] bg-zinc-200 shrink-0" />
 
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-[#FF5B23] text-white shrink-0">
-                ИИ-КОНЦЕПТ
+            <div className="flex items-center gap-2 truncate">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#FF5B23] shrink-0">
+                [ ИИ-Концепт ]
               </span>
-              <h3 className="text-xs md:text-sm font-medium truncate text-zinc-100 max-w-[100px] sm:max-w-xs md:max-w-sm mb-0">
+              <h3 className="text-sm md:text-base font-light tracking-tight text-zinc-900 truncate mb-0">
                 {title}
               </h3>
             </div>
+          </div>
 
-            {/* Center: Zoom / Scale Controls & Viewport Switcher */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              {currentViewMode === 'desktop' && (
-                <div className="flex items-center bg-zinc-950 p-1 rounded-lg border border-zinc-800">
-                  <span className="px-2 text-[11px] font-bold text-[#FF5B23] shrink-0">
-                    {Math.round(effectiveScale * 100)}%
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setScaleMode('fit')}
-                    className={`px-2 py-1 rounded text-[11px] font-semibold transition-all cursor-pointer border-none ${
-                      scaleMode === 'fit'
-                        ? 'bg-[#FF5B23] text-white shadow-sm'
-                        : 'bg-transparent text-zinc-400 hover:text-zinc-200'
-                    }`}
-                    title="Вместить в экран"
-                  >
-                    Fit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setScaleMode(0.5)}
-                    className={`hidden sm:inline-block px-2 py-1 rounded text-[11px] font-semibold transition-all cursor-pointer border-none ${
-                      scaleMode === 0.5
-                        ? 'bg-[#FF5B23] text-white shadow-sm'
-                        : 'bg-transparent text-zinc-400 hover:text-zinc-200'
-                    }`}
-                  >
-                    50%
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setScaleMode(1.0)}
-                    className={`px-2 py-1 rounded text-[11px] font-semibold transition-all cursor-pointer border-none ${
-                      scaleMode === 1.0
-                        ? 'bg-[#FF5B23] text-white shadow-sm'
-                        : 'bg-transparent text-zinc-400 hover:text-zinc-200'
-                    }`}
-                    title="100% масштаб"
-                  >
-                    100%
-                  </button>
-                </div>
-              )}
+          {/* Right: Desktop Indicator & Open in New Tab Button */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {isDesktopOnly && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-600 bg-zinc-100 px-2.5 py-1 rounded-sm border border-zinc-200/80">
+                <Monitor className="w-3.5 h-3.5 text-zinc-500" />
+                <span>Только десктоп</span>
+              </span>
+            )}
 
-              {!isDesktopOnly && (
-                <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('desktop')}
-                    className={`p-1.5 sm:px-3 sm:py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer border-none flex items-center gap-1 ${
-                      currentViewMode === 'desktop'
-                        ? 'bg-[#FF5B23] text-white shadow-sm'
-                        : 'bg-transparent text-zinc-400 hover:text-zinc-200'
-                    }`}
-                  >
-                    <Monitor className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Десктоп</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('mobile')}
-                    className={`p-1.5 sm:px-3 sm:py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer border-none flex items-center gap-1 ${
-                      currentViewMode === 'mobile'
-                        ? 'bg-[#FF5B23] text-white shadow-sm'
-                        : 'bg-transparent text-zinc-400 hover:text-zinc-200'
-                    }`}
-                  >
-                    <Smartphone className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Мобильный</span>
-                  </button>
-                </div>
-              )}
-            </div>
+            <a
+              href={demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FF5B23] text-white hover:bg-[#e04f1e] rounded-sm text-[12px] font-semibold transition-colors no-underline shadow-sm cursor-pointer"
+              title="Открыть проект в новом окне браузера"
+            >
+              <span className="hidden sm:inline">В новой вкладке</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </header>
 
-            {/* Right: Action Buttons */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              <a
-                href={demoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white rounded-md text-xs font-medium transition-colors border border-zinc-700/60 no-underline"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">В новой вкладке</span>
-              </a>
-
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex items-center gap-1 px-2.5 py-1.5 bg-zinc-800 hover:bg-red-500/20 text-zinc-300 hover:text-white rounded-md text-xs font-semibold transition-colors border border-zinc-700/60 cursor-pointer"
-                title="Закрыть окно (Esc)"
-              >
-                <X className="w-4 h-4" />
-                <span className="hidden sm:inline">Закрыть</span>
-              </button>
-            </div>
-          </header>
-
-          {/* Viewer Scrollable Body */}
-          <div
-            ref={scrollContainerRef}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            className={`flex-1 w-full h-[calc(100%-56px)] bg-zinc-950 overflow-x-auto overflow-y-auto p-2 sm:p-4 flex touch-pan-x touch-pan-y ${
-              isDragging ? 'cursor-grabbing' : effectiveScale >= 1 ? 'cursor-grab' : 'cursor-default'
-            }`}
-          >
-            {/* Outer Frame Wrapper: fills 100% screen height */}
+        {/* Fullscreen Viewport Area (Enforces fixed 1440px desktop iframe canvas and scales it down seamlessly) */}
+        <div className="w-full flex-1 relative bg-[#0B0C0E] overflow-hidden">
+          {containerScale < 1 ? (
             <div
               style={{
-                width: `${outerWidth}px`,
-                height: `${outerHeight}px`
+                width: `${BASE_DESKTOP_WIDTH}px`,
+                height: `${100 / containerScale}%`,
+                transform: `scale(${containerScale})`,
+                transformOrigin: 'top left'
               }}
-              className={`m-auto shrink-0 transition-all duration-300 relative rounded-xl border border-zinc-700/90 bg-white shadow-[0_20px_70px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col ${
-                currentViewMode === 'mobile' ? 'rounded-[36px] border-[8px] border-zinc-800 bg-black' : ''
-              }`}
+              className="absolute top-0 left-0 bg-[#0B0C0E]"
             >
-              {/* Speaker Notch for Mobile View mode */}
-              {currentViewMode === 'mobile' && !isDesktopOnly && (
-                <div className="w-full h-4 bg-zinc-900 flex items-center justify-center shrink-0 z-30">
-                  <div className="w-12 h-1.5 bg-zinc-800 rounded-full" />
-                </div>
-              )}
-
-              {/* Scaled Inner Container with vertical scroll */}
-              <div className="w-full flex-1 overflow-x-hidden overflow-y-auto relative">
-                <div
-                  style={{
-                    width: `${unscaledWidth}px`,
-                    height: `${unscaledIframeHeight}px`,
-                    transform: `scale(${effectiveScale})`,
-                    transformOrigin: 'top left'
-                  }}
-                  className="relative"
-                >
-                  <iframe
-                    ref={iframeRef}
-                    src={demoUrl}
-                    title={title}
-                    onLoad={() => {
-                      measureIframe();
-                      setTimeout(measureIframe, 300);
-                      try {
-                        if (iframeRef.current) {
-                          iframeRef.current.contentWindow?.scrollTo(0, 0);
-                        }
-                      } catch (e) {}
-                    }}
-                    className="w-full h-full border-none bg-white pointer-events-auto"
-                    sandbox="allow-scripts allow-same-origin allow-forms"
-                  />
-                </div>
-              </div>
-
-              {/* Overlay while dragging */}
-              {isDragging && (
-                <div className="absolute inset-0 z-50 bg-transparent cursor-grabbing" />
-              )}
+              <iframe
+                ref={iframeRef}
+                src={demoUrl}
+                title={title}
+                onLoad={() => {
+                  applyIframeScale();
+                  setTimeout(applyIframeScale, 300);
+                  setTimeout(applyIframeScale, 1000);
+                }}
+                className="w-full h-full border-none bg-[#0B0C0E] block pointer-events-auto"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+              />
             </div>
-          </div>
-        </motion.div>
+          ) : (
+            <iframe
+              ref={iframeRef}
+              src={demoUrl}
+              title={title}
+              onLoad={() => {
+                applyIframeScale();
+                setTimeout(applyIframeScale, 300);
+                setTimeout(applyIframeScale, 1000);
+              }}
+              className="w-full h-full border-none bg-[#0B0C0E] block pointer-events-auto"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+            />
+          )}
+        </div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
+
+
 
 
