@@ -48,30 +48,30 @@ export default function AllCases() {
     // Fetch cases from Supabase
     const fetchCases = async () => {
       try {
-        const { data, error } = await supabase
+        const { data: dbCases, error } = await supabase
           .from('cases')
           .select('*')
           .order('sort_order', { ascending: true });
         
         if (error) throw error;
         
-        const localCases = contentData.cases.items || [];
-        let mergedCases = [...localCases];
-
-        if (data && data.length > 0) {
-          data.forEach(dbItem => {
-            const index = mergedCases.findIndex(
-              localItem =>
-                (dbItem.slug && localItem.slug && dbItem.slug === localItem.slug) ||
-                (dbItem.id && localItem.id && String(dbItem.id) === String(localItem.id)) ||
-                (dbItem.title && localItem.title && dbItem.title.toLowerCase() === localItem.title.toLowerCase())
+        const localAiConcepts = (contentData?.cases?.items || []).filter(item => item.is_ai_concept || item.isAiConcept);
+        
+        let mergedCases = [];
+        if (dbCases && dbCases.length > 0) {
+          const validDbCases = dbCases.filter(c => c.slug || c.title || c.card_title);
+          mergedCases = [...validDbCases];
+          localAiConcepts.forEach(aiItem => {
+            const exists = mergedCases.some(c => 
+              (c.slug && aiItem.slug && c.slug === aiItem.slug) ||
+              (c.title && aiItem.title && c.title.toLowerCase() === aiItem.title.toLowerCase())
             );
-            if (index !== -1) {
-              mergedCases[index] = { ...mergedCases[index], ...dbItem };
-            } else {
-              mergedCases.push(dbItem);
+            if (!exists) {
+              mergedCases.unshift(aiItem);
             }
           });
+        } else {
+          mergedCases = contentData?.cases?.items || [];
         }
 
         setCases(mergedCases);

@@ -165,6 +165,7 @@ export default function AdminWorkspace() {
   const [slug, setSlug] = useState('');
   const [isInDevelopment, setIsInDevelopment] = useState(false);
   const [isAiConcept, setIsAiConcept] = useState(false);
+  const [isDesktopOnly, setIsDesktopOnly] = useState(false);
   const [demoUrl, setDemoUrl] = useState('');
   const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
@@ -476,20 +477,26 @@ export default function AdminWorkspace() {
         .eq('id', item.id)
         .single();
 
-      if (error) throw error;
+      const isAi = !!data.is_ai_concept || !!data.isAiConcept;
+      if (isAi) {
+        setActiveTab('ai');
+      } else {
+        setActiveTab('cases');
+      }
 
       setEditingId(data.id);
       setSlug(data.slug || '');
       setIsInDevelopment(!!data.is_in_development);
-      setIsAiConcept(!!data.is_ai_concept || !!data.isAiConcept);
+      setIsAiConcept(isAi);
+      setIsDesktopOnly(!!data.is_desktop_only || !!data.isDesktopOnly);
       setDemoUrl(data.demo_url || data.demoUrl || '');
       setDescription(data.description || '');
-      setTitle(data.title || '');
+      setTitle(data.title || data.card_title || '');
       setSubtitle(data.subtitle || '');
       setHeroImage(data.heroImage || '');
 
       // Load Preview Card fields
-      setCardTitle(data.card_title || '');
+      setCardTitle(data.card_title || data.title || '');
       setCardImage(data.card_image || '');
       setCardTags(Array.isArray(data.card_tags) ? data.card_tags.join(', ') : (data.card_tags || ''));
       
@@ -797,7 +804,8 @@ export default function AdminWorkspace() {
     setEditingId(null);
     setSlug('');
     setIsInDevelopment(false);
-    setIsAiConcept(false);
+    setIsAiConcept(activeTab === 'ai');
+    setIsDesktopOnly(false);
     setDemoUrl('');
     setDescription('');
     setTitle('');
@@ -835,59 +843,75 @@ export default function AdminWorkspace() {
   const handlePublishCase = async (e) => {
     e.preventDefault();
     if (!slug) {
-      setToast({ show: true, message: 'Пожалуйста, укажите URL-адрес кейса (slug)', type: 'error' });
+      setToast({ show: true, message: 'Пожалуйста, укажите URL-адрес роута (slug)', type: 'error' });
       return;
     }
 
     setPublishing(true);
     try {
-      // Structure steps tags from string to array of strings
-      const formattedProcessSteps = processSteps.map(step => ({
-        ...step,
-        tags: step.tags ? step.tags.split(',').map(t => t.trim()).filter(Boolean) : []
-      }));
-
       // Split card tags by comma
       const formattedCardTags = cardTags ? cardTags.split(',').map(t => t.trim()).filter(Boolean) : [];
 
-      const payload = {
-        slug,
-        is_in_development: isInDevelopment,
-        is_ai_concept: isAiConcept,
-        demo_url: demoUrl,
-        description: description || shortBio,
-        title,
-        subtitle,
-        heroImage,
-        card_title: cardTitle,
-        card_image: cardImage,
-        card_tags: formattedCardTags,
-        meta: {
-          sphere,
-          type,
-          stack,
-          year
-        },
-        about: {
-          title: 'О\u00a0проекте',
-          text: shortBio
-        },
-        challenge: {
-          task,
-          solution,
-          liveUrl
-        },
-        visibility,
-        process: formattedProcessSteps,
-        features: desktopFeatures,
-        mobile_features: mobileFeatures,
-        panorama_images: panorama,
-        outro: {
-          images: outroImages,
-          image: outroImages[0] || ''
-        },
-        custom_blocks: customBlocks
-      };
+      let payload;
+      if (activeTab === 'ai' || isAiConcept) {
+        payload = {
+          slug,
+          is_in_development: isInDevelopment,
+          is_ai_concept: true,
+          is_desktop_only: isDesktopOnly,
+          demo_url: demoUrl || '/demos/apex-detailing/index.html',
+          description: description || subtitle,
+          title: title || cardTitle,
+          card_title: cardTitle || title,
+          card_image: cardImage,
+          card_tags: formattedCardTags.length > 0 ? formattedCardTags : ['ИИ-КОНЦЕПТ']
+        };
+      } else {
+        // Structure steps tags from string to array of strings
+        const formattedProcessSteps = processSteps.map(step => ({
+          ...step,
+          tags: step.tags ? step.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+        }));
+
+        payload = {
+          slug,
+          is_in_development: isInDevelopment,
+          is_ai_concept: false,
+          demo_url: demoUrl,
+          description: description || shortBio,
+          title,
+          subtitle,
+          heroImage,
+          card_title: cardTitle,
+          card_image: cardImage,
+          card_tags: formattedCardTags,
+          meta: {
+            sphere,
+            type,
+            stack,
+            year
+          },
+          about: {
+            title: 'О\u00a0проекте',
+            text: shortBio
+          },
+          challenge: {
+            task,
+            solution,
+            liveUrl
+          },
+          visibility,
+          process: formattedProcessSteps,
+          features: desktopFeatures,
+          mobile_features: mobileFeatures,
+          panorama_images: panorama,
+          outro: {
+            images: outroImages,
+            image: outroImages[0] || ''
+          },
+          custom_blocks: customBlocks
+        };
+      }
 
       if (editingId) {
         // Edit mode: Update record
@@ -943,12 +967,18 @@ export default function AdminWorkspace() {
           </Link>
 
           <h2 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] mb-4">
-            {activeTab === 'cases' ? '[ Управление кейсами ]' : activeTab === 'other' ? '[ Управление другими проектами ]' : '[ Контактные данные ]'}
+            {activeTab === 'cases'
+              ? '[ Управление кейсами ]'
+              : activeTab === 'ai'
+              ? '[ Управление ИИ-Концептами ]'
+              : activeTab === 'other'
+              ? '[ Управление другими проектами ]'
+              : '[ Контактные данные ]'}
           </h2>
 
           <div className="border-t border-zinc-100 my-4" />
 
-          {activeTab === 'cases' ? (
+          {(activeTab === 'cases' || activeTab === 'ai') ? (
             editingId !== null && (
               <button
                 type="button"
@@ -956,7 +986,7 @@ export default function AdminWorkspace() {
                 className="w-full flex items-center justify-center gap-1.5 px-3 py-2 border border-zinc-200 rounded-sm text-xs font-semibold bg-zinc-50 hover:bg-zinc-100 transition-colors cursor-pointer mb-4"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Создать новый кейс</span>
+                <span>{activeTab === 'ai' ? 'Создать новый ИИ-концепт' : 'Создать новый кейс'}</span>
               </button>
             )
           ) : (
@@ -972,88 +1002,98 @@ export default function AdminWorkspace() {
             )
           )}
 
-          {activeTab === 'cases' ? (
+          {(activeTab === 'cases' || activeTab === 'ai') ? (
             loadingList ? (
               <div className="flex items-center gap-2 py-4 text-xs text-neutral-450">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF5B23]" />
-                <span>Загрузка кейсов...</span>
+                <span>Загрузка списка...</span>
               </div>
-            ) : casesList.length === 0 ? (
-              <p className="text-xs text-zinc-400 italic py-4">Список кейсов пуст</p>
-            ) : (
-              <ul className="space-y-2 pl-0 list-none my-0">
-                {casesList.map((item, index) => {
-                  const caseNumber = String(index + 1).padStart(2, '0');
-                  return (
-                    <li
-                      key={item.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, index)}
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, index)}
-                      onDragEnd={handleDragEnd}
-                      className={`flex items-start justify-between gap-3 p-3 border rounded-sm transition-all cursor-grab active:cursor-grabbing ${
-                        draggedIndex === index ? 'opacity-40 border-dashed border-zinc-400 bg-zinc-50' :
-                        editingId === item.id ? 'border-black bg-zinc-50' : 'border-zinc-100 hover:border-zinc-300'
-                      }`}
-                    >
-                      <div className="flex gap-2.5 min-w-0 flex-1">
-                        <span className="text-[11px] font-bold text-[#FF5B23] select-none shrink-0 mt-[1px]">
-                          {caseNumber}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <span className="block text-xs font-semibold text-black break-words whitespace-normal leading-normal">
-                            {item.title || item.card_title || '(Без\u00a0названия)'}
-                          </span>
-                          <span className="block text-[10px] text-zinc-400 truncate mt-0.5">
-                            /{item.slug}
-                          </span>
-                        </div>
-                      </div>
+            ) : (() => {
+              const filteredList = casesList.filter(item => {
+                const isAi = !!item.is_ai_concept || !!item.isAiConcept || (item.card_tags && String(item.card_tags).toLowerCase().includes('ии'));
+                if (activeTab === 'ai') return isAi;
+                return !isAi;
+              });
 
-                      <div className="flex items-center gap-2 shrink-0 mt-[1px]">
-                        <div className="flex items-center gap-0.5 border border-zinc-100 rounded-sm p-[2px] bg-zinc-50/50">
+              if (filteredList.length === 0) {
+                return <p className="text-xs text-zinc-400 italic py-4">Список {activeTab === 'ai' ? 'ИИ-концептов' : 'кейсов'} пуст</p>;
+              }
+
+              return (
+                <ul className="space-y-2 pl-0 list-none my-0">
+                  {filteredList.map((item, index) => {
+                    const caseNumber = String(index + 1).padStart(2, '0');
+                    return (
+                      <li
+                        key={item.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, index)}
+                        onDragEnd={handleDragEnd}
+                        className={`flex items-start justify-between gap-3 p-3 border rounded-sm transition-all cursor-grab active:cursor-grabbing ${
+                          draggedIndex === index ? 'opacity-40 border-dashed border-zinc-400 bg-zinc-50' :
+                          editingId === item.id ? 'border-black bg-zinc-50' : 'border-zinc-100 hover:border-zinc-300'
+                        }`}
+                      >
+                        <div className="flex gap-2.5 min-w-0 flex-1">
+                          <span className="text-[11px] font-bold text-[#FF5B23] select-none shrink-0 mt-[1px]">
+                            {caseNumber}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <span className="block text-xs font-semibold text-black break-words whitespace-normal leading-normal">
+                              {item.title || item.card_title || '(Без\u00a0названия)'}
+                            </span>
+                            <span className="block text-[10px] text-zinc-400 truncate mt-0.5">
+                              /{item.slug}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0 mt-[1px]">
+                          <div className="flex items-center gap-0.5 border border-zinc-100 rounded-sm p-[2px] bg-zinc-50/50">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => handleMoveCase(index, 'up')}
+                              className="w-6 h-6 flex items-center justify-center rounded-sm transition-colors text-[10px] text-zinc-400 hover:bg-white hover:text-neutral-700 disabled:opacity-25 disabled:hover:bg-transparent disabled:hover:text-zinc-400 cursor-pointer p-0"
+                              title="Переместить вверх"
+                            >
+                              ▲
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === filteredList.length - 1}
+                              onClick={() => handleMoveCase(index, 'down')}
+                              className="w-6 h-6 flex items-center justify-center rounded-sm transition-colors text-[10px] text-zinc-400 hover:bg-white hover:text-neutral-700 disabled:opacity-25 disabled:hover:bg-transparent disabled:hover:text-zinc-400 cursor-pointer p-0"
+                              title="Переместить вниз"
+                            >
+                              ▼
+                            </button>
+                          </div>
                           <button
                             type="button"
-                            disabled={index === 0}
-                            onClick={() => handleMoveCase(index, 'up')}
-                            className="w-6 h-6 flex items-center justify-center rounded-sm transition-colors text-[10px] text-zinc-400 hover:bg-white hover:text-neutral-700 disabled:opacity-25 disabled:hover:bg-transparent disabled:hover:text-zinc-400 cursor-pointer p-0"
-                            title="Переместить вверх"
+                            onClick={() => handleStartEdit(item)}
+                            className="w-8 h-8 flex items-center justify-center rounded-sm transition-colors text-zinc-400 hover:bg-neutral-100 hover:text-neutral-700 cursor-pointer p-0"
+                            title="Редактировать"
                           >
-                            ▲
+                            <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
                             type="button"
-                            disabled={index === casesList.length - 1}
-                            onClick={() => handleMoveCase(index, 'down')}
-                            className="w-6 h-6 flex items-center justify-center rounded-sm transition-colors text-[10px] text-zinc-400 hover:bg-white hover:text-neutral-700 disabled:opacity-25 disabled:hover:bg-transparent disabled:hover:text-zinc-400 cursor-pointer p-0"
-                            title="Переместить вниз"
+                            onClick={() => setItemToDelete(item)}
+                            className="w-8 h-8 flex items-center justify-center rounded-sm transition-colors text-zinc-400 hover:bg-red-50 hover:text-red-650 cursor-pointer p-0"
+                            title="Удалить"
                           >
-                            ▼
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => handleStartEdit(item)}
-                          className="w-8 h-8 flex items-center justify-center rounded-sm transition-colors text-zinc-400 hover:bg-neutral-100 hover:text-neutral-700 cursor-pointer p-0"
-                          title="Редактировать"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setItemToDelete(item)}
-                          className="w-8 h-8 flex items-center justify-center rounded-sm transition-colors text-zinc-400 hover:bg-red-50 hover:text-red-650 cursor-pointer p-0"
-                          title="Удалить"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )
+                      </li>
+                    );
+                  })}
+                </ul>
+              );
+            })()
           ) : (
             loadingOther ? (
               <div className="flex items-center gap-2 py-4 text-xs text-neutral-450">
@@ -1143,20 +1183,36 @@ export default function AdminWorkspace() {
       {/* RIGHT COLUMN: Form Constructor (Wide workspace) */}
       <main className="flex-1 p-6 md:p-12 lg:p-16 max-w-4xl bg-white">
         {/* Tab switcher tabs bar */}
-        <div className="flex border-b border-zinc-200 mb-8">
+        <div className="flex border-b border-zinc-200 mb-8 overflow-x-auto">
           <button
             type="button"
             onClick={() => {
               setActiveTab('cases');
               resetForm();
             }}
-            className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'cases'
-                ? 'border-black text-black font-bold'
+                ? 'border-[#FF5B23] text-[#FF5B23] font-bold'
                 : 'border-transparent text-zinc-400 hover:text-black font-semibold'
             }`}
           >
-            Кейсы
+            📁 Кейсы
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('ai');
+              resetForm();
+              setIsAiConcept(true);
+            }}
+            className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'ai'
+                ? 'border-[#FF5B23] text-[#FF5B23] font-bold'
+                : 'border-transparent text-zinc-400 hover:text-black font-semibold'
+            }`}
+          >
+            <span className="px-1.5 py-0.5 bg-[#FF5B23] text-white text-[9px] font-bold rounded">ИИ</span>
+            <span>ИИ-Концепты</span>
           </button>
           <button
             type="button"
@@ -1164,26 +1220,175 @@ export default function AdminWorkspace() {
               setActiveTab('other');
               resetOtherForm();
             }}
-            className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'other'
-                ? 'border-black text-black font-bold'
+                ? 'border-[#FF5B23] text-[#FF5B23] font-bold'
                 : 'border-transparent text-zinc-400 hover:text-black font-semibold'
             }`}
           >
-            Другие проекты
+            ⚡ Прочие проекты
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('contacts')}
-            className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'contacts'
-                ? 'border-black text-black font-bold'
+                ? 'border-[#FF5B23] text-[#FF5B23] font-bold'
                 : 'border-transparent text-zinc-400 hover:text-black font-semibold'
             }`}
           >
-            Контакты и ссылки
+            ⚙️ Контакты и ссылки
           </button>
         </div>
+
+        {activeTab === 'ai' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 bg-[#FF5B23] text-white text-[11px] font-bold rounded uppercase tracking-wider">
+                  ИИ-КОНЦЕПТ
+                </span>
+                <h2 className="text-xl font-light text-black">
+                  {editingId !== null ? `Редактирование: ${cardTitle || title || slug}` : '+ Новый ИИ-Концепт'}
+                </h2>
+              </div>
+
+              {editingId !== null && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-3 py-1.5 text-xs font-medium border border-zinc-200 rounded bg-white hover:bg-zinc-100 transition-colors cursor-pointer"
+                >
+                  + Создать новый концепт
+                </button>
+              )}
+            </div>
+
+            <form onSubmit={handlePublishCase} className="space-y-8 bg-zinc-50/50 p-6 border border-zinc-200 rounded-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
+                    Название ИИ-Концепта *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={cardTitle || title}
+                    onChange={(e) => {
+                      setCardTitle(e.target.value);
+                      setTitle(e.target.value);
+                    }}
+                    placeholder="APEX DETAILING — Студия авто-детейлинга"
+                    className="w-full px-3 py-2 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
+                    URL роута (Slug) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                    placeholder="apex-detailing"
+                    className="w-full px-3 py-2 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black bg-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
+                  Ссылка на демо-клиент (Demo URL) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={demoUrl}
+                  onChange={(e) => setDemoUrl(e.target.value)}
+                  placeholder="/demos/apex-detailing/index.html или https://..."
+                  className="w-full px-3 py-2 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black bg-white font-mono text-xs"
+                />
+                <p className="text-[10px] text-zinc-400 mt-1">
+                  Локальный путь к HTML файлу из папки /public/demos/ или внешняя полная HTTPS-ссылка.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
+                  Теги ИИ-концепта (через запятую)
+                </label>
+                <input
+                  type="text"
+                  value={cardTags}
+                  onChange={(e) => setCardTags(e.target.value)}
+                  placeholder="ИИ-КОНЦЕПТ, АВТО, LANDING"
+                  className="w-full px-3 py-2 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black bg-white"
+                />
+              </div>
+
+              <ImageUpload
+                label="Обложка карточки ИИ-концепта"
+                value={cardImage}
+                onChange={setCardImage}
+                pathPrefix="ai-concept"
+              />
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
+                  Краткое описание ИИ-концепта
+                </label>
+                <textarea
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Интерактивный концепт студии премиального детейлинга. Защитные керамические покрытия, оклейка пленкой и калькулятор ухода."
+                  className="w-full px-3 py-2 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black bg-white"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6 py-3 border-t border-b border-zinc-200">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="is-desktop-only"
+                    checked={isDesktopOnly}
+                    onChange={(e) => setIsDesktopOnly(e.target.checked)}
+                    className="w-4 h-4 accent-black rounded-[2px]"
+                  />
+                  <label htmlFor="is-desktop-only" className="text-xs font-semibold uppercase tracking-wider text-zinc-800 cursor-pointer select-none">
+                    Только десктопная версия (is_desktop_only)
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="ai-is-in-dev"
+                    checked={isInDevelopment}
+                    onChange={(e) => setIsInDevelopment(e.target.checked)}
+                    className="w-4 h-4 accent-[#FF5B23] rounded-[2px]"
+                  />
+                  <label htmlFor="ai-is-in-dev" className="text-xs font-semibold uppercase tracking-wider text-zinc-800 cursor-pointer select-none">
+                    В разработке (is_in_development)
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={publishing}
+                  className="px-6 py-3 bg-[#FF5B23] hover:bg-[#e04f1e] text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-md transition-all cursor-pointer border-none flex items-center gap-2"
+                >
+                  {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                  <span>{editingId !== null ? 'Сохранить ИИ-Концепт' : 'Опубликовать ИИ-Концепт'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
         {activeTab === 'cases' && (
           <>
