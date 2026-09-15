@@ -44,7 +44,22 @@ export default function Cases() {
           .select('*')
           .order('sort_order', { ascending: true });
         if (error) throw error;
-        setCases(data || []);
+        
+        let mergedCases = data && data.length > 0 ? data : contentData.cases.items;
+        
+        const localAiConcepts = contentData.cases.items.filter(item => item.is_ai_concept || item.isAiConcept);
+        localAiConcepts.forEach(localItem => {
+          const exists = mergedCases.some(c => 
+            (c.slug && localItem.slug && c.slug === localItem.slug) || 
+            (c.title && localItem.title && c.title === localItem.title) ||
+            (c.demo_url && localItem.demo_url && c.demo_url === localItem.demo_url)
+          );
+          if (!exists) {
+            mergedCases = [localItem, ...mergedCases];
+          }
+        });
+
+        setCases(mergedCases);
       } catch (err) {
         console.error('Error fetching cases for homepage:', err);
         setCases(contentData.cases.items);

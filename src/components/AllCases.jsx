@@ -7,10 +7,14 @@ import contentData from '../contentData';
 import { caseCardImg } from '../utils/imageUtils';
 import { FlickeringGrid } from "./ui/FlickeringGrid";
 
+import ConceptToolbarModal from './ConceptToolbarModal';
+
 export default function AllCases() {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'sites', 'apps'
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'sites', 'apps', 'ai'
+  const [selectedConcept, setSelectedConcept] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     document.title = "Все кейсы — Ксения Матвеенко";
@@ -30,7 +34,23 @@ export default function AllCases() {
           .order('sort_order', { ascending: true });
         
         if (error) throw error;
-        setCases(data || []);
+        
+        let mergedCases = data && data.length > 0 ? data : contentData.cases.items;
+        
+        // Always ensure local AI concepts from contentData are included
+        const localAiConcepts = contentData.cases.items.filter(item => item.is_ai_concept || item.isAiConcept);
+        localAiConcepts.forEach(localItem => {
+          const exists = mergedCases.some(c => 
+            (c.slug && localItem.slug && c.slug === localItem.slug) || 
+            (c.title && localItem.title && c.title === localItem.title) ||
+            (c.demo_url && localItem.demo_url && c.demo_url === localItem.demo_url)
+          );
+          if (!exists) {
+            mergedCases = [localItem, ...mergedCases];
+          }
+        });
+
+        setCases(mergedCases);
       } catch (err) {
         console.error('Error fetching cases for AllCases page:', err);
         setCases(contentData.cases.items); // Fallback to contentData
@@ -65,8 +85,10 @@ export default function AllCases() {
   };
 
   const filteredCases = cases.filter(item => {
+    const isAi = !!item.is_ai_concept || !!item.isAiConcept || (item.tags && item.tags.some(t => t.toLowerCase().includes('ии') || t.toLowerCase().includes('ai')));
+    if (activeTab === 'ai') return isAi;
     if (activeTab === 'all') return true;
-    return getProjectCategory(item) === activeTab;
+    return !isAi && getProjectCategory(item) === activeTab;
   });
 
   return (
@@ -75,6 +97,13 @@ export default function AllCases() {
       <div className="fixed inset-0 -z-10 pointer-events-none bg-white">
         <FlickeringGrid flickerChance={0.1} gridGap={6} maxOpacity={0.15} squareSize={4} />
       </div>
+
+      {/* Concept Toolbar Modal */}
+      <ConceptToolbarModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        concept={selectedConcept}
+      />
 
       {/* Main Content Layout */}
       <div className="flex min-h-screen flex-col lg:flex-row bg-transparent font-sans text-zinc-900">
@@ -122,7 +151,8 @@ export default function AllCases() {
               {[
                 { id: 'all', label: 'Все проекты' },
                 { id: 'sites', label: 'Сайты' },
-                { id: 'apps', label: 'Приложения' }
+                { id: 'apps', label: 'Приложения' },
+                { id: 'ai', label: 'ИИ-концепты' }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -143,6 +173,23 @@ export default function AllCases() {
               ))}
             </div>
 
+            {/* Disclaimer Banner for AI Concepts Tab */}
+            {activeTab === 'ai' && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-8 p-4 md:p-5 bg-zinc-50 border border-zinc-200/90 rounded-sm"
+              >
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#FF5B23] mb-2">
+                  <span className="w-2 h-2 rounded-full bg-[#FF5B23] animate-pulse" />
+                  Раздел ИИ-концептов и живых прототипов
+                </div>
+                <p className="text-xs md:text-sm text-zinc-600 font-light leading-relaxed mb-0">
+                  В этом разделе представлены интерактивные варианты дизайна сайтов и приложений, сгенерированные с помощью ИИ. Они созданы для демонстрации стилей, скорости реализации и возможностей верстки под разные сферы бизнеса. Каждый проект можно изучить в живом интерактивном режиме.
+                </p>
+              </motion.div>
+            )}
+
             {/* Cases Grid / Loading states */}
             {loading ? (
               <div className="flex items-center gap-3 py-20 justify-center text-zinc-500 text-xs font-semibold uppercase tracking-wider">
@@ -162,10 +209,12 @@ export default function AllCases() {
                   {filteredCases.map((project, idx) => {
                     const caseNumber = String(idx + 1).padStart(2, '0');
                     const isInDev = !!project.is_in_development || !!project.inDevelopment;
+                    const isAi = !!project.is_ai_concept || !!project.isAiConcept || (project.tags && project.tags.some(t => t.toLowerCase().includes('ии') || t.toLowerCase().includes('ai')));
                     const title = project.card_title || project.title || project.name || '(Без названия)';
                     const image = project.card_image || project.imageMain;
                     const tags = Array.isArray(project.card_tags) ? project.card_tags : (project.tags || []);
                     const slug = project.slug || String(idx + 1);
+                    const description = project.description || project.short_bio || '';
 
                     const cardContent = (
                       <motion.article
@@ -175,11 +224,18 @@ export default function AllCases() {
                             ? 'cursor-default' 
                             : 'cursor-pointer hover:bg-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)]'
                         }`}
+                        onClick={(e) => {
+                          if (isAi && !isInDev) {
+                            e.preventDefault();
+                            setSelectedConcept(project);
+                            setIsModalOpen(true);
+                          }
+                        }}
                       >
                         <div>
                           {/* Inner tab number */}
                           <span className="text-[10px] font-semibold tracking-wider text-[#FF5B23] uppercase mb-3 block">
-                            [ КЕЙС {caseNumber} ]
+                            [ {isAi ? `ИИ-КОНЦЕПТ ${caseNumber}` : `КЕЙС ${caseNumber}`} ]
                           </span>
 
                           {/* Graphical container */}
@@ -192,6 +248,16 @@ export default function AllCases() {
                                   </div>
                                 </div>
                               )}
+
+                              {isAi && !isInDev && (
+                                <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+                                  <div className="bg-[#FF5B23] px-4 py-2 rounded-sm text-white text-[11px] font-bold tracking-wider shadow-lg flex items-center gap-1.5">
+                                    <span>СМОТРЕТЬ КОНЦЕПТ</span>
+                                    <span>↗</span>
+                                  </div>
+                                </div>
+                              )}
+
                               {image ? (
                                 <img
                                   src={caseCardImg(image)}
@@ -216,7 +282,11 @@ export default function AllCases() {
                               {tags.map((tag, tIdx) => (
                                 <span
                                   key={tIdx}
-                                  className="bg-[#E0FB4A] border border-[#E0FB4A]/30 text-zinc-950 text-[10px] px-2.5 py-1 rounded-sm shadow-sm tracking-wide uppercase font-semibold"
+                                  className={`text-[10px] px-2.5 py-1 rounded-sm shadow-sm tracking-wide uppercase font-semibold border ${
+                                    isAi 
+                                      ? 'bg-black text-white border-black/40' 
+                                      : 'bg-[#E0FB4A] border-[#E0FB4A]/30 text-zinc-950'
+                                  }`}
                                 >
                                   {tag}
                                 </span>
@@ -227,7 +297,7 @@ export default function AllCases() {
 
                         {/* Lower text part */}
                         <div className="flex flex-col pt-5 mt-1">
-                          <h3 className="text-xl md:text-2xl font-light tracking-tight text-black flex items-center justify-between gap-2 w-full">
+                          <h3 className="text-xl md:text-2xl font-light tracking-tight text-black flex items-center justify-between gap-2 w-full mb-1">
                             <span>{title}</span>
                             {!isInDev && (
                               <span className="text-zinc-300 transition-all duration-300 text-sm shrink-0 group-hover:text-[#FF5B23] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -236,9 +306,15 @@ export default function AllCases() {
                             )}
                           </h3>
 
+                          {description && (
+                            <p className="text-xs text-zinc-500 font-light line-clamp-2 mt-1 mb-0">
+                              {description}
+                            </p>
+                          )}
+
                           {!isInDev && (
                             <span className="block md:hidden mt-4 mb-3 text-sm font-medium text-zinc-800 underline decoration-zinc-300 underline-offset-4">
-                              Смотреть кейс →
+                              {isAi ? 'Смотреть концепт →' : 'Смотреть кейс →'}
                             </span>
                           )}
                         </div>
@@ -255,7 +331,7 @@ export default function AllCases() {
                         transition={{ duration: 0.5, ease: "easeInOut" }}
                         className="h-full"
                       >
-                        {isInDev ? (
+                        {isInDev || isAi ? (
                           <div className="h-full block">
                             {cardContent}
                           </div>

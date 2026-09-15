@@ -163,6 +163,9 @@ export default function AdminWorkspace() {
   // Form states (right panel)
   const [slug, setSlug] = useState('');
   const [isInDevelopment, setIsInDevelopment] = useState(false);
+  const [isAiConcept, setIsAiConcept] = useState(false);
+  const [demoUrl, setDemoUrl] = useState('');
+  const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [heroImage, setHeroImage] = useState('');
@@ -477,6 +480,9 @@ export default function AdminWorkspace() {
       setEditingId(data.id);
       setSlug(data.slug || '');
       setIsInDevelopment(!!data.is_in_development);
+      setIsAiConcept(!!data.is_ai_concept || !!data.isAiConcept);
+      setDemoUrl(data.demo_url || data.demoUrl || '');
+      setDescription(data.description || '');
       setTitle(data.title || '');
       setSubtitle(data.subtitle || '');
       setHeroImage(data.heroImage || '');
@@ -790,6 +796,9 @@ export default function AdminWorkspace() {
     setEditingId(null);
     setSlug('');
     setIsInDevelopment(false);
+    setIsAiConcept(false);
+    setDemoUrl('');
+    setDescription('');
     setTitle('');
     setSubtitle('');
     setHeroImage('');
@@ -843,6 +852,9 @@ export default function AdminWorkspace() {
       const payload = {
         slug,
         is_in_development: isInDevelopment,
+        is_ai_concept: isAiConcept,
+        demo_url: demoUrl,
+        description: description || shortBio,
         title,
         subtitle,
         heroImage,
@@ -1130,7 +1142,7 @@ export default function AdminWorkspace() {
       {/* RIGHT COLUMN: Form Constructor (Wide workspace) */}
       <main className="flex-1 p-6 md:p-12 lg:p-16 max-w-4xl bg-white">
         {/* Tab switcher tabs bar */}
-        <div className="flex border-b\u00a0border-zinc-200 mb-8">
+        <div className="flex border-b border-zinc-200 mb-8">
           <button
             type="button"
             onClick={() => {
@@ -1196,7 +1208,7 @@ export default function AdminWorkspace() {
               
               {/* SECTION 1: BASIC INFORMATION */}
               <section className="space-y-6 bg-white p-6 border border-zinc-150 rounded-sm">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] border-b\u00a0border-zinc-100 pb-2">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] border-b border-zinc-100 pb-2">
                   [ 1. Основные параметры Hero ]
                 </h3>
 
@@ -1206,19 +1218,69 @@ export default function AdminWorkspace() {
                     Превью карточки для главной страницы
                   </span>
 
-                  {/* In Development Checkbox */}
-                  <div className="flex items-center gap-2 py-1">
-                    <input
-                      type="checkbox"
-                      id="is-in-development"
-                      checked={isInDevelopment}
-                      onChange={(e) => setIsInDevelopment(e.target.checked)}
-                      className="w-4 h-4 accent-black rounded-[2px]"
-                    />
-                    <label htmlFor="is-in-development" className="text-xs font-semibold uppercase tracking-wider text-zinc-800 cursor-pointer select-none">
-                      Кейс находится в разработке (is_in_development)
-                    </label>
+                  {/* Checkboxes: In Development & AI Concept */}
+                  <div className="flex flex-wrap items-center gap-6 py-1 border-b border-zinc-200/60 pb-3">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="is-in-development"
+                        checked={isInDevelopment}
+                        onChange={(e) => setIsInDevelopment(e.target.checked)}
+                        className="w-4 h-4 accent-black rounded-[2px]"
+                      />
+                      <label htmlFor="is-in-development" className="text-xs font-semibold uppercase tracking-wider text-zinc-800 cursor-pointer select-none">
+                        В разработке (is_in_development)
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="is-ai-concept"
+                        checked={isAiConcept}
+                        onChange={(e) => setIsAiConcept(e.target.checked)}
+                        className="w-4 h-4 accent-[#FF5B23] rounded-[2px]"
+                      />
+                      <label htmlFor="is-ai-concept" className="text-xs font-bold uppercase tracking-wider text-zinc-900 cursor-pointer select-none flex items-center gap-1.5">
+                        <span className="px-1.5 py-0.5 bg-[#FF5B23] text-white text-[10px] rounded">ИИ-КОНЦЕПТ</span>
+                        <span>Живой ИИ-концепт</span>
+                      </label>
+                    </div>
                   </div>
+
+                  {/* AI Concept specific fields */}
+                  {isAiConcept && (
+                    <div className="p-3 bg-[#FF5B23]/5 border border-[#FF5B23]/20 rounded-sm space-y-3 my-2">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-[#FF5B23] mb-1">
+                          Ссылка на HTML файл демо (demo_url)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="/demos/concept_1.html"
+                          value={demoUrl}
+                          onChange={(e) => setDemoUrl(e.target.value)}
+                          className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-sm focus:border-[#FF5B23] focus:ring-0 outline-none transition-colors font-mono"
+                        />
+                        <span className="block text-[11px] text-zinc-500 mt-1">
+                          Укажите путь к файлу в папке public (например: <code>/demos/concept_1.html</code>) или внешнюю URL ссылку.
+                        </span>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
+                          Краткое описание концепта
+                        </label>
+                        <textarea
+                          rows={2}
+                          placeholder="Интерактивный промо-сайт студии авто-детейлинга с кастомной версткой..."
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          className="w-full px-3 py-2 text-sm bg-white border border-zinc-200 rounded-sm focus:border-black focus:ring-0 outline-none transition-colors"
+                        />
+                      </div>
+                    </div>
+                  )}
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>

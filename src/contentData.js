@@ -251,6 +251,21 @@ const contentData = {
     // Поле `description` — краткая аннотация для архивной строки внизу секции.
     items: [
       {
+        name: "APEX DETAILING — Hydrophobic Precision Studio",
+        title: "APEX DETAILING — Hydrophobic Precision Studio",
+        card_title: "APEX DETAILING — Авто-детейлинг",
+        date: "2026-03-15",
+        description: "Интерактивный концепт студии премиального детейлинга. Защитные керамические покрытия, оклейка пленкой и калькулятор ухода.",
+        tags: ["ИИ-Концепт", "Авто", "Landing"],
+        is_ai_concept: true,
+        is_desktop_only: true,
+        demo_url: "/demos/apex-detailing/index.html",
+        imageMain: "/demos/apex-detailing/images/hero_car.jpg",
+        card_image: "/demos/apex-detailing/images/hero_car.jpg",
+        imageHover: null,
+        link: "/demos/apex-detailing/index.html"
+      },
+      {
         name: "Веб-приложение для\u00a0медицинского центра",
         // date: скрытое поле — только для будущей сортировки в админке, нигде не выводится
         date: "2025-11-20",

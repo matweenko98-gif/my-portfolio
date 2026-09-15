@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APEX DETAILING — Hydrophobic Precision Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Space Grotesk', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --color-bg-dark: #0B0C0E;
+      --color-bg-panel-dark: #121418;
+      --color-bg-light: #F4F5F8;
+      --color-bg-cell-light: #FFFFFF;
+      
+      --color-orange: #FF4500;
+      --color-orange-glow: rgba(255, 69, 0, 0.4);
+      --color-amber: #FF8C00;
+      
+      --color-text-dark: #F8FAFC;
+      --color-text-muted-dark: #8E9BAE;
+      --color-text-light: #0F172A;
+      --color-text-muted-light: #64748B;
+      
+      --grid-border-dark: rgba(255, 255, 255, 0.16);
+      --grid-border-light: rgba(15, 23, 42, 0.14);
+      
+      --container-max: 1560px;
+      --section-padding: 120px;
+      --ease-custom: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--color-bg-dark);
+      color: var(--color-text-dark);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+    }
+
+    body {
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TYPOGRAPHY SCALE CONTRAST RULE >= 10.8x */
+    .hero-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(3rem, 5.8vw, 6.8rem);
+      line-height: 0.94;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      color: #FFFFFF;
+    }
+
+    .body-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* INLINE TEXT BADGE (TALL ORANGE CAPSULE MATCHING HEADLINE CAP-HEIGHT, SMALL REFINED INNER TEXT) */
+    .inline-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.25em; /* Smaller, elegant inner text size */
+      height: 2.88em; /* 2.88 * 0.25em = 0.72em (Exact top-to-bottom cap-height of uppercase letters) */
+      padding: 0 1.25em; /* Generous side padding inside the capsule */
+      background: linear-gradient(135deg, var(--color-orange), var(--color-amber));
+      color: #FFFFFF !important;
+      -webkit-text-fill-color: #FFFFFF !important; /* FORCES WHITE TEXT COLOR EVEN INSIDE GRADIENT HEADINGS */
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      line-height: 1;
+      vertical-align: middle;
+      margin: 0 0.2em;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      box-shadow: 0 6px 24px var(--color-orange-glow);
+      transform: translateY(-0.58em); /* PERFECTLY CENTERED VERTICALLY RELATIVE TO HEADLINE TEXT */
+    }
+
+    /* SAISEI NAVIGATION HEADER */
+    .saisei-nav {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      z-index: 200;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(11, 12, 14, 0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--grid-border-dark);
+    }
+
+    .nav-brand {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 18px;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-meta-info {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-muted-dark);
+    }
+
+    .btn-menu-trigger {
+      background: rgba(255, 69, 0, 0.15);
+      border: 1px solid var(--color-orange);
+      color: #FFF;
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-menu-trigger:hover {
+      background: var(--color-orange);
+      box-shadow: 0 4px 16px var(--color-orange-glow);
+    }
+
+    /* FULLSCREEN DRAWER MENU */
+    .fullscreen-menu-drawer {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100vh;
+      background: #08090B;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 40px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.5s var(--ease-custom);
+      transform: translateY(-100%);
+    }
+
+    .fullscreen-menu-drawer.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--grid-border-dark);
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+
+    .drawer-links {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex-grow: 1;
+      gap: 14px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+
+    .drawer-link-item {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(1.4rem, 3.2vw, 3.2rem);
+      line-height: 1.15;
+      text-transform: uppercase;
+      color: #FFF;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .drawer-link-item span {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--color-orange);
+    }
+
+    .drawer-link-item:hover {
+      color: var(--color-orange);
+      transform: translateX(12px);
+    }
+
+    /* STRUCTURAL FRACTIONA CELL GRID CONTAINER WITH SIDE PADDING */
+    .cell-grid-container {
+      width: 100%;
+      max-width: var(--container-max);
+      margin: 0 auto;
+      border-left: 1px solid var(--grid-border-dark);
+      border-right: 1px solid var(--grid-border-dark);
+      margin-top: 80px;
+      position: relative;
+    }
+
+    .grid-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--grid-border-dark);
+      position: relative;
+    }
+
+    .grid-cell {
+      position: relative;
+      border-right: 1px solid var(--grid-border-dark);
+      padding: 32px;
+    }
+
+    .grid-cell:last-child { border-right: none; }
+
+    /* ROUNDED SOLID ORANGE CORNER DOTS */
+    .cell-node, .cell-node-dark {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      background: var(--color-orange);
+      border-radius: 50%;
+      border: none;
+      top: 0; left: 0;
+      transform: translate(-50%, -50%);
+      z-index: 30;
+      box-shadow: 0 0 10px var(--color-orange-glow);
+    }
+
+    /* HERO LAYOUT */
+    .hero-text-cell {
+      grid-column: span 2;
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 20;
+    }
+
+    .hero-photo-viewport {
+      grid-column: span 2;
+      position: relative;
+      min-height: 620px;
+      overflow: visible;
+      padding: 0;
+    }
+
+    .hero-photo-container {
+      position: absolute;
+      top: 0;
+      left: -120px;
+      width: calc(100% + 120px);
+      height: 100%;
+      overflow: hidden;
+      border-radius: 0 16px 16px 0;
+      z-index: 10;
+    }
+
+    .hero-photo-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transition: transform 0.1s linear;
+      will-change: transform;
+    }
+
+    .hero-photo-gradient-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(to right, #0B0C0E 0%, rgba(11, 12, 14, 0.85) 30%, rgba(11, 12, 14, 0.3) 65%, transparent 100%);
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .glass-cell-badge {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      width: 320px;
+      background: rgba(11, 12, 14, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--color-orange);
+      border-radius: 12px;
+      padding: 22px;
+      z-index: 40;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    }
+
+    /* BLOCK 2: FULL-SCREEN SHOWCASE PANELS WITH HORIZONTAL SCROLL */
+    .section-horizontal-showcase {
+      background-color: #08090B;
+      padding: var(--section-padding) 0;
+      position: relative;
+      border-top: 1px solid var(--grid-border-dark);
+      border-bottom: 1px solid var(--grid-border-dark);
+    }
+
+    .showcase-header {
+      width: 100%;
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 40px;
+    }
+
+    .showcase-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(2.4rem, 4.5vw, 4.5rem);
+      line-height: 0.95;
+      text-transform: uppercase;
+      color: #FFFFFF;
+    }
+
+    .showcase-nav-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--grid-border-dark);
+      color: #FFF;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .showcase-nav-btn:hover {
+      background: var(--color-orange);
+      border-color: var(--color-orange);
+      box-shadow: 0 4px 18px var(--color-orange-glow);
+    }
+
+    .horizontal-showcase-track {
+      display: flex;
+      gap: 40px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 0 40px 40px 40px;
+      scrollbar-width: none;
+    }
+
+    .horizontal-showcase-track::-webkit-scrollbar { display: none; }
+
+    .showcase-screen-panel {
+      min-width: 82vw;
+      max-width: 1320px;
+      height: 600px;
+      background: var(--color-bg-panel-dark);
+      border: 1px solid var(--grid-border-dark);
+      border-radius: 20px;
+      overflow: hidden;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: 0.48fr 0.52fr;
+      position: relative;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+      transition: transform 0.4s var(--ease-custom), border-color 0.4s ease;
+    }
+
+    .showcase-screen-panel:hover {
+      border-color: var(--color-orange);
+    }
+
+    .screen-content-cell {
+      padding: 56px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      border-right: 1px solid var(--grid-border-dark);
+      z-index: 20;
+    }
+
+    .screen-num-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-orange);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+
+    .screen-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(2rem, 3.5vw, 3.5rem);
+      line-height: 0.98;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      margin-bottom: 20px;
+    }
+
+    .screen-desc {
+      font-size: 15px;
+      color: var(--color-text-muted-dark);
+      line-height: 1.65;
+      margin-bottom: 32px;
+    }
+
+    .screen-tech-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #FFF;
+      border-top: 1px solid var(--grid-border-dark);
+      padding-top: 20px;
+    }
+
+    .screen-tech-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .screen-tech-item span { color: var(--color-orange); }
+
+    .screen-photo-cell {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .screen-photo-layer {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s var(--ease-custom);
+      will-change: transform;
+    }
+
+    .showcase-screen-panel:hover .screen-photo-layer {
+      transform: scale(1.06);
+    }
+
+    .screen-photo-overlay-badge {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(11, 12, 14, 0.85);
+      backdrop-filter: blur(16px);
+      padding: 14px 22px;
+      border-radius: 100px;
+      border: 1px solid var(--color-orange);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #FFF;
+      z-index: 25;
+    }
+
+    /* RE-DESIGNED BLOCK 3: INTERACTIVE PROCESS PATH WITH CONTAINER SIDE PADDING (USER REQUIREMENT) */
+    .section-process-interactive {
+      padding: var(--section-padding) 0;
+      background: var(--color-bg-dark);
+    }
+
+    .process-container-padded {
+      width: 100%;
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 40px; /* SIDE PADDING - CARDS NO LONGER STUCK TO EDGES */
+    }
+
+    .process-path-tracker {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      position: relative;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--grid-border-dark);
+      padding-bottom: 24px;
+      width: 100%;
+    }
+
+    .process-step-tab {
+      background: transparent;
+      border: 1px solid var(--grid-border-dark);
+      border-radius: 100px;
+      color: var(--color-text-muted-dark);
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-custom);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .process-step-tab .tab-num {
+      color: var(--color-orange);
+      margin-right: 8px;
+    }
+
+    .process-step-tab.active .tab-num {
+      color: #FFFFFF;
+    }
+
+    .process-step-tab.active, .process-step-tab:hover {
+      background: var(--color-orange);
+      border-color: var(--color-orange);
+      color: #FFFFFF;
+      box-shadow: 0 4px 18px var(--color-orange-glow);
+    }
+
+    .process-active-showcase {
+      background: var(--color-bg-panel-dark);
+      border: 1px solid var(--grid-border-dark);
+      border-radius: 20px;
+      display: grid;
+      grid-template-columns: 0.52fr 0.48fr;
+      height: 480px;
+      min-height: 480px;
+      max-height: 480px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    }
+
+    .process-showcase-content {
+      padding: 44px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    .process-showcase-photo {
+      height: 100%;
+      min-height: 400px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .process-showcase-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* RE-DESIGNED BLOCK 4: ASYMMETRIC DUAL-COLUMN PROOF SHOWCASE WITH CONTAINER PADDING (USER REQUIREMENT) */
+    .section-proof-asymmetric {
+      background-color: var(--color-bg-light);
+      color: var(--color-text-light);
+      padding: var(--section-padding) 0;
+    }
+
+    .proof-container-padded {
+      width: 100%;
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 40px; /* CONTAINER SIDE PADDING - CARDS NOT STUCK TO EDGES */
+    }
+
+    .proof-asymmetric-layout {
+      display: grid;
+      grid-template-columns: 0.32fr 0.68fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .proof-left-sticky {
+      position: sticky;
+      top: 120px;
+      align-self: start;
+    }
+
+    .proof-cards-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 100%;
+      max-width: 780px;
+      margin-left: auto; /* Positions cards flush to right boundary */
+    }
+
+    .proof-card-item {
+      background: #FFFFFF;
+      border: 1px solid var(--grid-border-light);
+      border-radius: 20px;
+      padding: 36px 40px;
+      position: relative;
+      transition: all 0.35s var(--ease-custom);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .proof-card-item:hover {
+      border-color: var(--color-orange);
+      transform: translateX(-6px);
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.09);
+    }
+
+    .proof-card-icon-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: rgba(255, 69, 0, 0.08);
+      border: 1px solid rgba(255, 69, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .proof-card-icon-box svg {
+      transition: stroke 0.3s ease;
+    }
+
+    .proof-card-item:hover .proof-card-icon-box {
+      background: var(--color-orange);
+      border-color: var(--color-orange);
+      box-shadow: 0 6px 20px var(--color-orange-glow);
+    }
+
+    .proof-card-item:hover .proof-card-icon-box svg {
+      stroke: #FFFFFF;
+    }
+
+    /* TELEGRAM MOCKUP FOR CARD 03 (USER REQUIREMENT) */
+    .proof-card-item.card-with-tg-mockup {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .tg-mockup-container {
+      width: 100%;
+      background: #0B0D11;
+      border: 1px solid rgba(255, 69, 0, 0.3);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+      margin-top: 8px;
+    }
+
+    .tg-mockup-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 16px;
+    }
+
+    .tg-mockup-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-orange), var(--color-amber));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      font-weight: 800;
+      font-size: 14px;
+      font-family: var(--font-display);
+    }
+
+    .tg-mockup-name {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 14px;
+      color: #FFFFFF;
+    }
+
+    .tg-mockup-status {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #22C55E;
+    }
+
+    .tg-chat-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .tg-bubble {
+      max-width: 85%;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .tg-bubble.user-sent {
+      align-self: flex-end;
+      background: #2B5278;
+      color: #FFFFFF;
+      border-bottom-right-radius: 4px;
+    }
+
+    .tg-bubble.tech-reply {
+      align-self: flex-start;
+      background: #18222D;
+      color: #E2E8F0;
+      border-bottom-left-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .tg-sent-photo {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .tg-time {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    /* RE-DESIGNED BLOCK 5: FULL-SCREEN ATMOSPHERIC CONVERSION SHOWCASE WITH BACKGROUND PHOTO & GRADIENT (USER REQUIREMENT) */
+    .section-cta-fullscreen {
+      padding: 140px 0;
+      position: relative;
+      background: url('./images/detailing_inspection.jpg') center/cover no-repeat;
+      overflow: hidden;
+    }
+
+    .cta-fullscreen-gradient-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(to right, #0B0C0E 0%, rgba(11, 12, 14, 0.92) 40%, rgba(11, 12, 14, 0.5) 75%, transparent 100%);
+      z-index: 10;
+    }
+
+    .cta-fullscreen-container {
+      width: 100%;
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 40px;
+      position: relative;
+      z-index: 20;
+    }
+
+    .cta-fullscreen-content {
+      max-width: 640px;
+    }
+
+    .cta-option-pills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+      margin-bottom: 40px;
+    }
+
+    .cta-pill-item {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--grid-border-dark);
+      color: #FFF;
+      padding: 10px 20px;
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .cta-pill-item:hover, .cta-pill-item.active {
+      background: var(--color-orange);
+      border-color: var(--color-orange);
+      box-shadow: 0 4px 16px var(--color-orange-glow);
+    }
+
+    /* RE-DESIGNED BLOCK 6: MASSIVE FULL-SCREEN KINETIC FOOTER (USER REQUIREMENT) */
+    .full-kinetic-footer {
+      background: #060708;
+      border-top: 1px solid var(--grid-border-dark);
+      padding-top: 100px;
+      padding-bottom: 60px;
+      min-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer-container-padded {
+      width: 100%;
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    /* MASSIVE KINETIC TEXT LOGO SPANNING FULL WIDTH (USER REQUIREMENT) */
+    .kinetic-brand-logo {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(4rem, 11vw, 12rem);
+      line-height: 0.85;
+      text-transform: uppercase;
+      letter-spacing: -0.05em;
+      color: rgba(255, 255, 255, 0.95);
+      margin-bottom: 60px;
+      transition: transform 0.2s ease-out;
+      will-change: transform;
+      user-select: none;
+    }
+
+    .kinetic-brand-logo span {
+      color: var(--color-orange);
+    }
+
+    .footer-detail-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      padding-bottom: 60px;
+      border-bottom: 1px solid var(--grid-border-dark);
+    }
+
+    .footer-col-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-orange);
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .footer-nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-nav-list a {
+      color: var(--color-text-muted-dark);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .footer-nav-list a:hover { color: #FFF; }
+
+    .btn-back-to-top {
+      background: rgba(255, 69, 0, 0.15);
+      border: 1px solid var(--color-orange);
+      color: #FFF;
+      padding: 12px 24px;
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-back-to-top:hover {
+      background: var(--color-orange);
+      box-shadow: 0 4px 18px var(--color-orange-glow);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--color-orange), #D93800);
+      color: #FFF;
+      padding: 14px 32px;
+      border-radius: 6px;
+      border: none;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 18px var(--color-orange-glow);
+      display: inline-block;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-row { grid-template-columns: 1fr; }
+      .hero-text-cell { grid-column: span 1; }
+      .hero-photo-viewport { grid-column: span 1; }
+      .showcase-screen-panel { grid-template-columns: 1fr; min-width: 90vw; height: auto; }
+      .process-active-showcase { grid-template-columns: 1fr; }
+      .proof-asymmetric-layout { grid-template-columns: 1fr; }
+      .footer-detail-grid { grid-template-columns: 1fr; }
+    }
+    /* MODAL POPUP FOR LEADS / ESTIMATES */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100vh;
+      background: rgba(8, 9, 11, 0.88);
+      backdrop-filter: blur(16px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s var(--ease-custom);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #121418;
+      border: 1px solid var(--color-orange);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 500px;
+      padding: 40px;
+      position: relative;
+      box-shadow: 0 24px 60px rgba(255, 69, 0, 0.25);
+      transform: scale(0.9);
+      transition: transform 0.4s var(--ease-custom);
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--grid-border-dark);
+      color: #FFF;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close-btn:hover {
+      background: var(--color-orange);
+      border-color: var(--color-orange);
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 24px;
+      text-transform: uppercase;
+      color: #FFF;
+      margin-bottom: 8px;
+    }
+
+    .modal-subtitle {
+      font-size: 14px;
+      color: var(--color-text-muted-dark);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .form-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-orange);
+      text-transform: uppercase;
+    }
+
+    .form-input {
+      background: #0B0C0E;
+      border: 1px solid var(--grid-border-dark);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #FFF;
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--color-orange);
+      box-shadow: 0 0 12px var(--color-orange-glow);
+    }
+
+    .modal-success-msg {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .modal-success-msg.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SAISEI WEBFLOW NAVIGATION HEADER -->
+  <header class="saisei-nav">
+    <div class="nav-brand">
+      APEX <span style="font-family: var(--font-mono); font-size: 10px; color: var(--color-orange); border: 1px solid var(--color-orange); padding: 2px 8px; border-radius: 4px;">DETAILING LAB</span>
+    </div>
+
+    <div class="nav-meta-info">
+      <span>STUDIO HUB 13:06 GMT+3</span>
+      <span>ПН-СБ 09:00 / 20:00</span>
+      <a href="tel:+78005550199" style="color: #FFF; text-decoration: none; font-weight: 700;">+7 (800) 555-01-99</a>
+    </div>
+
+    <button class="btn-menu-trigger" onclick="toggleMenu()">
+      МЕНЮ <span>☰</span>
+    </button>
+  </header>
+
+  <!-- FULLSCREEN DRAWER MENU -->
+  <div class="fullscreen-menu-drawer" id="menu-drawer">
+    <div class="drawer-header">
+      <div class="nav-brand">APEX DETAILING / НАВИГАЦИЯ</div>
+      <button class="btn-menu-trigger" onclick="toggleMenu()">ЗАКРЫТЬ ✕</button>
+    </div>
+
+    <div class="drawer-links">
+      <a href="#hero" class="drawer-link-item" onclick="toggleMenu()"><span>01</span> ПОЛИРОВКА КУЗОВА</a>
+      <a href="#defects" class="drawer-link-item" onclick="toggleMenu()"><span>02</span> ДИАГНОСТИКА ДЕФЕКТОВ</a>
+      <a href="#process" class="drawer-link-item" onclick="toggleMenu()"><span>03</span> ИНТЕРАКТИВНЫЙ ПУТЬ</a>
+      <a href="#proof" class="drawer-link-item" onclick="toggleMenu()"><span>04</span> ПРЕИМУЩЕСТВА</a>
+      <a href="#estimate" class="drawer-link-item" onclick="toggleMenu()"><span>05</span> ОЦЕНКА ПО ФОТО</a>
+      <a href="#contacts" class="drawer-link-item" onclick="toggleMenu()"><span>06</span> КОНТАКТЫ СТУДИИ</a>
+    </div>
+  </div>
+
+  <!-- BLOCK 1: HERO STRUCTURAL FRACTIONA CELL GRID CONTAINER -->
+  <div class="cell-grid-container" id="hero">
+    <div class="grid-row">
+      <div class="cell-node"></div>
+      <div class="cell-node" style="left: 25%;"></div>
+      <div class="cell-node" style="left: 50%;"></div>
+      <div class="cell-node" style="left: 75%;"></div>
+
+      <!-- SIDE COLUMN TEXT CELL (<= 0.45 SCREEN WIDTH RULE) -->
+      <div class="grid-cell hero-text-cell">
+        <div class="body-meta" style="color: var(--color-orange); margin-bottom: 16px;">
+          ✦ ВОССТАНОВИТЕЛЬНАЯ ПОЛИРОВКА ЛАКА / APEX LAB
+        </div>
+
+        <h1 class="hero-title">
+          ПОЛИРОВКА <span class="inline-badge">80% ЦАРАПИН</span> АВТО<br>В&nbsp;МИНСКЕ
+        </h1>
+
+        <p style="color: var(--color-text-muted-dark); font-size: 16px; margin-top: 24px; margin-bottom: 36px;">
+          Вернём кузову сочный зеркальный блеск и уберём мелкие царапины за 1 день без покраски. Бесплатный осмотр ЛКП мастеру.
+        </p>
+
+        <div>
+          <button onclick="openLeadModal('Расчет стоимости по фото')" class="btn-primary" style="cursor: pointer; border: none;">Узнать стоимость по фото</button>
+        </div>
+      </div>
+
+      <!-- ORIGINAL PHOTO COVERING MOST OF SCREEN WITH SMOOTH GRADIENT FADE TO HEADLINE -->
+      <div class="grid-cell hero-photo-viewport">
+        <div class="hero-photo-container">
+          <img src="./images/hero_car.jpg" alt="Полированный автомобиль в техцентре" id="hero-photo-target">
+          <div class="hero-photo-gradient-overlay"></div>
+        </div>
+
+        <!-- UNCLIPPED GLASS CELL BADGE -->
+        <div class="glass-cell-badge">
+          <div class="cell-node"></div>
+          <div class="body-meta" style="color: var(--color-orange); margin-bottom: 4px;">БЕЗ РИСКА ДЛЯ ЛАКА</div>
+          <div style="font-weight: 700; font-size: 14px; color: #FFF;">Бесконтактный замер толщины ЛКП перед полировкой</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 2: FULL-SCREEN SHOWCASE PANELS WITH HORIZONTAL SCROLL & SAISEI REF 4 LAYER PARALLAX -->
+  <section class="section-horizontal-showcase" id="defects">
+    
+    <div class="showcase-header">
+      <div>
+        <div class="body-meta" style="color: var(--color-orange); margin-bottom: 12px;">02 / ЭКРАНЫ ДИАГНОСТИКИ / ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ</div>
+        <h2 class="showcase-title">
+          ДЕФЕКТЫ ЛАКА <span class="inline-badge">БЕЗ ПОКРАСКИ</span>
+        </h2>
+      </div>
+
+      <div style="display: flex; gap: 16px;">
+        <button class="showcase-nav-btn" onclick="scrollShowcase(-900)">←</button>
+        <button class="showcase-nav-btn" onclick="scrollShowcase(900)">→</button>
+      </div>
+    </div>
+
+    <div class="horizontal-showcase-track" id="showcase-track">
+      
+      <!-- SCREEN PANEL 1 -->
+      <div class="showcase-screen-panel">
+        <div class="cell-node"></div>
+        <div class="cell-node" style="top: 100%;"></div>
+        <div class="cell-node" style="left: 100%;"></div>
+        <div class="cell-node" style="left: 100%; top: 100%;"></div>
+
+        <div class="screen-content-cell">
+          <div>
+            <div class="screen-num-badge">01 / 04 ✦ ЛАКОВЫЙ СЛОЙ</div>
+            <h3 class="screen-title">Мелкие царапины кузова</h3>
+            <p class="screen-desc">
+              Поверхностные повреждения верхнего слоя лака от веток, снежных щеток и повседневной эксплуатации. Скорректируем восстановительной полировкой без снятия лишней толщины заводского ЛКП.
+            </p>
+          </div>
+
+          <div class="screen-tech-list">
+            <div class="screen-tech-item"><span>✦</span> <strong>Глубина коррекции:</strong> До 80% поверхностных рисок</div>
+            <div class="screen-tech-item"><span>✦</span> <strong>Время работы:</strong> 1 рабочий день без покраски</div>
+          </div>
+        </div>
+
+        <div class="screen-photo-cell">
+          <img src="./images/defect_scratch.jpg" alt="Мелкие царапины" class="screen-photo-layer">
+          <div class="screen-photo-overlay-badge">МАКРОСЪЕМКА / 100% КОРРЕКЦИЯ</div>
+        </div>
+      </div>
+
+      <!-- SCREEN PANEL 2 -->
+      <div class="showcase-screen-panel">
+        <div class="cell-node"></div>
+        <div class="cell-node" style="top: 100%;"></div>
+        <div class="cell-node" style="left: 100%;"></div>
+        <div class="cell-node" style="left: 100%; top: 100%;"></div>
+
+        <div class="screen-content-cell">
+          <div>
+            <div class="screen-num-badge">02 / 04 ✦ СЛЕДЫ МОЕК</div>
+            <h3 class="screen-title">Круговая «Паутинка»</h3>
+            <p class="screen-desc">
+              Тонкие круговые риски по всему кузову, особенно хорошо заметные под прямыми лучами солнца. Устраняем следы агрессивной сухой протирки и автоматических портальных моек.
+            </p>
+          </div>
+
+          <div class="screen-tech-list">
+            <div class="screen-tech-item"><span>✦</span> <strong>Технология:</strong> Мягкие поролоновые круги + микроабразивы</div>
+            <div class="screen-tech-item"><span>✦</span> <strong>Результат:</strong> Идеально гладкое отражение на солнце</div>
+          </div>
+        </div>
+
+        <div class="screen-photo-cell">
+          <img src="./images/defect_spiderweb.jpg" alt="Паутинка от моек" class="screen-photo-layer">
+          <div class="screen-photo-overlay-badge">СПОТЛАЙТ ИНСПЕКЦИЯ ЛАКА</div>
+        </div>
+      </div>
+
+      <!-- SCREEN PANEL 3 -->
+      <div class="showcase-screen-panel">
+        <div class="cell-node"></div>
+        <div class="cell-node" style="top: 100%;"></div>
+        <div class="cell-node" style="left: 100%;"></div>
+        <div class="cell-node" style="left: 100%; top: 100%;"></div>
+
+        <div class="screen-content-cell">
+          <div>
+            <div class="screen-num-badge">03 / 04 ✦ КОРРЕКЦИЯ</div>
+            <h3 class="screen-title">Голограммы и разводы</h3>
+            <p class="screen-desc">
+              Следы некорректной быстрой машинной полировки в кустарных условиях. Выглядят как радужные дуги и мутные разводы. Подбираем пасты под мягкий или твердый лак автомобиля.
+            </p>
+          </div>
+
+          <div class="screen-tech-list">
+            <div class="screen-tech-item"><span>✦</span> <strong>Устранение:</strong> Эклиптическая финишная паста Rupes</div>
+            <div class="screen-tech-item"><span>✦</span> <strong>Защита:</strong> Восстановление глубинного глянца</div>
+          </div>
+        </div>
+
+        <div class="screen-photo-cell">
+          <img src="./images/detailing_inspection.jpg" alt="Голограммы и разводы" class="screen-photo-layer">
+          <div class="screen-photo-overlay-badge">ФИНИШНАЯ КОРРЕКЦИЯ БЛЕСКА</div>
+        </div>
+      </div>
+
+      <!-- SCREEN PANEL 4 -->
+      <div class="showcase-screen-panel">
+        <div class="cell-node"></div>
+        <div class="cell-node" style="top: 100%;"></div>
+        <div class="cell-node" style="left: 100%;"></div>
+        <div class="cell-node" style="left: 100%; top: 100%;"></div>
+
+        <div class="screen-content-cell">
+          <div>
+            <div class="screen-num-badge">04 / 04 ✦ ГИДРОФОБ</div>
+            <h3 class="screen-title">Потеря блеска и тусклость</h3>
+            <p class="screen-desc">
+              Кузов остаётся мутным и тусклым даже после качественной мойки. Мы выравниваем оптический микрорельеф лака и наносим защитный слой с гидрофобным эффектом скатывания воды.
+            </p>
+          </div>
+
+          <div class="screen-tech-list">
+            <div class="screen-tech-item"><span>✦</span> <strong>Финиш:</strong> Мокрый эффект и скатывание воды</div>
+            <div class="screen-tech-item"><span>✦</span> <strong>Срок службы:</strong> Защита лака до 12 месяцев</div>
+          </div>
+        </div>
+
+        <div class="screen-photo-cell">
+          <img src="./images/macro_droplets.jpg" alt="Потеря блеска" class="screen-photo-layer">
+          <div class="screen-photo-overlay-badge">МОКРЫЙ ЭФФЕКТ ГИДРОФОБА</div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- RE-DESIGNED BLOCK 3: INTERACTIVE PROCESS PATH WITH CONTAINER PADDING & STEP SWITCHER (USER REQUIREMENT) -->
+  <section class="section-process-interactive" id="process">
+    <div class="process-container-padded">
+      
+      <div style="margin-bottom: 32px;">
+        <div class="body-meta" style="color: var(--color-orange); margin-bottom: 12px;">03 / ИНТЕРАКТИВНЫЙ ПУТЬ</div>
+        <h2 style="font-family: var(--font-display); font-size: clamp(2.4rem, 4.5vw, 4.5rem); font-weight: 900; text-transform: uppercase; color: #FFF;">
+          5 ЭТАПОВ <span class="inline-badge">БЕЗОПАСНОЙ</span> ПОЛИРОВКА
+        </h2>
+      </div>
+
+      <!-- INTERACTIVE STEP SELECTOR TABS -->
+      <div class="process-path-tracker">
+        <button class="process-step-tab active" onclick="switchStep(1, this)"><span class="tab-num">01</span><span class="tab-txt">МОЙКА И ОЧИСТКА</span></button>
+        <button class="process-step-tab" onclick="switchStep(2, this)"><span class="tab-num">02</span><span class="tab-txt">ДИАГНОСТИКА</span></button>
+        <button class="process-step-tab" onclick="switchStep(3, this)"><span class="tab-num">03</span><span class="tab-txt">МАСКИРОВКА</span></button>
+        <button class="process-step-tab" onclick="switchStep(4, this)"><span class="tab-num">04</span><span class="tab-txt">ПОЛИРОВКА</span></button>
+        <button class="process-step-tab" onclick="switchStep(5, this)"><span class="tab-num">05</span><span class="tab-txt">ГИДРОФОБ</span></button>
+      </div>
+
+      <!-- DYNAMIC SHOWCASE DISPLAY PANEL -->
+      <div class="process-active-showcase">
+        <div class="cell-node"></div>
+        <div class="cell-node" style="left: 100%;"></div>
+
+        <div class="process-showcase-content">
+          <div>
+            <div class="body-meta" id="step-badge" style="color: var(--color-orange); margin-bottom: 12px;">ЭТАП 01 / 05</div>
+            <h3 style="font-family: var(--font-display); font-weight: 900; font-size: 36px; text-transform: uppercase; color: #FFF; margin-bottom: 16px;" id="step-title">
+              ДЕЛИКАТНАЯ МОЙКА И ОЧИСТКА КУЗОВА
+            </h3>
+            <p style="font-size: 16px; color: var(--color-text-muted-dark); line-height: 1.65; margin-bottom: 32px;" id="step-desc">
+              Деликатная бесконтактная мойка кузова и колесных дисков. Удаление битумных пятен, металлических вкраплений и застарелых загрязнений специализированной синей синтетической глиной.
+            </p>
+          </div>
+
+          <div style="font-family: var(--font-mono); font-size: 12px; color: #FFF; border-top: 1px solid var(--grid-border-dark); padding-top: 20px;" id="step-spec">
+            ✦ Время этапа: ~60 минут / Полная обезжирка ЛКП
+          </div>
+        </div>
+
+        <div class="process-showcase-photo">
+          <img src="./images/detailing_inspection.jpg" alt="Этап полировки кузова" id="step-img">
+          <div style="position: absolute; bottom: 20px; right: 20px; background: rgba(11,12,14,0.85); backdrop-filter: blur(12px); padding: 10px 18px; border-radius: 100px; border: 1px solid var(--color-orange); font-family: var(--font-mono); font-size: 11px; color: #FFF;">
+            ИНТЕНСИВНАЯ ОЧИСТКА
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RE-DESIGNED BLOCK 4: ASYMMETRIC PROOF SHOWCASE WITH CONTAINER PADDING (USER REQUIREMENT) -->
+  <section class="section-proof-asymmetric" id="proof">
+    <div class="proof-container-padded">
+      
+      <div class="proof-asymmetric-layout">
+        
+        <!-- LEFT COLUMN: STICKY VERTICAL TYPOGRAPHY & GUARANTEE TAG -->
+        <div class="proof-left-sticky">
+          <div class="body-meta" style="color: var(--color-orange); margin-bottom: 12px;">04 / ПРЕИМУЩЕСТВА СТУДИИ</div>
+          <h2 style="font-family: var(--font-display); font-weight: 900; font-size: clamp(2.4rem, 4vw, 4.2rem); line-height: 0.95; text-transform: uppercase; background: linear-gradient(135deg, #FF4500 0%, #D93800 45%, #0F172A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px;">
+            ПОЧЕМУ <span class="inline-badge">ВЫБИРАЮТ НАС</span> АВТОВЛАДЕЛЬЦЫ
+          </h2>
+          <p style="font-size: 16px; color: var(--color-text-muted-light); line-height: 1.6; max-width: 480px;">
+            Мы работаем на результат без риска пробития лака. Все цены и сроки фиксируются до начала процедур.
+          </p>
+
+          <div style="margin-top: 40px; background: var(--color-orange-glow); border: 1px solid var(--color-orange); padding: 20px 28px; border-radius: 12px; display: inline-block;">
+            <div style="font-family: var(--font-mono); font-size: 11px; color: var(--color-orange); font-weight: 700;">100% ГАРАНТИЯ БЕЗОПАСНОСТИ</div>
+            <div style="font-weight: 700; font-size: 15px; color: var(--color-text-light);">Контроль толщиномером до и после</div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: STACKED FEATURE CARDS -->
+        <div class="proof-cards-stack">
+          
+          <div class="proof-card-item">
+            <div class="cell-node-dark"></div>
+            <div>
+              <div class="body-meta" style="color: var(--color-orange); margin-bottom: 8px;">01 / ТОЧНОСТЬ ЛАКА</div>
+              <h3 style="font-family: var(--font-display); font-weight: 800; font-size: 22px; color: var(--color-text-light); margin-bottom: 8px;">100% Сохранение заводского ЛКП</h3>
+              <p style="font-size: 14px; color: var(--color-text-muted-light); line-height: 1.6;">Контролируем снятие микронов лака профессиональным толщиномером. Никаких «лысых» ребер и пробитого покрытия.</p>
+            </div>
+            <div class="proof-card-icon-box">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 7v5l3 3"/>
+                <path d="M9 12h2"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="proof-card-item">
+            <div class="cell-node-dark"></div>
+            <div>
+              <div class="body-meta" style="color: var(--color-orange); margin-bottom: 8px;">02 / ЭКОНОМИЯ</div>
+              <h3 style="font-family: var(--font-display); font-weight: 800; font-size: 22px; color: var(--color-text-light); margin-bottom: 8px;">Полировка отдельной детали</h3>
+              <p style="font-size: 14px; color: var(--color-text-muted-light); line-height: 1.6;">Если повреждение только на капоте или двери, не нужно платить за полную обработку всего кузова.</p>
+            </div>
+            <div class="proof-card-icon-box">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="4"/>
+                <path d="M3 9h18M9 21V9"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="proof-card-item card-with-tg-mockup">
+            <div class="cell-node-dark"></div>
+            <div style="display: flex; justify-content: space-between; align-items: start; width: 100%;">
+              <div>
+                <div class="body-meta" style="color: var(--color-orange); margin-bottom: 8px;">03 / СКОРОСТЬ</div>
+                <h3 style="font-family: var(--font-display); font-weight: 800; font-size: 22px; color: var(--color-text-light); margin-bottom: 8px;">Оценка по фото за 15 минут</h3>
+                <p style="font-size: 14px; color: var(--color-text-muted-light); line-height: 1.6;">Пришлите 2-3 снимка царапины в Telegram или WhatsApp / сориентируем по стоимости без визита в студию.</p>
+              </div>
+              <div class="proof-card-icon-box">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- SMARTPHONE TELEGRAM CHAT MOCKUP (USER REQUIREMENT) -->
+            <div class="tg-mockup-container">
+              <div class="tg-mockup-header">
+                <div class="tg-mockup-avatar">APEX</div>
+                <div>
+                  <div class="tg-mockup-name">APEX DETAILING / Полировка</div>
+                  <div class="tg-mockup-status">● онлайн</div>
+                </div>
+              </div>
+
+              <div class="tg-chat-stream">
+                <!-- USER SENT MESSAGE WITH PHOTO -->
+                <div class="tg-bubble user-sent">
+                  <img src="./images/defect_scratch.jpg" alt="Фото дефекта лака" class="tg-sent-photo">
+                  <div>Здравствуйте! Подскажите, уберётся ли эта царапина полировкой?</div>
+                  <div class="tg-time">13:42 ✓✓</div>
+                </div>
+
+                <!-- TECHNICIAN RESPONSE -->
+                <div class="tg-bubble tech-reply">
+                  <div>Добрый день! Да, уберём 80-90% царапин за 1 рабочий день без покраски. Оценка стоимости: ~12 500 ₽.</div>
+                  <div class="tg-time">13:45</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="proof-card-item">
+            <div class="cell-node-dark"></div>
+            <div>
+              <div class="body-meta" style="color: var(--color-orange); margin-bottom: 8px;">04 / ЧЕСТНОСТЬ</div>
+              <h3 style="font-family: var(--font-display); font-weight: 800; font-size: 22px; color: var(--color-text-light); margin-bottom: 8px;">Фиксированная стоимость</h3>
+              <p style="font-size: 14px; color: var(--color-text-muted-light); line-height: 1.6;">Озвученная цена не меняется в процессе работ. Никаких скрытых наценок после завершения полировки.</p>
+            </div>
+            <div class="proof-card-icon-box">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RE-DESIGNED BLOCK 5: FULL-SCREEN ATMOSPHERIC CONVERSION SHOWCASE WITH BACKGROUND PHOTO & GRADIENT (USER REQUIREMENT) -->
+  <section class="section-cta-fullscreen" id="estimate">
+    <div class="cta-fullscreen-gradient-overlay"></div>
+
+    <div class="cta-fullscreen-container">
+      <div class="cta-fullscreen-content">
+        <div class="body-meta" style="color: var(--color-orange); margin-bottom: 16px;">05 / ИНТЕРАКТИВНЫЙ ОСМОТР КУЗОВА</div>
+        <h2 style="font-family: var(--font-display); font-weight: 900; font-size: clamp(2.4rem, 4.5vw, 4.5rem); line-height: 0.95; text-transform: uppercase; color: #FFF;">
+          УЗНАЙТЕ СТОИМОСТЬ <span class="inline-badge">ПО ФОТО</span> ЗА 15 МИНУТ
+        </h2>
+        <p style="color: var(--color-text-muted-dark); font-size: 17px; line-height: 1.6; margin-top: 24px;">
+          Отправьте фото дефекта в Telegram или WhatsApp. Мастер осмотрит повреждение и скажет, удастся ли убрать дефект полностью без покраски.
+        </p>
+
+        <!-- OPTION SELECTOR PILLS -->
+        <div class="cta-option-pills">
+          <button class="cta-pill-item active" onclick="selectCtaOption(this)">✦ Полировка капота / двери</button>
+          <button class="cta-pill-item" onclick="selectCtaOption(this)">✦ Полировка всего кузова</button>
+          <button class="cta-pill-item" onclick="selectCtaOption(this)">✦ Удаление глубоких потёртостей</button>
+        </div>
+
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <button onclick="openLeadModal('Оценка по фото в Telegram')" class="btn-primary" style="padding: 16px 36px; font-size: 14px; cursor: pointer; border: none;">Telegram: @apex_detailing</button>
+          <button onclick="openLeadModal('Заказать обратный звонок')" class="btn-primary" style="background: rgba(255,255,255,0.08); border: 1px solid var(--grid-border-dark); padding: 16px 36px; font-size: 14px; cursor: pointer;">Заказать звонок: +7 (800) 555-01-99</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RE-DESIGNED BLOCK 6: MASSIVE FULL-SCREEN KINETIC FOOTER (USER REQUIREMENT) -->
+  <footer class="full-kinetic-footer" id="contacts">
+    <div class="footer-container-padded">
+      
+      <!-- MASSIVE KINETIC TEXT LOGO SPANNING FULL WIDTH (USER REQUIREMENT) -->
+      <div class="kinetic-brand-logo" id="kinetic-logo">
+        APEX <span>STUDIO</span>
+      </div>
+
+      <div class="footer-detail-grid">
+        <div>
+          <div style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: #FFF; margin-bottom: 12px;">
+            APEX-DETAILING.COM <span style="font-size: 12px; color: var(--color-orange); font-family: var(--font-mono);">/ 2026</span>
+          </div>
+          <p style="color: var(--color-text-muted-dark); font-size: 14px; line-height: 1.6; max-width: 380px; margin-bottom: 24px;">
+            Профессиональный детейлинг, премиальная коррекция ЛКП и восстановительная полировка кузова автомобиля.
+          </p>
+          <div style="font-family: var(--font-mono); font-size: 12px; color: #FFF;">Флагманская студия / ПН-СБ 09:00 / 20:00</div>
+        </div>
+
+        <div>
+          <div class="footer-col-title">НАВИГАЦИЯ</div>
+          <ul class="footer-nav-list">
+            <li><a href="#hero">/ 01. Полировка кузова</a></li>
+            <li><a href="#defects">/ 02. Диагностика дефектов</a></li>
+            <li><a href="#process">/ 03. Интерактивный путь</a></li>
+            <li><a href="#proof">/ 04. Преимущества</a></li>
+            <li><a href="#estimate">/ 05. Оценка по фото</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">СВЯЗЬ СО СТУДИЕЙ</div>
+          <ul class="footer-nav-list">
+            <li style="color: var(--color-text-muted-dark); font-size: 14px;">+7 (800) 555-01-99</li>
+            <li style="color: var(--color-text-muted-dark); font-size: 14px;">Telegram: @apex_detailing</li>
+            <li style="color: var(--color-text-muted-dark); font-size: 14px;">WhatsApp: +7 (800) 555-01-99</li>
+            <li style="color: var(--color-text-muted-dark); font-size: 14px;">Instagram: @apex_detailing</li>
+          </ul>
+        </div>
+
+        <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <div class="footer-col-title">ЗАПИСЬ НА ОСМОТР</div>
+            <button onclick="openLeadModal('Запись на осмотр ЛКП')" class="btn-primary" style="margin-bottom: 16px; cursor: pointer; border: none;">Записаться на осмотр</button>
+          </div>
+
+          <button class="btn-back-to-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">ВВЕРХ ↑</button>
+        </div>
+      </div>
+
+      <div style="padding-top: 24px; border-top: 1px solid var(--grid-border-dark); margin-top: 24px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-muted-dark); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>APEX-DETAILING.COM / 2026 ALL RIGHTS RESERVED</div>
+        <div style="text-align: center; color: var(--color-orange); font-weight: 500;">
+          Разработка концепта: <a href="https://t.me/ksen_web" target="_blank" style="color: #FFFFFF; text-decoration: underline; font-weight: 700; transition: color 0.3s ease;">@ksen_web</a>
+        </div>
+        <div>PREMIUM DETAILING & CERAMIC COATING</div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- MODAL POPUP FOR LEADS / ESTIMATES -->
+  <div class="modal-overlay" id="lead-modal" onclick="closeModalOnOverlay(event)">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeLeadModal()">✕</button>
+
+      <div class="modal-header">
+        <div class="body-meta" style="color: var(--color-orange); margin-bottom: 8px;">APEX DETAILING ✦ ОНЛАЙН-ЗАЯВКА</div>
+        <h3 class="modal-title" id="modal-service-title">РАСЧЕТ СТОИМОСТИ ПО ФОТО</h3>
+        <p class="modal-subtitle">Оставьте контакт или имя. Мастер свяжется с вами в течение 15 минут для уточнения деталей.</p>
+      </div>
+
+      <form class="modal-form" onsubmit="handleFormSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Ваше имя</label>
+          <input type="text" class="form-input" placeholder="Александр" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Телефон или Telegram / WhatsApp</label>
+          <input type="text" class="form-input" placeholder="+7 (999) 000-00-00 или @username" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Модель авто и дефект (опционально)</label>
+          <input type="text" class="form-input" placeholder="Porsche Cayenne, царапины на капоте">
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 16px; margin-top: 10px; cursor: pointer; border: none;">
+          Отправить заявку ✦
+        </button>
+      </form>
+
+      <div class="modal-success-msg" id="modal-success">
+        <div style="font-size: 32px; margin-bottom: 8px;">✨</div>
+        <div style="font-family: var(--font-display); font-weight: 800; font-size: 20px; color: #FFF; margin-bottom: 8px;">ЗАЯВКА УСПЕШНО ПРИНЯТА!</div>
+        <div style="color: var(--color-text-muted-dark); font-size: 14px;">Мастер детально изучит ваш запрос и свяжется с вами в течение 15 минут.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS SCRIPTS FOR INTERACTIVE STEPPER & KINETIC FOOTER & MODAL -->
+  <script>
+    function openLeadModal(serviceName) {
+      const modal = document.getElementById('lead-modal');
+      const titleEl = document.getElementById('modal-service-title');
+      const form = document.querySelector('.modal-form');
+      const success = document.getElementById('modal-success');
+      
+      if (serviceName && titleEl) {
+        titleEl.innerText = serviceName.toUpperCase();
+      }
+      if (form) form.style.display = 'block';
+      if (success) success.classList.remove('active');
+      if (modal) modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLeadModal() {
+      const modal = document.getElementById('lead-modal');
+      if (modal) modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOnOverlay(e) {
+      if (e.target.id === 'lead-modal') {
+        closeLeadModal();
+      }
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const form = document.querySelector('.modal-form');
+      const success = document.getElementById('modal-success');
+      if (form) form.style.display = 'none';
+      if (success) success.classList.add('active');
+      setTimeout(() => {
+        closeLeadModal();
+      }, 3000);
+    }
+
+    function toggleMenu() {
+      const drawer = document.getElementById('menu-drawer');
+      drawer.classList.toggle('active');
+    }
+
+    function scrollShowcase(amount) {
+      const track = document.getElementById('showcase-track');
+      track.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+
+    function selectCtaOption(btn) {
+      document.querySelectorAll('.cta-pill-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    // INTERACTIVE PROCESS STEPPER (BLOCK 3)
+    const processData = {
+      1: {
+        badge: "ЭТАП 01 / 05",
+        title: "ДЕЛИКАТНАЯ МОЙКА И ОЧИСТКА КУЗОВА",
+        desc: "Деликатная бесконтактная мойка кузова и колесных дисков. Удаление битумных пятен, металлических вкраплений и застарелых загрязнений специализированной синей синтетической глиной.",
+        spec: "✦ Время этапа: ~60 минут / Полная обезжирка ЛКП",
+        img: "./images/detailing_inspection.jpg"
+      },
+      2: {
+        badge: "ЭТАП 02 / 05",
+        title: "БЕСКОНТАКТНАЯ ДИАГНОСТИКА ЛАКА",
+        desc: "Замер толщины лакового слоя по всем элементам кузова ультразвуковым толщиномером. Определение участков с тонким или перекрашенным лаком перед работой.",
+        spec: "✦ Контроль: Ультразвуковой замер / 0 пробития лака",
+        img: "./images/macro_droplets.jpg"
+      },
+      3: {
+        badge: "ЭТАП 03 / 05",
+        title: "ЗАЩИТНАЯ МАСКИРОВКА ЭЛЕМЕНТОВ",
+        desc: "Тщательная оклейка всех пластиковых деталей, хрома, фар, резиновых уплотнителей и стыков элементов специализированным малярным скотчем.",
+        spec: "✦ Безопасность: Защита 100% пластика и резины",
+        img: "./images/defect_scratch.jpg"
+      },
+      4: {
+        badge: "ЭТАП 04 / 05",
+        title: "КОРРЕКЦИЯ В 2-3 ЭТАПА RUPES",
+        desc: "Последовательная абразивная коррекция рисок крупнозернистой пастой с последующей финишной антиголограммной пастой Rupes для зеркального блеска.",
+        spec: "✦ Пасты: Rupes BigFoot / Коррекция до 80% рисок",
+        img: "./images/defect_spiderweb.jpg"
+      },
+      5: {
+        badge: "ЭТАП 05 / 05",
+        title: "ФИНИШНОЕ ГИДРОФОБНОЕ ПОКРЫТИЕ",
+        desc: "Нанесение защитного керамо-воскового покрытия. Формирует водоотталкивающий гидрофобный слой: вода скатывается в идеальные капли.",
+        spec: "✦ Эффект: Скатывание воды / Защита до 12 месяцев",
+        img: "./images/macro_droplets.jpg"
+      }
+    };
+
+    function switchStep(num, btn) {
+      document.querySelectorAll('.process-step-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const data = processData[num];
+      if (data) {
+        document.getElementById('step-badge').innerText = data.badge;
+        document.getElementById('step-title').innerText = data.title;
+        document.getElementById('step-desc').innerText = data.desc;
+        document.getElementById('step-spec').innerText = data.spec;
+        document.getElementById('step-img').src = data.img;
+      }
+    }
+
+    // KINETIC FOOTER MOUSE PARALLAX EFFECT
+    document.addEventListener('DOMContentLoaded', () => {
+      const photoTarget = document.getElementById('hero-photo-target');
+      const kineticLogo = document.getElementById('kinetic-logo');
+
+      window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        if (scrolled < 1200 && photoTarget) {
+          photoTarget.style.transform = `translateY(${scrolled * 0.15}px)`;
+        }
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (kineticLogo) {
+          const x = (e.clientX / window.innerWidth - 0.5) * 30;
+          const y = (e.clientY / window.innerHeight - 0.5) * 15;
+          kineticLogo.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

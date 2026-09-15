@@ -94,6 +94,7 @@ export default function App() {
           <Route path="/cases"             element={<AllCases />} />
           <Route path="/case/:id"          element={<CaseTemplate />} />
           <Route path="/brief"              element={<BriefPage />} />
+          <Route path="/admin"             element={<AdminWorkspace />} />
           <Route path="/admin-keis"        element={<AdminWorkspace />} />
           <Route path="/privacy-policy"    element={<LegalPage type="privacy" />} />
           <Route path="/terms"             element={<LegalPage type="terms" />} />
