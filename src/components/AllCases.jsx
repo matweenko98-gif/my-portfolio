@@ -35,20 +35,24 @@ export default function AllCases() {
         
         if (error) throw error;
         
-        let mergedCases = data && data.length > 0 ? data : contentData.cases.items;
-        
-        // Always ensure local AI concepts from contentData are included
-        const localAiConcepts = contentData.cases.items.filter(item => item.is_ai_concept || item.isAiConcept);
-        localAiConcepts.forEach(localItem => {
-          const exists = mergedCases.some(c => 
-            (c.slug && localItem.slug && c.slug === localItem.slug) || 
-            (c.title && localItem.title && c.title === localItem.title) ||
-            (c.demo_url && localItem.demo_url && c.demo_url === localItem.demo_url)
-          );
-          if (!exists) {
-            mergedCases = [localItem, ...mergedCases];
-          }
-        });
+        const localCases = contentData.cases.items || [];
+        let mergedCases = [...localCases];
+
+        if (data && data.length > 0) {
+          data.forEach(dbItem => {
+            const index = mergedCases.findIndex(
+              localItem =>
+                (dbItem.slug && localItem.slug && dbItem.slug === localItem.slug) ||
+                (dbItem.id && localItem.id && String(dbItem.id) === String(localItem.id)) ||
+                (dbItem.title && localItem.title && dbItem.title.toLowerCase() === localItem.title.toLowerCase())
+            );
+            if (index !== -1) {
+              mergedCases[index] = { ...mergedCases[index], ...dbItem };
+            } else {
+              mergedCases.push(dbItem);
+            }
+          });
+        }
 
         setCases(mergedCases);
       } catch (err) {

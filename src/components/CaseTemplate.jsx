@@ -590,50 +590,43 @@ export default function CaseTemplate() {
     const fetchCaseData = async () => {
       setLoading(true);
       try {
-        // First check local AI concept in contentData
-        const localAiMatch = contentData.cases.items.find(
-          item => (item.is_ai_concept || item.isAiConcept) && 
-                  (String(item.id) === id || String(item.slug) === id || id === '1' || (item.demo_url && item.demo_url.includes(id)))
+        // 1. Check local contentData items
+        const localMatch = contentData.cases.items.find(
+          item => String(item.id) === id || String(item.slug) === id || item.slug === id || (id === '1' && (item.is_ai_concept || item.isAiConcept))
         );
 
-        if (localAiMatch) {
-          setData(localAiMatch);
-          setIsAiModalOpen(true);
-          setLoading(false);
-          return;
+        // 2. Fetch from Supabase
+        let dbMatch = null;
+        try {
+          const { data: bySlug } = await supabase
+            .from('cases')
+            .select('*')
+            .eq('slug', id)
+            .maybeSingle();
+          
+          if (bySlug) {
+            dbMatch = bySlug;
+          } else {
+            const { data: byId } = await supabase
+              .from('cases')
+              .select('*')
+              .eq('id', id)
+              .maybeSingle();
+            if (byId) dbMatch = byId;
+          }
+        } catch (dbErr) {
+          console.warn('Supabase fetch error or offline:', dbErr);
         }
 
-        // Try by slug in Supabase
-        const { data: fetchedData, error } = await supabase
-          .from('cases')
-          .select('*')
-          .eq('slug', id)
-          .maybeSingle();
+        const finalData = dbMatch ? { ...(localMatch || {}), ...dbMatch } : localMatch;
 
-        if (error) throw error;
-
-        if (fetchedData) {
-          setData(fetchedData);
-          if (fetchedData.is_ai_concept || fetchedData.isAiConcept) {
+        if (finalData) {
+          setData(finalData);
+          if (finalData.is_ai_concept || finalData.isAiConcept) {
             setIsAiModalOpen(true);
           }
         } else {
-          // Fallback by ID if slug not found
-          const { data: fallbackData, error: fbError } = await supabase
-            .from('cases')
-            .select('*')
-            .eq('id', id)
-            .maybeSingle();
-          
-          if (fbError) throw fbError;
-          if (fallbackData) {
-            setData(fallbackData);
-            if (fallbackData.is_ai_concept || fallbackData.isAiConcept) {
-              setIsAiModalOpen(true);
-            }
-          } else {
-            setData(null);
-          }
+          setData(null);
         }
       } catch (err) {
         console.error('Error fetching case detail:', err);

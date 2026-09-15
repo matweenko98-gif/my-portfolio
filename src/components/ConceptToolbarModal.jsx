@@ -6,6 +6,7 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
   const [viewMode, setViewMode] = useState('desktop'); // 'desktop' | 'mobile'
   const [scaleMode, setScaleMode] = useState('fit'); // 'fit' | 0.25 | 0.5 | 0.75 | 1.0
   const [containerSize, setContainerSize] = useState({ width: 1280, height: 720 });
+  const [iframeContentHeight, setIframeContentHeight] = useState(5000);
   const [isDragging, setIsDragging] = useState(false);
   const scrollContainerRef = useRef(null);
   const iframeRef = useRef(null);
@@ -24,6 +25,23 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
+
+  // Measure content document height inside iframe
+  const measureIframe = () => {
+    try {
+      if (iframeRef.current) {
+        const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
+        if (doc) {
+          const bodyH = doc.body?.scrollHeight || 0;
+          const htmlH = doc.documentElement?.scrollHeight || 0;
+          const maxH = Math.max(bodyH, htmlH);
+          if (maxH > 500 && maxH !== iframeContentHeight) {
+            setIframeContentHeight(maxH);
+          }
+        }
+      }
+    } catch (e) {}
+  };
 
   // Track scroll container size for precise auto-scale calculations
   useEffect(() => {
@@ -74,7 +92,6 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
 
   // Unscaled frame target dimensions
   const unscaledWidth = currentViewMode === 'mobile' ? 375 : 1280;
-  const baseUnscaledHeight = currentViewMode === 'mobile' ? 812 : 832;
 
   // Available container space inside modal body
   const paddingMarginX = 24;
@@ -92,23 +109,19 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
       ? autoScale
       : Number(scaleMode);
 
-  // Outer frame dimensions: proportional scaling matching true desktop/mobile viewport
+  // Outer frame dimensions: fills 100% available height on screen
   const outerWidth =
     currentViewMode === 'mobile'
       ? Math.round(375 * effectiveScale)
       : Math.round(unscaledWidth * effectiveScale);
 
-  const rawOuterHeight = Math.round(baseUnscaledHeight * effectiveScale);
+  const totalScaledHeight = Math.round(iframeContentHeight * effectiveScale);
 
-  const outerHeight =
-    scaleMode === 'fit'
-      ? Math.min(availableHeight, rawOuterHeight)
-      : rawOuterHeight;
+  // Takes 100% of available screen height
+  const outerHeight = Math.min(availableHeight, totalScaledHeight);
 
-  // Unscaled height matches scaled outerHeight to eliminate trailing empty space
-  const unscaledIframeHeight = Math.round(
-    outerHeight / Math.max(0.1, effectiveScale)
-  );
+  // Unscaled iframe height matches full document height
+  const unscaledIframeHeight = iframeContentHeight;
 
   // Mouse Drag-to-Scroll handlers
   const handleMouseDown = (e) => {
@@ -285,13 +298,13 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
               isDragging ? 'cursor-grabbing' : effectiveScale >= 1 ? 'cursor-grab' : 'cursor-default'
             }`}
           >
-            {/* Outer Frame Wrapper with scaled dimensions */}
+            {/* Outer Frame Wrapper: fills 100% screen height */}
             <div
               style={{
                 width: `${outerWidth}px`,
                 height: `${outerHeight}px`
               }}
-              className={`m-auto shrink-0 transition-all duration-300 relative rounded-xl border border-zinc-700/90 bg-white shadow-[0_20px_70px_rgba(0,0,0,0.9)] overflow-hidden ${
+              className={`m-auto shrink-0 transition-all duration-300 relative rounded-xl border border-zinc-700/90 bg-white shadow-[0_20px_70px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col ${
                 currentViewMode === 'mobile' ? 'rounded-[36px] border-[8px] border-zinc-800 bg-black' : ''
               }`}
             >
@@ -302,30 +315,34 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
                 </div>
               )}
 
-              {/* Scaled Inner Iframe Container */}
-              <div
-                style={{
-                  width: `${unscaledWidth}px`,
-                  height: `${unscaledIframeHeight}px`,
-                  transform: `scale(${effectiveScale})`,
-                  transformOrigin: 'top left'
-                }}
-                className="relative"
-              >
-                <iframe
-                  ref={iframeRef}
-                  src={demoUrl}
-                  title={title}
-                  onLoad={() => {
-                    try {
-                      if (iframeRef.current) {
-                        iframeRef.current.contentWindow?.scrollTo(0, 0);
-                      }
-                    } catch (e) {}
+              {/* Scaled Inner Container with vertical scroll */}
+              <div className="w-full flex-1 overflow-x-hidden overflow-y-auto relative">
+                <div
+                  style={{
+                    width: `${unscaledWidth}px`,
+                    height: `${unscaledIframeHeight}px`,
+                    transform: `scale(${effectiveScale})`,
+                    transformOrigin: 'top left'
                   }}
-                  className="w-full h-full border-none bg-white pointer-events-auto"
-                  sandbox="allow-scripts allow-same-origin allow-forms"
-                />
+                  className="relative"
+                >
+                  <iframe
+                    ref={iframeRef}
+                    src={demoUrl}
+                    title={title}
+                    onLoad={() => {
+                      measureIframe();
+                      setTimeout(measureIframe, 300);
+                      try {
+                        if (iframeRef.current) {
+                          iframeRef.current.contentWindow?.scrollTo(0, 0);
+                        }
+                      } catch (e) {}
+                    }}
+                    className="w-full h-full border-none bg-white pointer-events-auto"
+                    sandbox="allow-scripts allow-same-origin allow-forms"
+                  />
+                </div>
               </div>
 
               {/* Overlay while dragging */}
