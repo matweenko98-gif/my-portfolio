@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import contentData from '../contentData';
 import { supabase } from '../lib/supabaseClient';
 import { caseCardImg } from '../utils/imageUtils';
+import ConceptToolbarModal from './ConceptToolbarModal';
 
 const INITIAL_VISIBLE = 4; // количество карточек, видимых при первой загрузке
 
@@ -35,6 +36,8 @@ export default function Cases() {
   const [otherProjects, setOtherProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
+  const [selectedConcept, setSelectedConcept] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCases = async () => {
@@ -134,36 +137,6 @@ export default function Cases() {
     }
   };
 
-  const overlayVariants = {
-    hidden: {
-      opacity: 0,
-      backdropFilter: "blur(0px)",
-      WebkitBackdropFilter: "blur(0px)"
-    },
-    visible: {
-      opacity: 0,
-      backdropFilter: "blur(0px)",
-      WebkitBackdropFilter: "blur(0px)",
-      transition: { duration: 0.4, ease: "easeInOut" }
-    },
-    hover: {
-      opacity: 1,
-      backdropFilter: "blur(3px)",
-      WebkitBackdropFilter: "blur(3px)",
-      transition: { duration: 0.6, ease: "easeInOut" }
-    }
-  };
-
-  const textVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 0, scale: 0.95 },
-    hover: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.4, delay: 0.1, ease: "easeOut" }
-    }
-  };
-
   return (
     <motion.section
       id="cases"
@@ -173,6 +146,13 @@ export default function Cases() {
       transition={{ duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }}
       className="relative py-20 px-6 md:px-12 lg:px-16 border-b\u00a0border-zinc-100 bg-white"
     >
+      {/* Concept Toolbar Modal */}
+      <ConceptToolbarModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        concept={selectedConcept}
+      />
+
       {/* Background Coordinate Lines */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0">
         <div className="border-l border-neutral-200/30 h-full" />
@@ -209,6 +189,7 @@ export default function Cases() {
             {visibleCases.map((project, idx) => {
               const caseNumber = String(idx + 1).padStart(2, '0');
               const isInDev = !!project.is_in_development || !!project.inDevelopment;
+              const isAi = !!project.is_ai_concept || !!project.isAiConcept || (project.tags && project.tags.some(t => t.toLowerCase().includes('ии') || t.toLowerCase().includes('ai')));
               const title = project.card_title || project.title || project.name || '(Без\u00a0названия)';
               const image = project.card_image || project.imageMain;
               const tags = Array.isArray(project.card_tags) ? project.card_tags : (project.tags || []);
@@ -222,11 +203,18 @@ export default function Cases() {
                       ? 'cursor-default' 
                       : 'cursor-pointer hover:bg-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)]'
                   }`}
+                  onClick={(e) => {
+                    if (isAi && !isInDev) {
+                      e.preventDefault();
+                      setSelectedConcept(project);
+                      setIsModalOpen(true);
+                    }
+                  }}
                 >
                   <div>
                     {/* Внутренний таб-индекс */}
                     <span className="text-[10px] font-semibold tracking-wider text-[#FF5B23] uppercase mb-3 block">
-                      [ КЕЙС {caseNumber} ]
+                      [ {isAi ? `ИИ-КОНЦЕПТ ${caseNumber}` : `КЕЙС ${caseNumber}`} ]
                     </span>
 
                     {/* Графический контейнер */}
@@ -239,6 +227,16 @@ export default function Cases() {
                             </div>
                           </div>
                         )}
+
+                        {isAi && !isInDev && (
+                          <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+                            <div className="bg-[#FF5B23] px-4 py-2 rounded-sm text-white text-[11px] font-bold tracking-wider shadow-lg flex items-center gap-1.5">
+                              <span>СМОТРЕТЬ КОНЦЕПТ</span>
+                              <span>↗</span>
+                            </div>
+                          </div>
+                        )}
+
                         {image ? (
                           <img
                             src={caseCardImg(image)}
@@ -258,12 +256,16 @@ export default function Cases() {
                         )}
                       </div>
 
-                      {/* Лаймовые бейджи */}
+                      {/* Лаймовые / Темные бейджи */}
                       <div className="absolute bottom-3 left-3 flex flex-row flex-wrap gap-1.5 z-10">
                         {tags.map((tag, tIdx) => (
                           <span
                             key={tIdx}
-                            className="bg-[#E0FB4A] border border-[#E0FB4A]/30 text-zinc-950 text-[10px] px-2.5 py-1 rounded-sm shadow-sm tracking-wide uppercase font-semibold"
+                            className={`text-[10px] px-2.5 py-1 rounded-sm shadow-sm tracking-wide uppercase font-semibold border ${
+                              isAi 
+                                ? 'bg-black text-white border-black/40' 
+                                : 'bg-[#E0FB4A] border-[#E0FB4A]/30 text-zinc-950'
+                            }`}
                           >
                             {tag}
                           </span>
@@ -285,7 +287,7 @@ export default function Cases() {
 
                     {!isInDev && (
                       <span className="block md:hidden mt-4 mb-3 text-sm font-medium text-zinc-800 hover:text-zinc-600 underline decoration-zinc-300 underline-offset-4">
-                        Смотреть кейс →
+                        {isAi ? 'Смотреть концепт →' : 'Смотреть кейс →'}
                       </span>
                     )}
                   </div>
@@ -303,7 +305,7 @@ export default function Cases() {
                   layout
                   className="h-full"
                 >
-                  {isInDev ? (
+                  {isInDev || isAi ? (
                     <div className="h-full block">
                       {cardContent}
                     </div>
@@ -409,3 +411,4 @@ export default function Cases() {
     </motion.section>
   );
 }
+

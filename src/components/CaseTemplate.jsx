@@ -6,6 +6,7 @@ import contentData from '../contentData';
 import KineticMarquee from './ui/KineticMarquee';
 import { supabase } from '../lib/supabaseClient';
 import { caseHeroImg, panoramaImg, featureImg, mobileFeatureImg, outroImg, customBlockImg, avatarImg } from '../utils/imageUtils';
+import ConceptToolbarModal from './ConceptToolbarModal';
 
 // ── Framer Motion shared animation preset ──
 const sectionReveal = {
@@ -331,7 +332,7 @@ function CaseSidebar({ activeSection, sections = [] }) {
         initial={{ opacity: 0, filter: "blur(8px)" }}
         animate={{ opacity: 1, filter: "blur(0px)" }}
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-        className="lg:hidden flex items-center justify-between px-6 py-4 sticky top-0 bg-white/85 backdrop-blur-md border-b\u00a0border-zinc-100 z-[200]"
+        className="lg:hidden flex items-center justify-between px-6 py-4 sticky top-0 bg-white/85 backdrop-blur-md border-b border-zinc-100 z-[200]"
       >
         <span className="text-sm font-medium text-zinc-900">{profile.name}</span>
         <button
@@ -415,7 +416,7 @@ function CaseSidebar({ activeSection, sections = [] }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span className="border-b\u00a0border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+            <span className="border-b border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
               Связь в MAX
             </span>
             <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -428,7 +429,7 @@ function CaseSidebar({ activeSection, sections = [] }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span className="border-b\u00a0border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+            <span className="border-b border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
               Связь в Telegram
             </span>
             <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -518,7 +519,7 @@ function CaseSidebar({ activeSection, sections = [] }) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span className="border-b\u00a0border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+              <span className="border-b border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
                 Связь в MAX
               </span>
               <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -531,7 +532,7 @@ function CaseSidebar({ activeSection, sections = [] }) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span className="border-b\u00a0border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
+              <span className="border-b border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
                 Связь в Telegram
               </span>
               <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -579,6 +580,7 @@ export default function CaseTemplate() {
   const [loading, setLoading] = useState(true);
   const [casesList, setCasesList] = useState([]);
   const [activeSection, setActiveSection] = useState('case-about');
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
   const desktopScrollRef = useRef(null);
   const mobileScrollRef = useRef(null);
@@ -588,7 +590,20 @@ export default function CaseTemplate() {
     const fetchCaseData = async () => {
       setLoading(true);
       try {
-        // First try by slug
+        // First check local AI concept in contentData
+        const localAiMatch = contentData.cases.items.find(
+          item => (item.is_ai_concept || item.isAiConcept) && 
+                  (String(item.id) === id || String(item.slug) === id || id === '1' || (item.demo_url && item.demo_url.includes(id)))
+        );
+
+        if (localAiMatch) {
+          setData(localAiMatch);
+          setIsAiModalOpen(true);
+          setLoading(false);
+          return;
+        }
+
+        // Try by slug in Supabase
         const { data: fetchedData, error } = await supabase
           .from('cases')
           .select('*')
@@ -599,6 +614,9 @@ export default function CaseTemplate() {
 
         if (fetchedData) {
           setData(fetchedData);
+          if (fetchedData.is_ai_concept || fetchedData.isAiConcept) {
+            setIsAiModalOpen(true);
+          }
         } else {
           // Fallback by ID if slug not found
           const { data: fallbackData, error: fbError } = await supabase
@@ -610,6 +628,9 @@ export default function CaseTemplate() {
           if (fbError) throw fbError;
           if (fallbackData) {
             setData(fallbackData);
+            if (fallbackData.is_ai_concept || fallbackData.isAiConcept) {
+              setIsAiModalOpen(true);
+            }
           } else {
             setData(null);
           }
@@ -680,6 +701,73 @@ export default function CaseTemplate() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white text-zinc-900 font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-[#FF5B23]" />
+          <span className="text-xs font-semibold tracking-wider uppercase">Загрузка проекта...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle AI Concept direct page render
+  if (data && (data.is_ai_concept || data.isAiConcept)) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white font-sans p-6 text-center relative overflow-hidden">
+        <ConceptToolbarModal
+          isOpen={isAiModalOpen}
+          onClose={() => setIsAiModalOpen(false)}
+          concept={data}
+        />
+        <span className="px-3 py-1 rounded text-xs font-bold uppercase tracking-wider bg-[#FF5B23] text-white mb-4">
+          ИИ-КОНЦЕПТ
+        </span>
+        <h1 className="text-3xl md:text-5xl font-light tracking-tight text-white mb-3 max-w-xl">
+          {data.title || data.card_title || data.name}
+        </h1>
+        <p className="text-sm md:text-base text-zinc-400 mb-8 max-w-md font-light leading-relaxed">
+          {data.description || 'Интерактивный ИИ-концепт для демонстрации возможностей визуального стиля и верстки.'}
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => setIsAiModalOpen(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF5B23] text-white hover:bg-[#e04f1e] rounded-sm text-sm font-semibold transition-all cursor-pointer shadow-lg no-underline border-none"
+          >
+            <span>Смотреть концепт</span>
+            <span>↗</span>
+          </button>
+          <Link
+            to="/cases"
+            className="inline-flex items-center gap-2 px-5 py-3 border border-zinc-700 text-zinc-300 hover:text-white hover:border-zinc-500 rounded-sm text-sm font-medium transition-colors bg-zinc-900 cursor-pointer no-underline"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Все проекты</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white text-zinc-900 font-sans p-6 text-center">
+        <h1 className="text-4xl font-light tracking-tight text-black mb-4">Проект не найден</h1>
+        <p className="text-sm text-zinc-500 mb-8 max-w-sm">Кейс с адресом "{id}" не существует в базе данных или был удален.</p>
+        <Link
+          to="/cases"
+          className="inline-flex items-center gap-2 px-4 py-2 border border-zinc-200 text-zinc-900 hover:text-black hover:border-zinc-400 rounded-sm text-[12px] font-medium transition-colors bg-white shadow-sm cursor-pointer no-underline"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Все проекты</span>
+        </Link>
+      </div>
+    );
+  }
+
   // Track active section on scroll
   useEffect(() => {
     let sectionPositions = [];
