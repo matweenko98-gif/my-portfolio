@@ -102,7 +102,7 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
 
   const demoUrl = concept.demo_url || concept.demoUrl || '/demos/apex-detailing/index.html';
   const title = concept.card_title || concept.title || concept.name || 'ИИ-Концепт';
-  const isDesktopOnly = !!concept.is_desktop_only || !!concept.isDesktopOnly;
+  const isDesktopOnly = concept?.is_desktop_only === true || concept?.isDesktopOnly === true;
 
   const BASE_DESKTOP_WIDTH = 1440;
   const containerScale = windowWidth < BASE_DESKTOP_WIDTH ? windowWidth / BASE_DESKTOP_WIDTH : 1;
@@ -166,7 +166,7 @@ export default function ConceptToolbarModal({ isOpen, onClose, concept }) {
 
         {/* Fullscreen Viewport Area (Enforces fixed 1440px desktop iframe canvas and scales it down seamlessly) */}
         <div className="w-full flex-1 relative bg-[#0B0C0E] overflow-hidden">
-          {containerScale < 1 ? (
+          {isDesktopOnly && containerScale < 1 ? (
             <div
               style={{
                 width: `${BASE_DESKTOP_WIDTH}px`,

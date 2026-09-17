@@ -259,7 +259,7 @@ const contentData = {
         description: "Интерактивный концепт премиального гастрономического кейтеринга. Авторская подача, монументальный дизайн и калькулятор мероприятий.",
         tags: ["ИИ-Концепт", "Гастрономия", "Landing"],
         is_ai_concept: true,
-        is_desktop_only: true,
+        is_desktop_only: false,
         demo_url: "/demos/esthete-catering/index.html",
         imageMain: "/demos/esthete-catering/images/hero_outdoor.jpg",
         card_image: "/demos/esthete-catering/images/hero_outdoor.jpg",
