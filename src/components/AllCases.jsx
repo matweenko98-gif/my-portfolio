@@ -61,7 +61,7 @@ export default function AllCases() {
         if (dbCases && dbCases.length > 0) {
           const validDbCases = dbCases.filter(c => c.slug || c.title || c.card_title);
           mergedCases = [...validDbCases];
-          localAiConcepts.forEach(aiItem => {
+          [...localAiConcepts].reverse().forEach(aiItem => {
             const exists = mergedCases.some(c => 
               (c.slug && aiItem.slug && c.slug === aiItem.slug) ||
               (c.title && aiItem.title && c.title.toLowerCase() === aiItem.title.toLowerCase())
@@ -273,10 +273,10 @@ export default function AllCases() {
                                 </div>
                               )}
 
-                              {isAi && !isInDev && (
+                              {!isInDev && (
                                 <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
                                   <div className="bg-[#FF5B23] px-4 py-2 rounded-sm text-white text-[11px] font-bold tracking-wider shadow-lg flex items-center gap-1.5">
-                                    <span>СМОТРЕТЬ КОНЦЕПТ</span>
+                                    <span>{isAi ? 'СМОТРЕТЬ КОНЦЕПТ' : 'СМОТРЕТЬ КЕЙС'}</span>
                                     <span>↗</span>
                                   </div>
                                 </div>

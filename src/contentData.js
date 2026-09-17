@@ -251,6 +251,23 @@ const contentData = {
     // Поле `description` — краткая аннотация для архивной строки внизу секции.
     items: [
       {
+        slug: "esthete-catering",
+        name: "ESTHÈTE CATERING — Haute Gastronomie & Event Design",
+        title: "ESTHÈTE CATERING — Haute Gastronomie & Event Design",
+        card_title: "ESTHÈTE CATERING — Премиум кейтеринг",
+        date: "2026-03-17",
+        description: "Интерактивный концепт премиального гастрономического кейтеринга. Авторская подача, монументальный дизайн и калькулятор мероприятий.",
+        tags: ["ИИ-Концепт", "Гастрономия", "Landing"],
+        is_ai_concept: true,
+        is_desktop_only: true,
+        demo_url: "/demos/esthete-catering/index.html",
+        imageMain: "/demos/esthete-catering/images/hero_outdoor.jpg",
+        card_image: "/demos/esthete-catering/images/hero_outdoor.jpg",
+        imageHover: null,
+        link: "/demos/esthete-catering/index.html"
+      },
+      {
+        slug: "apex-detailing",
         name: "APEX DETAILING — Hydrophobic Precision Studio",
         title: "APEX DETAILING — Hydrophobic Precision Studio",
         card_title: "APEX DETAILING — Авто-детейлинг",
