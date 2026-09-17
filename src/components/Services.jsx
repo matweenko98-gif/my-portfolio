@@ -130,1040 +130,173 @@ function getOptionButtonClass(isSelected, isFirstHint) {
   return 'text-neutral-400 border border-neutral-850 bg-transparent hover:border-neutral-750 hover:bg-neutral-800 hover:text-white';
 }
 
-
-function TildaCalculator({ service, onSendSuccess, isCalcOpen }) {
-  const [siteType, setSiteType] = useState(null);
-  const [pagesCount, setPagesCount] = useState(null);
-  const [contentReady, setContentReady] = useState(null);
-  const [comments, setComments] = useState('');
-  const [name, setName] = useState('');
-  const [contact, setContact] = useState('');
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
-  const [cartBump, setCartBump] = useState(false);
-  const [badgeBump, setBadgeBump] = useState(false);
-  const [highlightedSlot, setHighlightedSlot] = useState(null);
-  const [collectedIds, setCollectedIds] = useState([]);
-  const cartRef = useRef(null);
-  const cartIconRef = useRef(null);
-  const slotRefs = useRef({});
-
-  // Reset state when closed
-  useEffect(() => {
-    if (!isCalcOpen) {
-      setSiteType(null);
-      setPagesCount(null);
-      setContentReady(null);
-      setComments('');
-      setName('');
-      setContact('');
-      setErrors({});
-      setCollectedIds([]);
+function TildaTariffs({ service }) {
+  const products = [
+    {
+      title: 'Лендинг',
+      price: 'от\u00a030 000 ₽',
+      desc: 'Одностраничный сайт с\u00a0уникальным дизайном в\u00a0Zero Block для\u00a0продажи услуги или\u00a0товара с\u00a0высоким фокусом на\u00a0конверсию.',
+      features: [
+        'Индивидуальный дизайн в\u00a0Figma',
+        'Верстка на\u00a0Tilda в\u00a0Zero-блоках',
+        'Полная адаптация под\u00a0смартфоны',
+        'Базовая SEO-оптимизация и\u00a0формы'
+      ]
+    },
+    {
+      title: 'Корпоративный сайт',
+      price: 'от\u00a045 000 ₽',
+      desc: 'Многостраничный сайт компании с\u00a0детальным представлением услуг, информацией о\u00a0бренде и\u00a0контактами.',
+      features: [
+        'Разработка структуры до\u00a05-10 страниц',
+        'Уникальный визуальный стиль',
+        'Интеграция CRM и\u00a0Telegram-уведомлений',
+        'Удобное самостоятельное управление'
+      ]
+    },
+    {
+      title: 'Интернет-магазин',
+      price: 'от\u00a045 000 ₽',
+      desc: 'Полноценный онлайн-магазин с\u00a0каталогом товаров, корзиной, приемом платежей и\u00a0удобными фильтрами.',
+      features: [
+        'Каталог товаров и\u00a0категорий',
+        'Корзина и\u00a0подключение эквайринга',
+        'Настройка вариантов и\u00a0фильтров',
+        'Обучение работе с\u00a0каталогом Tilda'
+      ]
     }
-  }, [isCalcOpen]);
-
-  const siteTypeOptions = [
-    { value: 'individual_landing', label: 'Индивидуальный Лендинг', price: 30000, days: 7, description: 'одностраничный сайт с\u00a0уникальным дизайном в\u00a0Zero-блоках' },
-    { value: 'template_site', label: 'Сайт на\u00a0шаблонах Tilda', price: 20000, days: 5, description: 'быстрый старт на\u00a0стандартных блоках с\u00a0кастомизацией под\u00a0стиль' },
-    { value: 'multipage_shop', label: 'Многостраничный сайт / Магазин', price: 50000, days: 15, description: 'уникальный дизайн, сложная структура' }
   ];
-
-  const pagesOptions = [
-    { value: '1_page', label: '1 страница', multiplier: 1, extraDays: 0, description: 'подходит для\u00a0лендинга' },
-    { value: '2_5_pages', label: 'От\u00a02 до\u00a05 страниц', multiplier: 1.3, extraDays: 5, description: '' },
-    { value: '5_10_pages', label: 'От\u00a05 до\u00a010 страниц', multiplier: 1.6, extraDays: 10, description: '' },
-    { value: 'more_10_pages', label: 'Более 10 страниц / Каталог', multiplier: 2.0, extraDays: 15, description: '' }
-  ];
-
-  const contentReadyOptions = [
-    { value: 'ready', label: 'У\u00a0меня есть всё готовое', multiplier: 1, extraDays: 0, description: 'тексты, фотографии, фирменный стиль' },
-    { value: 'partial', label: 'Материалы есть частично', multiplier: 1.2, extraDays: 3, description: 'потребуется помощь в\u00a0доработке или\u00a0структурировании' },
-    { value: 'none', label: 'Ничего нет', multiplier: 1.4, extraDays: 7, description: 'нужна разработка структуры и\u00a0текстов с\u00a0нуля' }
-  ];
-
-  const activeSiteType = siteType ? siteTypeOptions.find((opt) => opt.value === siteType) : null;
-  const activePages = pagesCount ? pagesOptions.find((opt) => opt.value === pagesCount) : null;
-  const activeContentReady = contentReady ? contentReadyOptions.find((opt) => opt.value === contentReady) : null;
-
-  const isCartComplete = Boolean(siteType && pagesCount && contentReady);
-  const price = isCartComplete
-    ? Math.round(activeSiteType.price * activePages.multiplier * activeContentReady.multiplier)
-    : 0;
-  const days = isCartComplete
-    ? activeSiteType.days + activePages.extraDays + activeContentReady.extraDays
-    : 0;
-
-  const cartItems = [
-    { id: 'siteType', step: 1, icon: Layout },
-    { id: 'pagesCount', step: 2, icon: Files },
-    { id: 'contentReady', step: 3, icon: FileText },
-  ];
-
-  const registerSlotRef = useCallback((id, el) => {
-    if (el) slotRefs.current[id] = el;
-  }, []);
-
-  const handleOptionChange = (group, value, ev) => {
-    if (group === 'siteType') setSiteType(value);
-    if (group === 'pagesCount') setPagesCount(value);
-    if (group === 'contentReady') setContentReady(value);
-
-    const item = cartItems.find((entry) => entry.id === group);
-    const src = ev?.currentTarget ?? ev?.target ?? null;
-    const target = slotRefs.current[group] ?? cartRef.current;
-
-    flyChipToCart(
-      src,
-      target,
-      { step: item?.step ?? '•', iconKey: TILDA_CART_ICON_KEYS[group] },
-      () => {
-        setCollectedIds((prev) => (prev.includes(group) ? prev : [...prev, group]));
-        setHighlightedSlot(group);
-        setCartBump(true);
-        setBadgeBump(true);
-        setTimeout(() => {
-          setHighlightedSlot(null);
-          setCartBump(false);
-          setBadgeBump(false);
-        }, 450);
-      }
-    );
-  };
-
-  const handleSubmit = async () => {
-    const newErrors = {};
-    if (!isCartComplete) {
-      alert('Пожалуйста, выберите все параметры проекта в\u00a0конфигураторе.');
-      return;
-    }
-    if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
-    else if (!isValidContact(contact)) newErrors.contact = 'Пожалуйста, введите корректный номер телефона или никнейм Telegram (например, @username)';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setErrors({});
-    setSubmitError(null);
-    setLoading(true);
-
-    const siteTypeLabels = siteTypeOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
-    const pagesLabels = pagesOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
-    const contentReadyLabels = contentReadyOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
-
-    const messageText = `🔔 *Новая заявка с сайта-портфолио (Расчет Tilda)*
-
-  *Клиент:* ${name}
-  *Контакт:* ${contact}
-
-  *Услуга:* ${service.title}
-  *Выбранные параметры:*
-  • Тип сайта: *${siteTypeLabels[siteType]}*
-  • Количество страниц: *${pagesLabels[pagesCount]}*
-  • Готовность контента: *${contentReadyLabels[contentReady]}*
-  • Дополнительные пожелания: *${comments || 'Нет'}*
-
-  *Примерная стоимость:* от ${formatPrice(price)} руб.
-  *Сроки:* от ${days} ${getDaysWord(days)}
-
-  ✅ *Действие:* Подтверждение расчета`;
-
-    try {
-      const success = await sendTelegramMessage(messageText);
-      if (success) {
-        const customSuccessMsg = `Расчет получен! Я свяжусь с вами в ближайшее время для уточнения деталей. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${contentData.contacts.messengers.telegram.url}`;
-        onSendSuccess();
-        setName('');
-        setContact('');
-        setComments('');
-        return;
-      }
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
-    } catch (e) {
-      console.error(e);
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getTildaOptionButtonClass = (isSelected) => {
-    if (isSelected) {
-      return 'bg-white text-black font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
-    }
-    return 'bg-white/50 text-neutral-700 hover:text-black font-normal';
-  };
 
   return (
-    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-sm p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-[#111111] text-xl font-normal tracking-tight border-b\u00a0border-neutral-200 pb-3">
-        Конфигуратор проекта
+    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-sm p-5 sm:p-6 flex flex-col gap-6 w-full">
+      <div id="tariffs-heading-01" className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
+        <span>Тарифы на разработку сайтов на Tilda</span>
+        <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-sm">
+          Сроки: от 7 рабочих дней
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
-        <div className="space-y-6 h-full flex flex-col">
-          <div className="flex flex-col gap-2">
-            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-              ШАГ 1: ТИП САЙТА И ДИЗАЙН-КОНЦЕПЦИЯ
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
-              {siteTypeOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={(e) => handleOptionChange('siteType', opt.value, e)}
-                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
-                    siteType === opt.value
-                  )}`}
-                  style={{ borderWidth: '0.4px', borderColor: siteType === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
-                >
-                  {opt.label}
-                </button>
-              ))}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {products.map((p, idx) => (
+          <div key={idx} className="bg-[#1A1A1A] border border-neutral-850 rounded-sm p-5 flex flex-col justify-between hover:shadow-sm hover:border-neutral-750 transition-all duration-300">
+            <div>
+              <h4 className="text-base sm:text-lg font-bold text-white mb-1.5">{p.title}</h4>
+              <span className="inline-block text-xs sm:text-sm font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-sm px-2.5 py-1 mb-3.5">
+                {p.price}
+              </span>
+              <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-5">{p.desc}</p>
             </div>
-            <span className="text-neutral-500 text-xs font-light px-1">
-              {activeSiteType?.description ?? siteTypeOptions[0].description}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-              ШАГ 2: КОЛИЧЕСТВО СТРАНИЦ
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
-              {pagesOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={(e) => handleOptionChange('pagesCount', opt.value, e)}
-                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
-                    pagesCount === opt.value
-                  )}`}
-                  style={{ borderWidth: '0.4px', borderColor: pagesCount === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
-                >
-                  {opt.label}
-                </button>
+            <ul className="space-y-2.5 border-t border-neutral-850 pt-4">
+              {p.features.map((f, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs sm:text-[13px] text-neutral-300 leading-relaxed">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                  <span>{f}</span>
+                </li>
               ))}
-            </div>
-            <span className="text-neutral-500 text-xs font-light px-1">
-              {activePages?.description ?? pagesOptions[0].description}
-            </span>
+            </ul>
           </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-              ШАГ 3: ГОТОВНОСТЬ КОНТЕНТА
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
-              {contentReadyOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={(e) => handleOptionChange('contentReady', opt.value, e)}
-                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
-                    contentReady === opt.value
-                  )}`}
-                  style={{ borderWidth: '0.4px', borderColor: contentReady === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            <span className="text-neutral-500 text-xs font-light px-1">
-              {activeContentReady?.description ?? contentReadyOptions[0].description}
-            </span>
-          </div>
-        </div>
-
-        <div className="h-full flex flex-col">
-          <ProjectCart
-            cartRef={cartRef}
-            cartIconRef={cartIconRef}
-            registerSlotRef={registerSlotRef}
-            items={cartItems}
-            collectedIds={collectedIds}
-            price={price}
-            days={days}
-            isComplete={isCartComplete}
-            bump={cartBump}
-            badgeBump={badgeBump}
-            highlightedSlot={highlightedSlot}
-            isLight={true}
-          />
-        </div>
+        ))}
       </div>
 
-      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-200">
-        <div className="flex flex-col gap-2">
-          <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-            Свободные пожелания
-          </span>
-          <textarea
-            rows={4}
-            placeholder="Например: Нужна интеграция с CRM и личный кабинет..."
-            value={comments}
-            onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-sm px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
-              Ваше имя *
-            </label>
-            <input
-              type="text"
-              placeholder="Имя"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
-              }}
-              className={`w-full bg-white border ${
-                errors.name ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
-            />
-            {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
-          </div>
-
-          <div>
-            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
-              Телефон или Telegram *
-            </label>
-            <input
-              type="text"
-              placeholder="Телефон или Telegram"
-              value={contact}
-              onChange={(e) => {
-                setContact(e.target.value);
-                if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
-              }}
-              className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
-            />
-            {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleSubmit}
-            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
-          >
-            {loading ? 'Отправка...' : 'Подтвердить расчет'}
-          </button>
-          <a
-            href={contentData.contacts.messengers.telegram.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
-          >
-            Нужна консультация
-          </a>
-        </div>
-        {submitError && (
-          <div className="text-red-500 text-sm mt-3">{submitError}</div>
-        )}
-        {submitError && (
-          <div className="text-red-500 text-sm mt-3">{submitError}</div>
-        )}
+      <div className="pt-4 border-t border-neutral-850 flex flex-col items-center gap-3">
+        <p className="text-xs text-neutral-450 font-medium text-center">
+          Подберем оптимальный формат и рассчитаем точные сроки под вашу задачу.
+        </p>
+        <a
+          href={contentData.contacts.messengers.telegram.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
+        >
+          <Send className="w-4 h-4" />
+          <span>Обсудить проект в Telegram</span>
+        </a>
       </div>
     </div>
   );
 }
 
-function RedesignCalculator({ service, onSendSuccess, isCalcOpen }) {
-  const [problemType, setProblemType] = useState(null);
-  const [volume, setVolume] = useState(null);
-  const [depth, setDepth] = useState(null);
-  const [comments, setComments] = useState('');
-  const [name, setName] = useState('');
-  const [contact, setContact] = useState('');
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [cartBump, setCartBump] = useState(false);
-  const [badgeBump, setBadgeBump] = useState(false);
-  const [highlightedSlot, setHighlightedSlot] = useState(null);
-  const [collectedIds, setCollectedIds] = useState([]);
-  const cartRef = useRef(null);
-  const cartIconRef = useRef(null);
-  const slotRefs = useRef({});
-
-  // Reset state when closed
-  useEffect(() => {
-    if (!isCalcOpen) {
-      setProblemType(null);
-      setVolume(null);
-      setDepth(null);
-      setComments('');
-      setName('');
-      setContact('');
-      setErrors({});
-      setCollectedIds([]);
+function RedesignTariffs({ service }) {
+  const products = [
+    {
+      title: 'Визуальный редизайн',
+      price: 'от\u00a020 000 ₽',
+      desc: 'Обновление устаревшего стиля, шрифтов и\u00a0адаптивов без\u00a0кардинального изменения имеющейся структуры.',
+      features: [
+        'Освежение цвета, стилистики и\u00a0шрифтов',
+        'Перенос сайта на\u00a0Tilda',
+        'Полная мобильная адаптация',
+        'Сохранение важного текстового контента'
+      ]
+    },
+    {
+      title: 'Полный редизайн (Лендинг)',
+      price: 'от\u00a030 000 ₽',
+      desc: 'Глубокая переработка одностраничного сайта: новая UX-структура, кастомный дизайн в\u00a0Figma и\u00a0верстка.',
+      features: [
+        'Анализ проблем текущего сайта',
+        'Проектирование новой логики и\u00a0смыслов',
+        'Уникальный дизайн блоков с\u00a0нуля',
+        'Оптимизация конверсии под\u00a0рекламу'
+      ]
+    },
+    {
+      title: 'Полный редизайн (Сайт / Магазин)',
+      price: 'от\u00a045 000 ₽',
+      desc: 'Комплексное перепроектирование многостраничного сайта или\u00a0каталога с\u00a0устранением ошибок UX.',
+      features: [
+        'Проработка структуры всех страниц',
+        'Новая визуальная концепция и\u00a0UI-кит',
+        'Верстка на\u00a0Tilda и\u00a0перенос товаров',
+        'Сохранение SEO-позиций и\u00a0ссылок'
+      ]
     }
-  }, [isCalcOpen]);
-
-  const problemOptions = [
-    { value: 'outdated', label: 'Устарел дизайн', price: 20000, days: 0, description: 'обновим визуальный стиль сайта и\u00a0сделаем его современным' },
-    { value: 'mobile_ux', label: 'Плохой мобильный UX', price: 25000, days: 2, description: 'исправим ошибки отображения на\u00a0телефонах и\u00a0планшетах' },
-    { value: 'no_leads', label: 'Устарел контент / Новые блоки', price: 30000, days: 4, description: 'добавим новые разделы, страницы или обновим информацию под свежие задачи бизнеса' }
   ];
-
-  const volumeOptions = [
-    { value: 'landing', label: 'Одностраничный сайт', multiplier: 1.0, extraDays: 0, description: 'подходит для\u00a0лендинга' },
-    { value: 'multipage', label: 'До\u00a05 страниц', multiplier: 1.4, extraDays: 3, description: 'подходит для\u00a0сайтов компаний' },
-    { value: 'large', label: 'Крупный сайт / Магазин', multiplier: 1.8, extraDays: 7, description: 'более 5 страниц или\u00a0каталог' }
-  ];
-
-  const depthOptions = [
-    { value: 'visual_update', label: 'Визуальное обновление', multiplier: 1.0, extraDays: 0, description: 'тексты и\u00a0структура остаются прежними, меняется только дизайн' },
-    { value: 'full_redesign', label: 'Полный редизайн UX/UI', multiplier: 1.3, extraDays: 3, description: 'исправление логики, новая структура и\u00a0дизайн в\u00a0Figma с\u00a0нуля' },
-    { value: 'full_rewrite', label: 'Полная переработка смыслов', multiplier: 1.6, extraDays: 5, description: 'пишем тексты и\u00a0структуру заново под\u00a0новые задачи' }
-  ];
-
-  const activeProblem = problemType ? problemOptions.find((opt) => opt.value === problemType) : null;
-  const activeVolume = volume ? volumeOptions.find((opt) => opt.value === volume) : null;
-  const activeDepth = depth ? depthOptions.find((opt) => opt.value === depth) : null;
-
-  const isCartComplete = Boolean(problemType && volume && depth);
-  const price = isCartComplete
-    ? Math.round(activeProblem.price * activeVolume.multiplier * activeDepth.multiplier)
-    : 0;
-  const days = isCartComplete
-    ? 5 + activeProblem.days + activeVolume.extraDays + activeDepth.extraDays
-    : 0;
-
-  const cartItems = [
-    { id: 'problemType', step: 1, icon: RefreshCw },
-    { id: 'volume', step: 2, icon: Files },
-    { id: 'depth', step: 3, icon: FileText },
-  ];
-
-  const iconKeys = {
-    problemType: 'layout',
-    volume: 'files',
-    depth: 'fileText',
-  };
-
-  const registerSlotRef = useCallback((id, el) => {
-    if (el) slotRefs.current[id] = el;
-  }, []);
-
-  const handleOptionChange = (group, value, ev) => {
-    if (group === 'problemType') setProblemType(value);
-    if (group === 'volume') setVolume(value);
-    if (group === 'depth') setDepth(value);
-
-    const item = cartItems.find((entry) => entry.id === group);
-    const src = ev?.currentTarget ?? ev?.target ?? null;
-    const target = slotRefs.current[group] ?? cartRef.current;
-
-    flyChipToCart(
-      src,
-      target,
-      { step: item?.step ?? '•', iconKey: iconKeys[group] },
-      () => {
-        setCollectedIds((prev) => (prev.includes(group) ? prev : [...prev, group]));
-        setHighlightedSlot(group);
-        setCartBump(true);
-        setBadgeBump(true);
-        setTimeout(() => {
-          setHighlightedSlot(null);
-          setCartBump(false);
-          setBadgeBump(false);
-        }, 450);
-      }
-    );
-  };
-
-  const handleSubmit = async () => {
-    const newErrors = {};
-    if (!isCartComplete) {
-      alert('Пожалуйста, выберите все параметры проекта в\u00a0конфигураторе.');
-      return;
-    }
-    if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
-    else if (!isValidContact(contact)) newErrors.contact = 'Пожалуйста, введите корректный номер телефона или никнейм Telegram (например, @username)';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setErrors({});
-    setSubmitError(null);
-    setLoading(true);
-
-    const problemLabels = problemOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
-    const volumeLabels = volumeOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
-    const depthLabels = depthOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
-
-    const messageText = `🔔 *Новая заявка с сайта-портфолио (Редизайн сайта)*
-
-  *Клиент:* ${name}
-  *Контакт:* ${contact}
-
-  *Услуга:* ${service.title}
-  *Выбранные параметры:*
-  • Проблема сайта: *${problemLabels[problemType]}*
-  • Объем страниц: *${volumeLabels[volume]}*
-  • Глубина переработки: *${depthLabels[depth]}*
-  • Дополнительные пожелания: *${comments || 'Нет'}*
-
-  *Примерная стоимость:* от ${formatPrice(price)} руб.
-  *Сроки:* от ${days} ${getDaysWord(days)}
-
-  ✅ *Действие:* Подтверждение расчета`;
-
-    try {
-      const success = await sendTelegramMessage(messageText);
-      if (success) {
-        const customSuccessMsg = `Расчет получен! Я изучу ваш текущий сайт и свяжусь в ближайшее время. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${contentData.contacts.messengers.telegram.url}`;
-        onSendSuccess();
-        setName('');
-        setContact('');
-        setComments('');
-        return;
-      }
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
-    } catch (e) {
-      console.error(e);
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getTildaOptionButtonClass = (isSelected) => {
-    if (isSelected) {
-      return 'bg-white text-black font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
-    }
-    return 'bg-white/50 text-neutral-700 hover:text-black font-normal';
-  };
 
   return (
-    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-sm p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-[#111111] text-xl font-normal tracking-tight border-b\u00a0border-neutral-200 pb-3">
-        Конфигуратор редизайна
+    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-sm p-5 sm:p-6 flex flex-col gap-6 w-full">
+      <div id="tariffs-heading-02" className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
+        <span>Тарифы на редизайн и оптимизацию</span>
+        <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-sm">
+          Сроки: от 5 рабочих дней
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
-        <div className="space-y-6 h-full flex flex-col">
-          <div className="flex flex-col gap-2">
-            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-              ШАГ 1: ТЕКУЩИЕ ПРОБЛЕМЫ САЙТА
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
-              {problemOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={(e) => handleOptionChange('problemType', opt.value, e)}
-                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
-                    problemType === opt.value
-                  )}`}
-                  style={{ borderWidth: '0.4px', borderColor: problemType === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
-                >
-                  {opt.label}
-                </button>
-              ))}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {products.map((p, idx) => (
+          <div key={idx} className="bg-[#1A1A1A] border border-neutral-850 rounded-sm p-5 flex flex-col justify-between hover:shadow-sm hover:border-neutral-750 transition-all duration-300">
+            <div>
+              <h4 className="text-base sm:text-lg font-bold text-white mb-1.5">{p.title}</h4>
+              <span className="inline-block text-xs sm:text-sm font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-sm px-2.5 py-1 mb-3.5">
+                {p.price}
+              </span>
+              <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-5">{p.desc}</p>
             </div>
-            <span className="text-neutral-500 text-xs font-light px-1">
-              {activeProblem?.description ?? problemOptions[0].description}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-              ШАГ 2: ОБЪЕМ СТРАНИЦ
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
-              {volumeOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={(e) => handleOptionChange('volume', opt.value, e)}
-                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
-                    volume === opt.value
-                  )}`}
-                  style={{ borderWidth: '0.4px', borderColor: volume === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
-                >
-                  {opt.label}
-                </button>
+            <ul className="space-y-2.5 border-t border-neutral-850 pt-4">
+              {p.features.map((f, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs sm:text-[13px] text-neutral-300 leading-relaxed">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                  <span>{f}</span>
+                </li>
               ))}
-            </div>
-            <span className="text-neutral-500 text-xs font-light px-1">
-              {activeVolume?.description ?? volumeOptions[0].description}
-            </span>
+            </ul>
           </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-              ШАГ 3: ГЛУБИНА ПЕРЕРАБОТКИ СМЫСЛОВ
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
-              {depthOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={(e) => handleOptionChange('depth', opt.value, e)}
-                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
-                    depth === opt.value
-                  )}`}
-                  style={{ borderWidth: '0.4px', borderColor: depth === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            <span className="text-neutral-500 text-xs font-light px-1">
-              {activeDepth?.description ?? depthOptions[0].description}
-            </span>
-          </div>
-        </div>
-
-        <div className="h-full flex flex-col">
-          <ProjectCart
-            cartRef={cartRef}
-            cartIconRef={cartIconRef}
-            registerSlotRef={registerSlotRef}
-            items={cartItems}
-            collectedIds={collectedIds}
-            price={price}
-            days={days}
-            isComplete={isCartComplete}
-            bump={cartBump}
-            badgeBump={badgeBump}
-            highlightedSlot={highlightedSlot}
-            isLight={true}
-          />
-        </div>
+        ))}
       </div>
 
-      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-200">
-        <div className="flex flex-col gap-2">
-          <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-            Дополнительные пожелания и ссылка на текущий сайт
-          </span>
-          <textarea
-            rows={4}
-            placeholder="Укажите ссылку на текущий сайт и напишите пожелания..."
-            value={comments}
-            onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-sm px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
-              Ваше имя *
-            </label>
-            <input
-              type="text"
-              placeholder="Имя"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
-              }}
-              className={`w-full bg-white border ${
-                errors.name ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
-            />
-            {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
-          </div>
-
-          <div>
-            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
-              Телефон или Telegram *
-            </label>
-            <input
-              type="text"
-              placeholder="Телефон или Telegram"
-              value={contact}
-              onChange={(e) => {
-                setContact(e.target.value);
-                if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
-              }}
-              className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
-            />
-            {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleSubmit}
-            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
-          >
-            {loading ? 'Отправка...' : 'Подтвердить расчет'}
-          </button>
-          <a
-            href={contentData.contacts.messengers.telegram.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
-          >
-            Нужна консультация
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FigmaCalculator({ service, onSendSuccess, isCalcOpen }) {
-  const [designType, setDesignType] = useState(null);
-  const [complexity, setComplexity] = useState(null);
-  const [specStatus, setSpecStatus] = useState(null);
-  const [comments, setComments] = useState('');
-  const [name, setName] = useState('');
-  const [contact, setContact] = useState('');
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [cartBump, setCartBump] = useState(false);
-  const [badgeBump, setBadgeBump] = useState(false);
-  const [highlightedSlot, setHighlightedSlot] = useState(null);
-  const [collectedIds, setCollectedIds] = useState([]);
-  const cartRef = useRef(null);
-  const cartIconRef = useRef(null);
-  const slotRefs = useRef({});
-
-  // Reset state when closed
-  useEffect(() => {
-    if (!isCalcOpen) {
-      setDesignType(null);
-      setComplexity(null);
-      setSpecStatus(null);
-      setComments('');
-      setName('');
-      setContact('');
-      setErrors({});
-      setCollectedIds([]);
-    }
-  }, [isCalcOpen]);
-
-  const typeOptions = [
-    { value: 'website_design', label: 'Дизайн веб-сайта', price: 20000, days: 0, description: 'уникальный стиль, адаптивные макеты для\u00a0ПК и\u00a0мобильных устройств' },
-    { value: 'app_interface', label: 'Интерфейс приложения', price: 35000, days: 5, description: 'UX-сценарии, личные кабинеты, дашборды и\u00a0экраны MVP' }
-  ];
-
-  const complexityOptions = [
-    { value: 'small', label: 'До\u00a05 экранов', multiplier: 1.0, extraDays: 0, description: 'подходит для\u00a0простых сайтов и\u00a0лендингов' },
-    { value: 'medium', label: 'От\u00a05 до\u00a015 экранов', multiplier: 1.4, extraDays: 5, description: 'подходит для\u00a0сайтов компаний и\u00a0небольших сервисов' },
-    { value: 'ecosystem', label: 'Более 15 экранов', multiplier: 1.8, extraDays: 10, description: 'сложная экосистема, детальный интерактивный прототип' }
-  ];
-
-  const specOptions = [
-    { value: 'has_spec', label: 'Есть готовый UI-кит / ТЗ', multiplier: 1.0, extraDays: 0, description: 'работа по\u00a0готовым компонентам и\u00a0готовой структуре' },
-    { value: 'no_spec', label: 'Без\u00a0UI-кита / ТЗ с\u00a0нуля', multiplier: 1.3, extraDays: 5, description: 'совместная разработка дизайн-системы и\u00a0проектирование логики' }
-  ];
-
-  const activeType = designType ? typeOptions.find((opt) => opt.value === designType) : null;
-  const activeComplexity = complexity ? complexityOptions.find((opt) => opt.value === complexity) : null;
-  const activeSpec = specStatus ? specOptions.find((opt) => opt.value === specStatus) : null;
-
-  const isCartComplete = Boolean(designType && complexity && specStatus);
-  const price = isCartComplete
-    ? Math.round(activeType.price * activeComplexity.multiplier * activeSpec.multiplier)
-    : 0;
-  const days = isCartComplete
-    ? 10 + activeType.days + activeComplexity.extraDays + activeSpec.extraDays
-    : 0;
-
-  const cartItems = [
-    { id: 'designType', step: 1, icon: Figma },
-    { id: 'complexity', step: 2, icon: Files },
-    { id: 'specStatus', step: 3, icon: FileText },
-  ];
-
-  const iconKeys = {
-    designType: 'layout',
-    complexity: 'files',
-    specStatus: 'fileText',
-  };
-
-  const registerSlotRef = useCallback((id, el) => {
-    if (el) slotRefs.current[id] = el;
-  }, []);
-
-  const handleOptionChange = (group, value, ev) => {
-    if (group === 'designType') setDesignType(value);
-    if (group === 'complexity') setComplexity(value);
-    if (group === 'specStatus') setSpecStatus(value);
-
-    const item = cartItems.find((entry) => entry.id === group);
-    const src = ev?.currentTarget ?? ev?.target ?? null;
-    const target = slotRefs.current[group] ?? cartRef.current;
-
-    flyChipToCart(
-      src,
-      target,
-      { step: item?.step ?? '•', iconKey: iconKeys[group] },
-      () => {
-        setCollectedIds((prev) => (prev.includes(group) ? prev : [...prev, group]));
-        setHighlightedSlot(group);
-        setCartBump(true);
-        setBadgeBump(true);
-        setTimeout(() => {
-          setHighlightedSlot(null);
-          setCartBump(false);
-          setBadgeBump(false);
-        }, 450);
-      }
-    );
-  };
-
-  const handleSubmit = async () => {
-    const newErrors = {};
-    if (!isCartComplete) {
-      alert('Пожалуйста, выберите все параметры проекта в\u00a0конфигураторе.');
-      return;
-    }
-    if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
-    else if (!isValidContact(contact)) newErrors.contact = 'Пожалуйста, введите корректный номер телефона или никнейм Telegram (например, @username)';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setErrors({});
-    setSubmitError(null);
-    setLoading(true);
-
-    const typeLabels = typeOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
-    const complexityLabels = complexityOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
-    const specLabels = specOptions.reduce((acc, item) => ({ ...acc, [item.value]: item.label }), {});
-
-    const messageText = `🔔 *Новая заявка с сайта-портфолио (Дизайн в Figma)*
-
-  *Клиент:* ${name}
-  *Контакт:* ${contact}
-
-  *Услуга:* ${service.title}
-  *Выбранные параметры:*
-  • Тип дизайна: *${typeLabels[designType]}*
-  • Объем и сложность: *${complexityLabels[complexity]}*
-  • UI-кит / ТЗ: *${specLabels[specStatus]}*
-  • Дополнительные пожелания: *${comments || 'Нет'}*
-
-  *Примерная стоимость (только дизайн):* от ${formatPrice(price)} руб.
-  *Сроки:* от ${days} ${getDaysWord(days)}
-
-  ✅ *Действие:* Подтверждение расчета`;
-
-    try {
-      const success = await sendTelegramMessage(messageText);
-      if (success) {
-        const customSuccessMsg = `Расчет получен! Я проанализирую вашу задачу и свяжусь в ближайшее время для обсуждения концепции. Мой номер телефона: ${contentData.contacts.phone}, Telegram: ${contentData.contacts.messengers.telegram.url}`;
-        onSendSuccess();
-        setName('');
-        setContact('');
-        setComments('');
-        return;
-      }
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
-    } catch (e) {
-      console.error(e);
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getTildaOptionButtonClass = (isSelected) => {
-    if (isSelected) {
-      return 'bg-white text-black font-semibold shadow-[0_3px_10px_rgba(0,0,0,0.08),_0_1px_3px_rgba(0,0,0,0.04)]';
-    }
-    return 'bg-white/50 text-neutral-700 hover:text-black font-normal';
-  };
-
-  return (
-    <div className="bg-[#FFFFFF] border border-neutral-200/60 rounded-sm p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-[#111111] text-xl font-normal tracking-tight border-b\u00a0border-neutral-200 pb-3">
-        Конфигуратор дизайна в Figma
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch lg:min-h-[420px]">
-        <div className="space-y-6 h-full flex flex-col">
-          <div className="flex flex-col gap-2">
-            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-              ШАГ 1: ТИП ИНТЕРФЕЙСА
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
-              {typeOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={(e) => handleOptionChange('designType', opt.value, e)}
-                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
-                    designType === opt.value
-                  )}`}
-                  style={{ borderWidth: '0.4px', borderColor: designType === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            <span className="text-neutral-500 text-xs font-light px-1">
-              {activeType?.description ?? typeOptions[0].description}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-              ШАГ 2: КОЛИЧЕСТВО УНИКАЛЬНЫХ ЭКРАНОВ
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
-              {complexityOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={(e) => handleOptionChange('complexity', opt.value, e)}
-                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
-                    complexity === opt.value
-                  )}`}
-                  style={{ borderWidth: '0.4px', borderColor: complexity === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            <span className="text-neutral-500 text-xs font-light px-1">
-              {activeComplexity?.description ?? complexityOptions[0].description}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-              ШАГ 3: НАЛИЧИЕ ГОТОВОГО UI-КИТА
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 p-1.5 bg-neutral-100 rounded-sm border border-transparent">
-              {specOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={(e) => handleOptionChange('specStatus', opt.value, e)}
-                  className={`text-center py-2 px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all cursor-pointer ${getTildaOptionButtonClass(
-                    specStatus === opt.value
-                  )}`}
-                  style={{ borderWidth: '0.4px', borderColor: specStatus === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            <span className="text-neutral-500 text-xs font-light px-1">
-              {activeSpec?.description ?? specOptions[0].description}
-            </span>
-          </div>
-        </div>
-
-        <div className="h-full flex flex-col">
-          <ProjectCart
-            cartRef={cartRef}
-            cartIconRef={cartIconRef}
-            registerSlotRef={registerSlotRef}
-            items={cartItems}
-            collectedIds={collectedIds}
-            price={price}
-            days={days}
-            isComplete={isCartComplete}
-            bump={cartBump}
-            badgeBump={badgeBump}
-            highlightedSlot={highlightedSlot}
-            isLight={true}
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-5 pt-2 border-t border-neutral-200">
-        <div className="flex flex-col gap-2">
-          <span className="text-[#111111] text-[12px] font-medium tracking-wider uppercase">
-            Описание проекта и ссылки на референсы
-          </span>
-          <textarea
-            rows={4}
-            placeholder="Опишите ваши пожелания, стиль, референсы..."
-            value={comments}
-            onChange={(e) => setComments(e.target.value)}
-            className="w-full bg-white border border-neutral-200 text-[#111111] rounded-sm px-4 py-3 text-sm focus:border-neutral-800 focus:outline-none focus:ring-0 transition-all placeholder-neutral-450 resize-none"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
-              Ваше имя *
-            </label>
-            <input
-              type="text"
-              placeholder="Имя"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
-              }}
-              className={`w-full bg-white border ${
-                errors.name ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
-            />
-            {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
-          </div>
-
-          <div>
-            <label className="block text-[#111111] text-[12px] font-medium tracking-wider uppercase mb-1.5">
-              Телефон или Telegram *
-            </label>
-            <input
-              type="text"
-              placeholder="Телефон или Telegram"
-              value={contact}
-              onChange={(e) => {
-                setContact(e.target.value);
-                if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
-              }}
-              className={`w-full bg-white border ${
-                errors.contact ? 'border-red-500' : 'border-neutral-200 focus:border-neutral-800'
-              } rounded-sm px-4 py-3 text-sm focus:outline-none focus:ring-0 transition-all text-[#111111] placeholder-neutral-450`}
-            />
-            {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleSubmit}
-            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-sm font-semibold py-3 rounded-sm transition-all duration-200 disabled:opacity-50 cursor-pointer text-center"
-          >
-            {loading ? 'Отправка...' : 'Подтвердить расчет'}
-          </button>
-          <a
-            href={contentData.contacts.messengers.telegram.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 border border-[#FF5B23]/30 text-[#111111] bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-black hover:bg-[#FF5B23]/5 text-sm font-semibold py-3 rounded-sm text-center"
-          >
-            Нужна консультация
-          </a>
-        </div>
+      <div className="pt-4 border-t border-neutral-850 flex flex-col items-center gap-3">
+        <p className="text-xs text-neutral-450 font-medium text-center">
+          Редизайн позволяет повысить конверсию и освежить внешний вид без потери накопленных результатов.
+        </p>
+        <a
+          href={contentData.contacts.messengers.telegram.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
+        >
+          <Send className="w-4 h-4" />
+          <span>Обсудить редизайн в Telegram</span>
+        </a>
       </div>
     </div>
   );
@@ -1193,7 +326,7 @@ function AICalculator({ service }) {
 
   return (
     <div className="bg-[#1E1E1E] border border-neutral-850 rounded-sm p-5 sm:p-6 flex flex-col gap-6 w-full">
-      <div id="tariffs-heading" className="text-sm font-semibold text-white border-b\u00a0border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
+      <div id="tariffs-heading-03" className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
         <span>Тарифы и направления разработки</span>
         <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-sm">
           Срок: Рассчитывается индивидуально
@@ -1240,256 +373,87 @@ function AICalculator({ service }) {
   );
 }
 
-function DefaultCalculator({ service, onSendSuccess }) {
-  const [selectedOptions, setSelectedOptions] = useState({});
-  const [name, setName] = useState('');
-  const [contact, setContact] = useState('');
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-
-  // Инициализация значений по умолчанию
-  useEffect(() => {
-    if (service.calculator && service.calculator.options) {
-      const initial = {};
-      service.calculator.options.forEach(opt => {
-        initial[opt.id] = opt.choices[0].value;
-      });
-      setSelectedOptions(initial);
+function FigmaTariffs({ service }) {
+  const products = [
+    {
+      title: 'Дизайн сайтов и интерфейсов',
+      price: 'от\u00a020 000 ₽',
+      desc: 'Архитектура проекта и\u00a0уникальный кастомный UI/UX дизайн в\u00a0Figma под\u00a0индивидуальную разработку сайтов, сервисов или\u00a0приложений.',
+      features: [
+        'UX-прототипирование и\u00a0проработка логики',
+        'Уникальная визуальная концепция',
+        'Адаптивные макеты для\u00a0десктопа и\u00a0мобильных',
+        'Готовый UI-кит компонентов для\u00a0передачи в\u00a0верстку'
+      ]
     }
-  }, [service]);
-
-  if (!service.calculator) return null;
-
-  const basePrice = service.calculator.basePrice;
-  const baseDays = service.calculator.baseDays || 0;
-
-  // Рассчет цены и сроков
-  let price = basePrice;
-  let days = baseDays;
-
-  if (service.calculator.options) {
-    service.calculator.options.forEach(opt => {
-      const selectedValue = selectedOptions[opt.id];
-      const choice = opt.choices.find(c => c.value === selectedValue);
-      if (choice) {
-        price += choice.price;
-        days += choice.days || 0;
-      }
-    });
-  }
-
-  const handleOptionChange = (optionId, value) => {
-    setSelectedOptions(prev => ({
-      ...prev,
-      [optionId]: value
-    }));
-  };
-
-  const handleSubmit = async () => {
-    const newErrors = {};
-    if (!name.trim()) newErrors.name = 'Пожалуйста, введите имя';
-    if (!contact.trim()) newErrors.contact = 'Пожалуйста, укажите Telegram или телефон';
-    else if (!isValidContact(contact)) newErrors.contact = 'Пожалуйста, введите корректный номер телефона или никнейм Telegram (например, @username)';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setErrors({});
-    setLoading(true);
-    setSubmitError(null);
-
-    // Сбор выбранных опций для сообщения
-    let selectedOptionsList = '';
-    if (service.calculator.options) {
-      service.calculator.options.forEach(opt => {
-        const selectedVal = selectedOptions[opt.id];
-        const choice = opt.choices.find(c => c.value === selectedVal);
-        if (choice) {
-          selectedOptionsList += `• ${opt.label}: *${choice.label}* (+${formatPrice(choice.price)} ₽)\n`;
-        }
-      });
-    }
-
-    const messageText = `🔔 *Новая заявка с сайта-портфолио*
-
-*Клиент:* ${name}
-*Контакт:* ${contact}
-
-*Услуга:* ${service.title}
-*Выбранные опции:*
-${selectedOptionsList || 'Нет дополнительных опций'}
-
-*Итоговая цена:* от ${formatPrice(price)} руб.
-*Сроки:* от ${days} ${getDaysWord(days)}
-
-✅ *Действие:* Подтверждение расчета`;
-
-    try {
-      const success = await sendTelegramMessage(messageText);
-      if (success) {
-        onSendSuccess();
-        setName('');
-        setContact('');
-        return;
-      }
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
-    } catch (e) {
-      console.error(e);
-      setSubmitError('Не удалось отправить данные автоматически. Пожалуйста, напишите мне напрямую в Telegram {contentData.sidebar.socialLinks.telegramUsername}');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Проверка, является ли опция булевым переключателем (Да/Нет)
-  const isYesNoOption = (opt) => {
-    return opt.choices.length === 2 && 
-           opt.choices[0].value === 'no' && 
-           opt.choices[1].value === 'yes';
-  };
+  ];
 
   return (
-    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-lg p-5 sm:p-6 flex flex-col gap-6">
-      <div className="text-white text-xl font-normal tracking-tight border-b\u00a0border-neutral-850 pb-3">
-        Конфигуратор проекта
+    <div className="bg-[#1E1E1E] border border-neutral-850 rounded-sm p-5 sm:p-6 flex flex-col gap-6 w-full">
+      <div id="tariffs-heading-04" className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
+        <span>Стоимость дизайна в Figma</span>
+        <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-sm">
+          Сроки: от 5 рабочих дней
+        </span>
       </div>
 
-      <div className="flex flex-col gap-5">
-        {service.calculator.options && service.calculator.options.map((opt) => {
-          if (isYesNoOption(opt)) {
-            const isChecked = selectedOptions[opt.id] === 'yes';
-            const yesChoice = opt.choices[1];
-            return (
-              <div key={opt.id} className="flex flex-col gap-1.5">
-                <label className="flex items-start gap-3 p-3.5 bg-[#1A1A1A] border border-neutral-850 rounded-sm hover:border-neutral-750 cursor-pointer transition-all">
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={(e) => handleOptionChange(opt.id, e.target.checked ? 'yes' : 'no')}
-                    className="w-4 h-4 text-[#FF5B23] bg-neutral-900 border-neutral-800 rounded focus:ring-0 focus:outline-none mt-0.5"
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-white">{opt.label}</span>
-                    {yesChoice.price > 0 && (
-                      <span className="text-[10px] text-neutral-400 font-semibold mt-0.5">
-                        +{formatPrice(yesChoice.price)} ₽ {yesChoice.days > 0 ? `• +${yesChoice.days} ${getDaysWord(yesChoice.days)}` : ''}
-                      </span>
-                    )}
-                  </div>
-                </label>
-              </div>
-            );
-          } else {
-            return (
-              <SegmentedControl
-                key={opt.id}
-                label={opt.label}
-                val={selectedOptions[opt.id]}
-                setVal={(val) => handleOptionChange(opt.id, val)}
-                options={opt.choices}
-              />
-            );
-          }
-        })}
-      </div>
-
-      {/* Поля ввода контактов */}
-      <div className="flex flex-col gap-4 pt-4 border-t border-neutral-850">
-        <div className="text-xs font-semibold text-white">
-          Контактные данные для расчета
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
-              Ваше имя *
-            </label>
-            <input
-              type="text"
-              placeholder="Имя"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
-              }}
-              className={`w-full bg-[#1A1A1A] border ${
-                errors.name ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
-              } rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
-            />
-            {errors.name && <span className="text-red-500 text-[10px] mt-1 block">{errors.name}</span>}
+      <div className="grid grid-cols-1 max-w-xl gap-4">
+        {products.map((p, idx) => (
+          <div key={idx} className="bg-[#1A1A1A] border border-neutral-850 rounded-sm p-5 flex flex-col justify-between hover:shadow-sm hover:border-neutral-750 transition-all duration-300">
+            <div>
+              <h4 className="text-base sm:text-lg font-bold text-white mb-1.5">{p.title}</h4>
+              <span className="inline-block text-xs sm:text-sm font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-sm px-2.5 py-1 mb-3.5">
+                {p.price}
+              </span>
+              <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-5">{p.desc}</p>
+            </div>
+            <ul className="space-y-2.5 border-t border-neutral-850 pt-4">
+              {p.features.map((f, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs sm:text-[13px] text-neutral-300 leading-relaxed">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-
-          <div>
-            <label className="block text-white text-[10px] font-medium tracking-wider uppercase mb-1.5">
-              Телефон или Telegram *
-            </label>
-            <input
-              type="text"
-              placeholder="Телефон или Telegram"
-              value={contact}
-              onChange={(e) => {
-                setContact(e.target.value);
-                if (errors.contact) setErrors((prev) => ({ ...prev, contact: null }));
-              }}
-              className={`w-full bg-[#1A1A1A] border ${
-                errors.contact ? 'border-red-500 focus:ring-red-200 focus:border-red-500' : 'border-neutral-850 focus:border-neutral-700'
-              } rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-0 transition-all text-white placeholder-neutral-500`}
-            />
-            {errors.contact && <span className="text-red-500 text-[10px] mt-1 block">{errors.contact}</span>}
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Итоговая стоимость и кнопки */}
-      <div className="pt-4 border-t border-neutral-850 flex flex-col gap-4">
-        <div className="text-[13px] text-neutral-350 leading-relaxed font-medium bg-neutral-900/40 border border-neutral-800 rounded-md px-4 py-2.5">
-          Примерная стоимость: <span className="font-semibold text-[#E0FB4A] text-sm">от {formatPrice(price)} ₽</span>
-          <span className="mx-2 text-neutral-600">•</span>
-          Сроки: <span className="font-semibold text-white text-sm">от {days} {getDaysWord(days)}</span>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2">
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleSubmit}
-            className="flex-1 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-5 rounded-sm transition-all duration-200 disabled:opacity-55 cursor-pointer text-center"
-          >
-            {loading ? 'Отправка...' : 'Подтвердить расчет'}
-          </button>
-          <a
-            href={contentData.contacts.messengers.telegram.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-xs font-semibold py-3 px-5 rounded-sm text-center"
-          >
-            Нужна консультация
-          </a>
-        </div>
-        {submitError && (
-          <div className="text-red-500 text-sm mt-3">{submitError}</div>
-        )}
+      <div className="pt-4 border-t border-neutral-850 flex flex-col items-center gap-3">
+        <p className="text-xs text-neutral-450 font-medium text-center">
+          Разработка макетов в Figma с подготовкой всех состояний и компонентов к верстке.
+        </p>
+        <a
+          href={contentData.contacts.messengers.telegram.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
+        >
+          <Send className="w-4 h-4" />
+          <span>Обсудить дизайн в Telegram</span>
+        </a>
       </div>
     </div>
   );
 }
 
-function Calculator({ service, onSendSuccess, isCalcOpen }) {
+function Calculator({ service }) {
   if (service.number === '01') {
-    return <TildaCalculator service={service} onSendSuccess={onSendSuccess} isCalcOpen={isCalcOpen} />;
+    return <TildaTariffs service={service} />;
   }
   if (service.number === '02') {
-    return <RedesignCalculator service={service} onSendSuccess={onSendSuccess} isCalcOpen={isCalcOpen} />;
+    return <RedesignTariffs service={service} />;
   }
   if (service.number === '03') {
     return <AICalculator service={service} />;
   }
   if (service.number === '04') {
-    return <FigmaCalculator service={service} onSendSuccess={onSendSuccess} isCalcOpen={isCalcOpen} />;
+    return <FigmaTariffs service={service} />;
   }
-  return <DefaultCalculator service={service} onSendSuccess={onSendSuccess} />;
+  return <AICalculator service={service} />;
 }
+
+
 
 function ServiceGraphic({ number }) {
   if (number === '01') {
@@ -1657,9 +621,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
                   : 'bg-[#FF5B23] text-white hover:bg-[#e04f1e]'
               }`}
             >
-              {isCalcOpen 
-                ? 'Скрыть подробности' 
-                : service.number === '03' ? 'Посмотреть тарифы' : 'Рассчитать стоимость'}
+              {isCalcOpen ? 'Скрыть подробности' : 'Посмотреть тарифы'}
             </button>
             <button
               onClick={() => window.open('https://t.me/ksen_web', '_blank')}
@@ -1730,16 +692,9 @@ export default function Services() {
   useEffect(() => {
     if (activeCalculator) {
       const timer = setTimeout(() => {
-        if (activeCalculator === '03') {
-          const target = document.getElementById('tariffs-heading');
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        } else {
-          const target = document.getElementById(`service-card-${activeCalculator}`);
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+        const target = document.getElementById(`tariffs-heading-${activeCalculator}`) || document.getElementById(`tariffs-heading`) || document.getElementById(`service-card-${activeCalculator}`);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 150);
       return () => clearTimeout(timer);
