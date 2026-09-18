@@ -969,8 +969,6 @@ export default function AdminWorkspace() {
           <h2 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] mb-4">
             {activeTab === 'cases'
               ? '[ Управление кейсами ]'
-              : activeTab === 'ai'
-              ? '[ Управление ИИ-Концептами ]'
               : activeTab === 'other'
               ? '[ Управление другими проектами ]'
               : '[ Контактные данные ]'}
@@ -978,7 +976,7 @@ export default function AdminWorkspace() {
 
           <div className="border-t border-zinc-100 my-4" />
 
-          {(activeTab === 'cases' || activeTab === 'ai') ? (
+          {activeTab === 'cases' ? (
             editingId !== null && (
               <button
                 type="button"
@@ -986,7 +984,7 @@ export default function AdminWorkspace() {
                 className="w-full flex items-center justify-center gap-1.5 px-3 py-2 border border-zinc-200 rounded-sm text-xs font-semibold bg-zinc-50 hover:bg-zinc-100 transition-colors cursor-pointer mb-4"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>{activeTab === 'ai' ? 'Создать новый ИИ-концепт' : 'Создать новый кейс'}</span>
+                <span>Создать новый кейс</span>
               </button>
             )
           ) : (
@@ -1002,7 +1000,7 @@ export default function AdminWorkspace() {
             )
           )}
 
-          {(activeTab === 'cases' || activeTab === 'ai') ? (
+          {activeTab === 'cases' ? (
             loadingList ? (
               <div className="flex items-center gap-2 py-4 text-xs text-neutral-450">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF5B23]" />
@@ -1011,12 +1009,11 @@ export default function AdminWorkspace() {
             ) : (() => {
               const filteredList = casesList.filter(item => {
                 const isAi = !!item.is_ai_concept || !!item.isAiConcept || (item.card_tags && String(item.card_tags).toLowerCase().includes('ии'));
-                if (activeTab === 'ai') return isAi;
                 return !isAi;
               });
 
               if (filteredList.length === 0) {
-                return <p className="text-xs text-zinc-400 italic py-4">Список {activeTab === 'ai' ? 'ИИ-концептов' : 'кейсов'} пуст</p>;
+                return <p className="text-xs text-zinc-400 italic py-4">Список кейсов пуст</p>;
               }
 
               return (
@@ -1201,22 +1198,6 @@ export default function AdminWorkspace() {
           <button
             type="button"
             onClick={() => {
-              setActiveTab('ai');
-              resetForm();
-              setIsAiConcept(true);
-            }}
-            className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-              activeTab === 'ai'
-                ? 'border-[#FF5B23] text-[#FF5B23] font-bold'
-                : 'border-transparent text-zinc-400 hover:text-black font-semibold'
-            }`}
-          >
-            <span className="px-1.5 py-0.5 bg-[#FF5B23] text-white text-[9px] font-bold rounded">ИИ</span>
-            <span>ИИ-Концепты</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
               setActiveTab('other');
               resetOtherForm();
             }}
@@ -1240,155 +1221,6 @@ export default function AdminWorkspace() {
             ⚙️ Контакты и ссылки
           </button>
         </div>
-
-        {activeTab === 'ai' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-[#FF5B23] text-white text-[11px] font-bold rounded uppercase tracking-wider">
-                  ИИ-КОНЦЕПТ
-                </span>
-                <h2 className="text-xl font-light text-black">
-                  {editingId !== null ? `Редактирование: ${cardTitle || title || slug}` : '+ Новый ИИ-Концепт'}
-                </h2>
-              </div>
-
-              {editingId !== null && (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="px-3 py-1.5 text-xs font-medium border border-zinc-200 rounded bg-white hover:bg-zinc-100 transition-colors cursor-pointer"
-                >
-                  + Создать новый концепт
-                </button>
-              )}
-            </div>
-
-            <form onSubmit={handlePublishCase} className="space-y-8 bg-zinc-50/50 p-6 border border-zinc-200 rounded-sm">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
-                    Название ИИ-Концепта *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={cardTitle || title}
-                    onChange={(e) => {
-                      setCardTitle(e.target.value);
-                      setTitle(e.target.value);
-                    }}
-                    placeholder="APEX DETAILING — Студия авто-детейлинга"
-                    className="w-full px-3 py-2 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
-                    URL роута (Slug) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    placeholder="apex-detailing"
-                    className="w-full px-3 py-2 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black bg-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
-                  Ссылка на демо-клиент (Demo URL) *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={demoUrl}
-                  onChange={(e) => setDemoUrl(e.target.value)}
-                  placeholder="/demos/apex-detailing/index.html или https://..."
-                  className="w-full px-3 py-2 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black bg-white font-mono text-xs"
-                />
-                <p className="text-[10px] text-zinc-400 mt-1">
-                  Локальный путь к HTML файлу из папки /public/demos/ или внешняя полная HTTPS-ссылка.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
-                  Теги ИИ-концепта (через запятую)
-                </label>
-                <input
-                  type="text"
-                  value={cardTags}
-                  onChange={(e) => setCardTags(e.target.value)}
-                  placeholder="ИИ-КОНЦЕПТ, АВТО, LANDING"
-                  className="w-full px-3 py-2 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black bg-white"
-                />
-              </div>
-
-              <ImageUpload
-                label="Обложка карточки ИИ-концепта"
-                value={cardImage}
-                onChange={setCardImage}
-                pathPrefix="ai-concept"
-              />
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
-                  Краткое описание ИИ-концепта
-                </label>
-                <textarea
-                  rows={3}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Интерактивный концепт студии премиального детейлинга. Защитные керамические покрытия, оклейка пленкой и калькулятор ухода."
-                  className="w-full px-3 py-2 border border-zinc-200 rounded-sm text-sm focus:outline-none focus:border-black bg-white"
-                />
-              </div>
-
-              <div className="flex flex-wrap items-center gap-6 py-3 border-t border-b border-zinc-200">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="is-desktop-only"
-                    checked={isDesktopOnly}
-                    onChange={(e) => setIsDesktopOnly(e.target.checked)}
-                    className="w-4 h-4 accent-black rounded-[2px]"
-                  />
-                  <label htmlFor="is-desktop-only" className="text-xs font-semibold uppercase tracking-wider text-zinc-800 cursor-pointer select-none">
-                    Только десктопная версия (is_desktop_only)
-                  </label>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="ai-is-in-dev"
-                    checked={isInDevelopment}
-                    onChange={(e) => setIsInDevelopment(e.target.checked)}
-                    className="w-4 h-4 accent-[#FF5B23] rounded-[2px]"
-                  />
-                  <label htmlFor="ai-is-in-dev" className="text-xs font-semibold uppercase tracking-wider text-zinc-800 cursor-pointer select-none">
-                    В разработке (is_in_development)
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={publishing}
-                  className="px-6 py-3 bg-[#FF5B23] hover:bg-[#e04f1e] text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-md transition-all cursor-pointer border-none flex items-center gap-2"
-                >
-                  {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  <span>{editingId !== null ? 'Сохранить ИИ-Концепт' : 'Опубликовать ИИ-Концепт'}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
 
         {activeTab === 'cases' && (
           <>

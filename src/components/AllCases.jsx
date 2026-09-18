@@ -33,6 +33,7 @@ export default function AllCases() {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'sites', 'apps', 'ai'
+  const [showInfoPopover, setShowInfoPopover] = useState(false);
   const [selectedConcept, setSelectedConcept] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -55,23 +56,30 @@ export default function AllCases() {
         
         if (error) throw error;
         
-        const localAiConcepts = (contentData?.cases?.items || []).filter(item => item.is_ai_concept || item.isAiConcept);
+        const allLocalItems = (contentData?.cases?.items || []);
+        const localAiConcepts = allLocalItems.filter(item => item.is_ai_concept || item.isAiConcept);
         
-        let mergedCases = [];
+        let realCases = [];
         if (dbCases && dbCases.length > 0) {
-          const validDbCases = dbCases.filter(c => c.slug || c.title || c.card_title);
-          mergedCases = [...validDbCases];
-          [...localAiConcepts].reverse().forEach(aiItem => {
-            const exists = mergedCases.some(c => 
-              (c.slug && aiItem.slug && c.slug === aiItem.slug) ||
-              (c.title && aiItem.title && c.title.toLowerCase() === aiItem.title.toLowerCase())
-            );
-            if (!exists) {
-              mergedCases.unshift(aiItem);
-            }
-          });
+          const validDbCases = dbCases.filter(c => (c.slug || c.title || c.card_title) && !c.is_ai_concept && !c.isAiConcept);
+          realCases = [...validDbCases];
         } else {
-          mergedCases = contentData?.cases?.items || [];
+          realCases = allLocalItems.filter(item => !item.is_ai_concept && !item.isAiConcept);
+        }
+
+        // Interleave 1:1: [Real Case 1, AI Concept 1, Real Case 2, AI Concept 2...]
+        let mergedCases = [];
+        let rIdx = 0;
+        let aIdx = 0;
+        while (rIdx < realCases.length || aIdx < localAiConcepts.length) {
+          if (rIdx < realCases.length) {
+            mergedCases.push(realCases[rIdx]);
+            rIdx++;
+          }
+          if (aIdx < localAiConcepts.length) {
+            mergedCases.push(localAiConcepts[aIdx]);
+            aIdx++;
+          }
         }
 
         setCases(mergedCases);
@@ -91,7 +99,7 @@ export default function AllCases() {
   const getProjectCategory = (project) => {
     const type = (project.meta?.type || '').toLowerCase();
     const title = (project.card_title || project.title || project.name || '').toLowerCase();
-    const tags = (Array.isArray(project.card_tags) ? project.card_tags : (project.tags || [])).map(t => t.toLowerCase());
+    const tags = (Array.isArray(project.card_tags) ? project.card_tags : (project.tags || [])).map(t => String(t).toLowerCase());
 
     const isApp = 
       type.includes('приложен') || 
@@ -109,7 +117,7 @@ export default function AllCases() {
   };
 
   const filteredCases = cases.filter(item => {
-    const isAi = !!item.is_ai_concept || !!item.isAiConcept || (item.tags && item.tags.some(t => t.toLowerCase().includes('ии') || t.toLowerCase().includes('ai')));
+    const isAi = !!item.is_ai_concept || !!item.isAiConcept || (item.tags && item.tags.some(t => String(t).toLowerCase().includes('ии') || String(t).toLowerCase().includes('ai')));
     if (activeTab === 'ai') return isAi;
     if (activeTab === 'all') return true;
     return !isAi && getProjectCategory(item) === activeTab;
@@ -163,11 +171,65 @@ export default function AllCases() {
               </Link>
             </div>
 
-            {/* Title */}
-            <div className="overflow-hidden mb-8">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-black mb-0">
-                Результаты и кейсы
-              </h1>
+            {/* Title with Info Popover Trigger */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+              <div className="overflow-hidden">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight text-black mb-0">
+                  Результаты и кейсы
+                </h1>
+              </div>
+
+              {/* Кнопка с подсказкой (i) О форматах */}
+              <div className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowInfoPopover(!showInfoPopover)}
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-700 text-xs font-medium transition-all cursor-pointer shadow-sm"
+                >
+                  <span className="w-4 h-4 rounded-full bg-black text-white text-[10px] font-bold flex items-center justify-center">i</span>
+                  <span>О форматах кейсов</span>
+                </button>
+
+                {/* Всплывающее окно с разъяснением форматов */}
+                <AnimatePresence>
+                  {showInfoPopover && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                      className="absolute right-0 top-full mt-2 w-72 md:w-80 p-4 bg-white border border-zinc-200 rounded-lg shadow-xl z-30 text-xs text-zinc-700"
+                    >
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-100">
+                        <span className="font-bold uppercase tracking-wider text-black text-[11px]">Форматы проектов</span>
+                        <button
+                          onClick={() => setShowInfoPopover(false)}
+                          className="text-zinc-400 hover:text-black text-sm font-bold cursor-pointer bg-transparent border-none p-0"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <div className="font-semibold text-black flex items-center gap-1.5 mb-0.5">
+                            <span className="w-2 h-2 rounded-full bg-[#FF5B23]" /> Разбор кейса (Клиентский проект)
+                          </div>
+                          <p className="text-zinc-500 leading-relaxed m-0 text-[11px]">
+                            Полноценная страница с детальным описанием задачи, процесса проектирования, интерактивных блоков и стека.
+                          </p>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-black flex items-center gap-1.5 mb-0.5">
+                            <span className="w-2 h-2 rounded-full bg-black" /> Демо-прототип (ИИ-концепт)
+                          </div>
+                          <p className="text-zinc-500 leading-relaxed m-0 text-[11px]">
+                            Интерактивный живой сайт/сервис. Открывается во встроенном Демо-просмотрщике для оценки дизайна и верстки.
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             {/* Tabs Filter Bar */}
@@ -233,7 +295,7 @@ export default function AllCases() {
                   {filteredCases.map((project, idx) => {
                     const caseNumber = String(idx + 1).padStart(2, '0');
                     const isInDev = !!project.is_in_development || !!project.inDevelopment;
-                    const isAi = !!project.is_ai_concept || !!project.isAiConcept || (project.tags && project.tags.some(t => t.toLowerCase().includes('ии') || t.toLowerCase().includes('ai')));
+                    const isAi = !!project.is_ai_concept || !!project.isAiConcept || (project.tags && project.tags.some(t => String(t).toLowerCase().includes('ии') || String(t).toLowerCase().includes('ai')));
                     const title = project.card_title || project.title || project.name || '(Без названия)';
                     const image = getCaseImage(project);
                     const tags = Array.isArray(project.card_tags) ? project.card_tags : (project.tags || []);
@@ -257,10 +319,19 @@ export default function AllCases() {
                         }}
                       >
                         <div>
-                          {/* Inner tab number */}
-                          <span className="text-[10px] font-semibold tracking-wider text-[#FF5B23] uppercase mb-3 block">
-                            [ {isAi ? `ИИ-КОНЦЕПТ ${caseNumber}` : `КЕЙС ${caseNumber}`} ]
-                          </span>
+                          {/* Inner tab number + format badge */}
+                          <div className="flex items-center justify-between mb-3 gap-2">
+                            <span className="text-[10px] font-semibold tracking-wider text-[#FF5B23] uppercase block">
+                              [ {isAi ? `ИИ-КОНЦЕПТ ${caseNumber}` : `КЕЙС ${caseNumber}`} ]
+                            </span>
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                              isAi 
+                                ? 'bg-black text-white' 
+                                : 'bg-zinc-100 text-zinc-700 border border-zinc-200'
+                            }`}>
+                              {isAi ? 'Демо-прототип' : 'Разбор кейса'}
+                            </span>
+                          </div>
 
                           {/* Graphical container */}
                           <div className="relative overflow-hidden aspect-[4/3] rounded-sm bg-zinc-50 border border-zinc-100/50">
@@ -276,7 +347,7 @@ export default function AllCases() {
                               {!isInDev && (
                                 <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
                                   <div className="bg-[#FF5B23] px-4 py-2 rounded-sm text-white text-[11px] font-bold tracking-wider shadow-lg flex items-center gap-1.5">
-                                    <span>{isAi ? 'СМОТРЕТЬ КОНЦЕПТ' : 'СМОТРЕТЬ КЕЙС'}</span>
+                                    <span>{isAi ? 'СМОТРЕТЬ ДЕМО-ПРОТОТИП' : 'СМОТРЕТЬ КЕЙС'}</span>
                                     <span>↗</span>
                                   </div>
                                 </div>
@@ -338,7 +409,7 @@ export default function AllCases() {
 
                           {!isInDev && (
                             <span className="block md:hidden mt-4 mb-3 text-sm font-medium text-zinc-800 underline decoration-zinc-300 underline-offset-4">
-                              {isAi ? 'Смотреть концепт →' : 'Смотреть кейс →'}
+                              {isAi ? 'Смотреть демо-прототип →' : 'Смотреть кейс →'}
                             </span>
                           )}
                         </div>

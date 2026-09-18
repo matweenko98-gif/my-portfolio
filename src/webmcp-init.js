@@ -13,7 +13,7 @@ if (modelContext) {
       return {
         content: [{
           type: 'text',
-          text: 'Ksenia Matveenko - Design & Development of Premium Websites.\nContact: contact@design-matweenko.vercel.app\nServices: UI/UX Design, Web Development, Branding.\nUNP: 193724000'
+          text: 'Ksenia Matveenko - Design & Development of Premium Websites.\nWebsite: https://www.ksenweb.com\nContact: matweenko98@gmail.com\nServices: UI/UX Design, Web Development, Branding.\nUNP: EE7594998'
         }]
       };
     }

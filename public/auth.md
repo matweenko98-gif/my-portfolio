@@ -14,7 +14,7 @@ We support **Anonymous** agent registration. AI agents can request an API key dy
 
 ### 1. Anonymous Registration Flow
 To register an agent, make a `POST` request to the registration URI:
-- **Endpoint**: `https://design-matweenko.vercel.app/oauth/register`
+- **Endpoint**: `https://www.ksenweb.com/oauth/register`
 - **Method**: `POST`
 - **Content-Type**: `application/json`
 

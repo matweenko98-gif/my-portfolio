@@ -21,7 +21,7 @@
 3. **AI-Driven Web Applications & MVPs**: Full-stack web applications with dashboards, custom databases (Supabase), secure payment systems, and neural network integrations. Cost calculation is optimized per screen complexity.
 
 ## Verified Contact Channels
-- **Official Portfolio Website**: https://design-matweenko.vercel.app
+- **Official Portfolio Website**: https://www.ksenweb.com
 - **Telegram Direct Link**: https://t.me/ksen_web
 - **Phone Number**: +375259140959
 - **Official Inquiries**: Commercial briefs and agreements are fully verified under UNP EE7594998.

@@ -49,7 +49,7 @@ Welcome to the LLM-friendly version of my portfolio. / Добро пожалов
 ---
 
 ## Contacts / Контакты
-- **Official Portfolio Website**: https://design-matweenko.vercel.app
+- **Official Portfolio Website**: https://www.ksenweb.com
 - **Telegram**: https://t.me/ksen_web
 - **Phone**: +375259140959
 - **Email**: matweenko98@gmail.com
@@ -58,22 +58,22 @@ Welcome to the LLM-friendly version of my portfolio. / Добро пожалов
 const apiCatalogJson = `{
   "linkset": [
     {
-      "anchor": "https://design-matweenko.vercel.app/api",
+      "anchor": "https://www.ksenweb.com/api",
       "service-desc": [
         {
-          "href": "https://design-matweenko.vercel.app/api/openapi.yaml",
+          "href": "https://www.ksenweb.com/api/openapi.yaml",
           "type": "application/yaml"
         }
       ],
       "service-doc": [
         {
-          "href": "https://design-matweenko.vercel.app/docs/api",
+          "href": "https://www.ksenweb.com/docs/api",
           "type": "text/html"
         }
       ],
       "status": [
         {
-          "href": "https://design-matweenko.vercel.app/api/status",
+          "href": "https://www.ksenweb.com/api/status",
           "type": "application/json"
         }
       ]
@@ -82,10 +82,10 @@ const apiCatalogJson = `{
 }`;
 
 const openidConfigurationJson = `{
-  "issuer": "https://design-matweenko.vercel.app",
-  "authorization_endpoint": "https://design-matweenko.vercel.app/oauth/authorize",
-  "token_endpoint": "https://design-matweenko.vercel.app/oauth/token",
-  "jwks_uri": "https://design-matweenko.vercel.app/oauth/jwks",
+  "issuer": "https://www.ksenweb.com",
+  "authorization_endpoint": "https://www.ksenweb.com/oauth/authorize",
+  "token_endpoint": "https://www.ksenweb.com/oauth/token",
+  "jwks_uri": "https://www.ksenweb.com/oauth/jwks",
   "grant_types_supported": [
     "authorization_code",
     "client_credentials"
@@ -97,9 +97,9 @@ const openidConfigurationJson = `{
     "public"
   ],
   "agent_auth": {
-    "skill": "https://design-matweenko.vercel.app/auth.md",
-    "register_uri": "https://design-matweenko.vercel.app/oauth/register",
-    "claim_uri": "https://design-matweenko.vercel.app/oauth/claim",
+    "skill": "https://www.ksenweb.com/auth.md",
+    "register_uri": "https://www.ksenweb.com/oauth/register",
+    "claim_uri": "https://www.ksenweb.com/oauth/claim",
     "identity_types_supported": [
       "anonymous"
     ],
@@ -112,9 +112,9 @@ const openidConfigurationJson = `{
 }`;
 
 const oauthProtectedResourceJson = `{
-  "resource": "https://design-matweenko.vercel.app/api",
+  "resource": "https://www.ksenweb.com/api",
   "authorization_servers": [
-    "https://design-matweenko.vercel.app"
+    "https://www.ksenweb.com"
   ],
   "scopes_supported": [
     "read",
@@ -141,7 +141,7 @@ We support **Anonymous** agent registration. AI agents can request an API key dy
 
 ### 1. Anonymous Registration Flow
 To register an agent, make a \`POST\` request to the registration URI:
-- **Endpoint**: \`https://design-matweenko.vercel.app/oauth/register\`
+- **Endpoint**: \`https://www.ksenweb.com/oauth/register\`
 - **Method**: \`POST\`
 - **Content-Type**: \`application/json\`
 
@@ -170,10 +170,10 @@ Authorization: Bearer sec_agent_xxxxxx
 
 const mcpServerCardJson = `{
   "serverInfo": {
-    "name": "design-matweenko-portfolio-mcp",
+    "name": "ksenweb-portfolio-mcp",
     "version": "1.0.0"
   },
-  "endpoint": "https://design-matweenko.vercel.app/mcp",
+  "endpoint": "https://www.ksenweb.com/mcp",
   "capabilities": {
     "tools": {},
     "resources": {},
@@ -188,7 +188,7 @@ const agentSkillsJson = `{
       "name": "portfolio-query",
       "type": "skill-md",
       "description": "Querying portfolio information and contacts",
-      "url": "https://design-matweenko.vercel.app/skills/portfolio-query/SKILL.md",
+      "url": "https://www.ksenweb.com/skills/portfolio-query/SKILL.md",
       "digest": "sha256:5b717b9a0bd9ce5a74bc231150b3bc22532c3220e15a23c75099658005eeb1e0"
     }
   ]

@@ -2,8 +2,8 @@ User-agent: *
 Allow: /
 Disallow: /admin-keis
 
-Host: https://design-matweenko.vercel.app
-Sitemap: https://design-matweenko.vercel.app/sitemap.xml
+Host: https://www.ksenweb.com
+Sitemap: https://www.ksenweb.com/sitemap.xml
 
 # Запрещаем роботам картинок индексировать специфическое изображение отзывов
 User-agent: Googlebot-Image
