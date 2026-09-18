@@ -894,7 +894,7 @@ const contentData = {
 </div>
 `,
         coverImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
-        coverAlt: "Дизайн интерфейса и типографика на экране монитора",
+        coverAlt: "",
         seoTitle: "9 ошибок, из-за которых сайт выглядит дешево — и как это исправить | KSENWEB",
         metaDescription: "Практический разбор 9 ошибок в UI/UX дизайне, типографике, цветах и мобильной верстке сайтов. Как сделать сайт визуально дорогим и повысить конверсию.",
         canonicalOverride: "",

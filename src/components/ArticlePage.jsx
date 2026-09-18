@@ -55,12 +55,24 @@ export default function ArticlePage() {
         let found = null;
         let allPublished = [];
 
+        // 0. Check localStorage cache first
+        let localCacheItem = null;
+        try {
+          const cachedStr = localStorage.getItem('site_blog_articles');
+          if (cachedStr) {
+            const parsed = JSON.parse(cachedStr);
+            if (Array.isArray(parsed)) {
+              localCacheItem = parsed.find(a => a.slug === slug);
+            }
+          }
+        } catch (e) {}
+
         // 1. Try Supabase
         const { data: dbArticle } = await supabase
           .from('articles')
           .select('*')
           .eq('slug', slug)
-          .single();
+          .maybeSingle();
 
         const { data: dbAll } = await supabase
           .from('articles')
@@ -93,6 +105,22 @@ export default function ArticlePage() {
           };
         }
 
+        // If localCacheItem has a cover image or content update, override found
+        if (localCacheItem) {
+          if (!found) {
+            found = {
+              ...localCacheItem,
+              coverImage: localCacheItem.cover_image || localCacheItem.coverImage,
+              coverAlt: localCacheItem.cover_alt || localCacheItem.coverAlt
+            };
+          } else if (localCacheItem.cover_image || localCacheItem.coverImage) {
+            found.coverImage = localCacheItem.cover_image || localCacheItem.coverImage;
+            if (localCacheItem.title) found.title = localCacheItem.title;
+            if (localCacheItem.content) found.content = localCacheItem.content;
+            if (localCacheItem.excerpt) found.excerpt = localCacheItem.excerpt;
+          }
+        }
+
         if (dbAll && dbAll.length > 0) {
           allPublished = dbAll.map(item => ({
             id: item.id,
@@ -109,7 +137,7 @@ export default function ArticlePage() {
           allPublished = contentData?.articles?.items || [];
         }
 
-        // 2. Fallback to local contentData if not found in DB
+        // 2. Fallback to local contentData if not found in DB or localStorage
         if (!found && contentData?.articles?.items) {
           const localMatch = contentData.articles.items.find(a => a.slug === slug);
           if (localMatch) {
@@ -359,11 +387,6 @@ export default function ArticlePage() {
                     alt={article.coverAlt || article.title}
                     className="w-full max-h-[520px] object-cover"
                   />
-                  {article.coverAlt && (
-                    <figcaption className="p-3 text-center text-xs text-zinc-400 font-normal italic bg-zinc-50/80 border-t border-zinc-100">
-                      {article.coverAlt}
-                    </figcaption>
-                  )}
                 </figure>
               )}
 
