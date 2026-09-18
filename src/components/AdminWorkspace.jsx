@@ -76,8 +76,8 @@ function transliterateToSlug(text) {
 function autoFormatArticleText(rawText) {
   if (!rawText) return '';
   
-  // Clean up any existing className JSX attributes if pasted by accident
-  let text = rawText.replace(/className="[^"]*"/g, '').replace(/class="[^"]*"/g, '');
+  // Replace JSX className with HTML class and clean up inline Mso styles from Word
+  let text = rawText.replace(/className=/g, 'class=').replace(/style="[^"]*"/gi, '');
 
   const lines = text.split(/\r?\n/).map(l => l.trim());
   let formattedBlocks = [];

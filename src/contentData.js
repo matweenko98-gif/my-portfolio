@@ -881,15 +881,9 @@ const contentData = {
   <p class="text-zinc-700 text-sm font-medium leading-relaxed mb-4">
     Если ваш сайт работает, но визуально ощущается слабее бизнеса, я могу посмотреть его ключевые экраны и определить, что имеет смысл менять в первую очередь.
   </p>
-  <div class="flex flex-wrap items-center gap-3">
-    <a href="https://t.me/ksen_web" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 bg-[#FF5B23] hover:bg-[#e04f1e] text-white text-xs font-bold uppercase tracking-wider rounded-[2px] transition-colors shadow-sm text-decoration-none">
-      <span>Обсудить задачу / Получить аудит</span>
-      <span>↗</span>
-    </a>
-    <a href="/cases" class="inline-flex items-center gap-2 px-5 py-3 bg-black hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider rounded-[2px] transition-colors shadow-sm text-decoration-none">
-      <span>Смотреть мои кейсы</span>
-      <span>→</span>
-    </a>
+  <div class="flex flex-wrap items-center gap-4 mt-4">
+    <a href="https://t.me/ksen_web" target="_blank" rel="noopener noreferrer" class="article-cta-btn-orange"><span>Обсудить задачу / Получить аудит</span> <span>↗</span></a>
+    <a href="/cases" class="article-link-cases"><span>Смотреть мои кейсы</span> <span>→</span></a>
   </div>
 </div>
 `,

@@ -12,6 +12,11 @@ function ensureFormattedHtml(rawContent) {
   if (!rawContent) return '';
   let content = rawContent.trim();
   
+  // Collapse newlines inside <a> tags to prevent nested spans from breaking onto new lines
+  content = content.replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, (match) => {
+    return match.replace(/\n\s*/g, ' ');
+  });
+
   // If content is plain text or lacks paragraph tags (<p>), auto format it
   if (!/<p\b[^>]*>/i.test(content)) {
     // Convert numbered headers like "1. Первый экран..." into <h2>1. Первый экран...</h2>
@@ -28,7 +33,8 @@ function ensureFormattedHtml(rawContent) {
         trimmed.startsWith('<figure') ||
         trimmed.startsWith('<blockquote') ||
         trimmed.startsWith('<ul') ||
-        trimmed.startsWith('<ol')
+        trimmed.startsWith('<ol') ||
+        trimmed.startsWith('<a')
       ) {
         return trimmed;
       }

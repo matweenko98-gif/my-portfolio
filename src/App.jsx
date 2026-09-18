@@ -47,6 +47,8 @@ function PageSkeleton() {
 import contentData from './contentData';
 import { supabase } from './lib/supabaseClient';
 
+import ScrollToTopButton from './components/ScrollToTopButton';
+
 export default function App() {
   React.useEffect(() => {
     // Sync contact settings from local cache
@@ -108,6 +110,7 @@ export default function App() {
       </Suspense>
       <Analytics />
       <CookieBanner />
+      <ScrollToTopButton />
     </>
   );
 }
