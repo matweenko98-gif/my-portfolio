@@ -206,6 +206,74 @@ export default function middleware(request) {
   const url = new URL(request.url);
   const accept = request.headers.get('accept') || '';
 
+  if (url.pathname === '/sitemap.xml') {
+    const today = new Date().toISOString().split('T')[0];
+    const defaultArticles = [
+      { slug: 'why-website-looks-cheap', date: today }
+    ];
+
+    let articleUrlsXml = defaultArticles.map(a => `
+  <url>
+    <loc>https://www.ksenweb.com/blog/${a.slug}</loc>
+    <lastmod>${a.date}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('');
+
+    const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.ksenweb.com/</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.ksenweb.com/og-image.png</image:loc>
+      <image:title>Ксения Матвеенко — Разработка сайтов и веб-приложений</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/cases</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/blog</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/brief</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>${articleUrlsXml}
+  <url>
+    <loc>https://www.ksenweb.com/privacy-policy</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/terms</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>`;
+
+    return new Response(xmlContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600'
+      }
+    });
+  }
+
   if (url.pathname === '/.well-known/api-catalog') {
     return new Response(apiCatalogJson, {
       status: 200,

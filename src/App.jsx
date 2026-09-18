@@ -12,6 +12,8 @@ const CaseTemplate    = lazy(() => import('./components/CaseTemplate'));
 const AdminWorkspace  = lazy(() => import('./components/AdminWorkspace'));
 const LegalPage       = lazy(() => import('./components/LegalPage'));
 const BriefPage       = lazy(() => import('./components/BriefPage'));
+const BlogPage        = lazy(() => import('./components/BlogPage'));
+const ArticlePage     = lazy(() => import('./components/ArticlePage'));
 const NotFoundPage    = lazy(() => import('./components/NotFoundPage'));
 
 // ─── Fallback-заглушка при загрузке чанка ────────────────────────────────────
@@ -95,6 +97,8 @@ export default function App() {
           <Route path="/cases"             element={<AllCases />} />
           <Route path="/case/:id"          element={<CaseTemplate />} />
           <Route path="/brief"              element={<BriefPage />} />
+          <Route path="/blog"               element={<BlogPage />} />
+          <Route path="/blog/:slug"         element={<ArticlePage />} />
           <Route path="/admin"             element={<AdminWorkspace />} />
           <Route path="/admin-keis"        element={<AdminWorkspace />} />
           <Route path="/privacy-policy"    element={<LegalPage type="privacy" />} />

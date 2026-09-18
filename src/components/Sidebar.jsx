@@ -27,6 +27,12 @@ export default function Sidebar({ activeSection }) {
       return;
     }
 
+    if (id === 'blog' && location.pathname !== '/' && !location.pathname.startsWith('/blog')) {
+      navigate('/blog');
+      window.scrollTo(0, 0);
+      return;
+    }
+
     if (location.pathname !== '/') {
       navigate(`/#${id}`);
     } else {

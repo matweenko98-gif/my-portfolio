@@ -90,6 +90,93 @@
   }
 }
 
+/* Explicit Article Typography Rules (Overrides Tailwind Reset) */
+.prose h2, .article-content-body h2 {
+  font-size: 1.5rem !important; /* 24px */
+  line-height: 2rem !important;
+  font-weight: 700 !important;
+  color: #18181b !important;
+  margin-top: 2.5rem !important; /* 40px Top Gap */
+  margin-bottom: 1rem !important; /* 16px Bottom Gap */
+  padding-top: 1.25rem !important;
+  border-top: 1px solid #e4e4e7 !important;
+  display: block !important;
+}
+
+.prose h3, .article-content-body h3 {
+  font-size: 1.25rem !important; /* 20px */
+  line-height: 1.75rem !important;
+  font-weight: 600 !important;
+  color: #18181b !important;
+  margin-top: 1.75rem !important; /* 28px Top Gap */
+  margin-bottom: 0.75rem !important; /* 12px Bottom Gap */
+  display: block !important;
+}
+
+.prose p, .article-content-body p {
+  font-size: 14px !important;
+  line-height: 1.75 !important;
+  color: #3f3f46 !important;
+  margin-top: 0 !important;
+  margin-bottom: 1.5rem !important; /* 24px PARAGRAPH GAP */
+  display: block !important;
+}
+
+@media (min-width: 640px) {
+  .prose p, .article-content-body p {
+    font-size: 15px !important;
+  }
+}
+
+.prose ul, .article-content-body ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin-top: 1rem !important;
+  margin-bottom: 1.5rem !important;
+  display: block !important;
+}
+
+.prose ol, .article-content-body ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin-top: 1rem !important;
+  margin-bottom: 1.5rem !important;
+  display: block !important;
+}
+
+.prose li, .article-content-body li {
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+  color: #3f3f46 !important;
+  margin-bottom: 0.5rem !important;
+  display: list-item !important;
+}
+
+@media (min-width: 640px) {
+  .prose li, .article-content-body li {
+    font-size: 15px !important;
+  }
+}
+
+.prose blockquote, .article-content-body blockquote {
+  border-left: 4px solid #FF5B23 !important;
+  background-color: rgba(255, 91, 35, 0.05) !important;
+  padding: 1rem 1.25rem !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+  border-top-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+  font-style: normal !important;
+  color: #18181b !important;
+  display: block !important;
+}
+
+.prose figure, .article-content-body figure {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+  display: block !important;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
