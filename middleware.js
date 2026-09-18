@@ -202,17 +202,73 @@ Query the professional portfolio information of Ksenia Matveenko.
 - Query homepage or read llms.txt to fetch contact info, tax UNP status, and service tiers.
 `;
 
-export default function middleware(request) {
+export async function middleware(request) {
   const url = new URL(request.url);
   const accept = request.headers.get('accept') || '';
 
   if (url.pathname === '/sitemap.xml') {
     const today = new Date().toISOString().split('T')[0];
-    const defaultArticles = [
+    let cases = [
+      { slug: 'esthete-catering', date: today },
+      { slug: 'apex-detailing', date: today }
+    ];
+    let articles = [
       { slug: 'why-website-looks-cheap', date: today }
     ];
 
-    let articleUrlsXml = defaultArticles.map(a => `
+    try {
+      const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
+      const anonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
+
+      // 1. Fetch cases from Supabase
+      const casesRes = await fetch(`${supabaseUrl}/rest/v1/cases?select=slug,id,updated_at`, {
+        headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
+      });
+      if (casesRes.ok) {
+        const fetchedCases = await casesRes.json();
+        if (Array.isArray(fetchedCases) && fetchedCases.length > 0) {
+          fetchedCases.forEach(c => {
+            const slug = c.slug || c.id;
+            if (slug && !cases.some(item => item.slug === String(slug))) {
+              cases.push({
+                slug: String(slug),
+                date: c.updated_at ? c.updated_at.split('T')[0] : today
+              });
+            }
+          });
+        }
+      }
+
+      // 2. Fetch articles from Supabase
+      const articlesRes = await fetch(`${supabaseUrl}/rest/v1/articles?select=slug,updated_at`, {
+        headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
+      });
+      if (articlesRes.ok) {
+        const fetchedArticles = await articlesRes.json();
+        if (Array.isArray(fetchedArticles) && fetchedArticles.length > 0) {
+          fetchedArticles.forEach(a => {
+            if (a.slug && !articles.some(item => item.slug === a.slug)) {
+              articles.push({
+                slug: a.slug,
+                date: a.updated_at ? a.updated_at.split('T')[0] : today
+              });
+            }
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Sitemap dynamic fetch error:', err);
+    }
+
+    const casesUrlsXml = cases.map(c => `
+  <url>
+    <loc>https://www.ksenweb.com/case/${c.slug}</loc>
+    <lastmod>${c.date}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>`).join('');
+
+    const articleUrlsXml = articles.map(a => `
   <url>
     <loc>https://www.ksenweb.com/blog/${a.slug}</loc>
     <lastmod>${a.date}</lastmod>
@@ -238,19 +294,19 @@ export default function middleware(request) {
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-  </url>
+  </url>${casesUrlsXml}
   <url>
     <loc>https://www.ksenweb.com/blog</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
-  </url>
+  </url>${articleUrlsXml}
   <url>
     <loc>https://www.ksenweb.com/brief</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>${articleUrlsXml}
+  </url>
   <url>
     <loc>https://www.ksenweb.com/privacy-policy</loc>
     <lastmod>${today}</lastmod>
@@ -269,7 +325,7 @@ export default function middleware(request) {
       status: 200,
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600'
+        'Cache-Control': 'public, max-age=60, s-maxage=60'
       }
     });
   }
@@ -333,117 +389,6 @@ export default function middleware(request) {
       status: 200,
       headers: {
         'Content-Type': 'text/markdown; charset=utf-8'
-      }
-    });
-  }
-
-  if (url.pathname === '/sitemap.xml') {
-    const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
-    const supabaseAnonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
-    
-    let caseUrls = [
-      'https://www.ksenweb.com/case/esthete-catering',
-      'https://www.ksenweb.com/case/apex-detailing'
-    ];
-    let articleUrls = [
-      'https://www.ksenweb.com/blog/why-website-looks-cheap'
-    ];
-
-    try {
-      const casesRes = await fetch(`${supabaseUrl}/rest/v1/cases?select=slug,id`, {
-        headers: { 'apikey': supabaseAnonKey, 'Authorization': `Bearer ${supabaseAnonKey}` }
-      });
-      if (casesRes.ok) {
-        const dbCases = await casesRes.json();
-        if (Array.isArray(dbCases)) {
-          dbCases.forEach(item => {
-            const slug = item.slug || (item.id ? String(item.id) : null);
-            if (slug && !caseUrls.includes(`https://www.ksenweb.com/case/${slug}`)) {
-              caseUrls.push(`https://www.ksenweb.com/case/${slug}`);
-            }
-          });
-        }
-      }
-
-      const articlesRes = await fetch(`${supabaseUrl}/rest/v1/articles?select=slug`, {
-        headers: { 'apikey': supabaseAnonKey, 'Authorization': `Bearer ${supabaseAnonKey}` }
-      });
-      if (articlesRes.ok) {
-        const dbArticles = await articlesRes.json();
-        if (Array.isArray(dbArticles)) {
-          dbArticles.forEach(item => {
-            if (item.slug && !articleUrls.includes(`https://www.ksenweb.com/blog/${item.slug}`)) {
-              articleUrls.push(`https://www.ksenweb.com/blog/${item.slug}`);
-            }
-          });
-        }
-      }
-    } catch (e) {}
-
-    const today = new Date().toISOString().split('T')[0];
-
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <url>
-    <loc>https://www.ksenweb.com/</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-    <image:image>
-      <image:loc>https://www.ksenweb.com/og-image.png</image:loc>
-      <image:title>Ксения Матвеенко — Разработка сайтов и веб-приложений</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://www.ksenweb.com/cases</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-${caseUrls.map(u => `  <url>
-    <loc>${u}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>`).join('\n')}
-  <url>
-    <loc>https://www.ksenweb.com/blog</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-${articleUrls.map(u => `  <url>
-    <loc>${u}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`).join('\n')}
-  <url>
-    <loc>https://www.ksenweb.com/brief</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.ksenweb.com/privacy-policy</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://www.ksenweb.com/terms</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-</urlset>`;
-
-    return new Response(xml, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
       }
     });
   }
