@@ -872,20 +872,6 @@ const contentData = {
     <li>4. Какое действие должно стать следующим?</li>
   </ol>
 </div>
-
-<div class="article-cta-box border border-zinc-200 bg-zinc-50 rounded-[4px] p-5 sm:p-6 my-8">
-  <h3 class="text-lg font-medium text-black mb-2">Если вы узнали в этом свой сайт</h3>
-  <p class="text-zinc-600 text-sm leading-relaxed mb-3">
-    Не обязательно сразу переделывать всё целиком. Иногда достаточно начать с нескольких ключевых страниц или даже с первого экрана, чтобы понять, где проблема находится на самом деле: в структуре, визуальной иерархии, контенте или уже в самом дизайне.
-  </p>
-  <p class="text-zinc-700 text-sm font-medium leading-relaxed mb-4">
-    Если ваш сайт работает, но визуально ощущается слабее бизнеса, я могу посмотреть его ключевые экраны и определить, что имеет смысл менять в первую очередь.
-  </p>
-  <div class="flex flex-wrap items-center gap-4 mt-4">
-    <a href="https://t.me/ksen_web" target="_blank" rel="noopener noreferrer" class="article-cta-btn-orange"><span>Обсудить задачу / Получить аудит</span> <span>↗</span></a>
-    <a href="/cases" class="article-link-cases"><span>Смотреть мои кейсы</span> <span>→</span></a>
-  </div>
-</div>
 `,
         coverImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
         coverAlt: "",

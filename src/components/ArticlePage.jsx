@@ -12,6 +12,10 @@ function ensureFormattedHtml(rawContent) {
   if (!rawContent) return '';
   let content = rawContent.trim();
   
+  // Strip legacy embedded CTA box HTML from raw content (since it is rendered natively below)
+  content = content.replace(/<div\s+class="article-cta-box[\s\S]*?<\/div>\s*<\/div>/gi, '');
+  content = content.replace(/<div\s+class="article-cta-box[\s\S]*?<\/div>/gi, '');
+
   // Collapse newlines inside <a> tags to prevent nested spans from breaking onto new lines
   content = content.replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, (match) => {
     return match.replace(/\n\s*/g, ' ');
@@ -409,6 +413,35 @@ export default function ArticlePage() {
                   prose-img:rounded-[2px] prose-img:border prose-img:border-zinc-200 prose-img:my-6 prose-img:w-full"
                 dangerouslySetInnerHTML={{ __html: ensureFormattedHtml(article.content) }}
               />
+
+              {/* Dedicated Article CTA Box (Standalone React Component) */}
+              <div className="mt-14 p-6 sm:p-8 bg-zinc-50 border border-zinc-200/90 rounded-[4px] shadow-xs">
+                <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 mb-3">
+                  Если вы узнали в этом свой сайт
+                </h3>
+                <p className="text-zinc-600 text-sm leading-relaxed mb-6 font-normal max-w-2xl">
+                  Если ваш сайт работает, но визуально ощущается слабее бизнеса, я могу посмотреть его ключевые экраны и определить, что имеет смысл менять в первую очередь.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                  <a
+                    href={contentData?.sidebar?.socialLinks?.telegram || "https://t.me/ksen_web"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#FF5B23] hover:bg-[#e04f1e] text-white text-xs font-bold uppercase tracking-wider rounded-[2px] transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 no-underline"
+                  >
+                    <span>Обсудить задачу / Получить аудит</span>
+                    <span className="text-sm font-bold">↗</span>
+                  </a>
+
+                  <Link
+                    to="/cases"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-900 hover:text-[#FF5B23] underline decoration-zinc-300 hover:decoration-[#FF5B23] underline-offset-4 transition-colors no-underline py-1"
+                  >
+                    <span>Смотреть мои кейсы</span>
+                    <span className="text-base">→</span>
+                  </Link>
+                </div>
+              </div>
             </article>
 
             {/* Back to Blog & Share Row */}
