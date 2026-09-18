@@ -650,10 +650,7 @@ const contentData = {
   <p class="text-zinc-600 text-sm mb-0">Не пять преимуществ, а главное обещание. Не три равнозначные кнопки, а одно основное действие. Остальные аргументы можно раскрыть ниже. Иногда хороший редизайн начинается не с добавления новых элементов, а с удаления половины существующих.</p>
 </div>
 
-<figure class="my-6 p-4 border border-dashed border-zinc-300 rounded bg-zinc-50/70 text-center">
-  <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-2">[ Визуал 01: Первый экран — акценты и иерархия ]</div>
-  <p class="text-xs text-zinc-400 mb-0">Сюда можно загрузить скриншот или схему первого экрана в админке</p>
-</figure>
+
 
 <h2>2. Весь сайт собран из одинаковых карточек</h2>
 
@@ -681,10 +678,7 @@ const contentData = {
   <p class="text-zinc-600 text-sm mb-0">Контейнер не должен появляться только потому, что дизайнеру нужно чем-то отделить один текст от другого.</p>
 </div>
 
-<figure class="my-6 p-4 border border-dashed border-zinc-300 rounded bg-zinc-50/70 text-center">
-  <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-2">[ Визуал 02: Разнообразие верстки вместо одинаковых плашек ]</div>
-  <p class="text-xs text-zinc-400 mb-0">Сюда вставляется изображение через кнопку «Вставить визуал» в админке</p>
-</figure>
+
 
 <h2>3. Типографика не говорит, куда смотреть</h2>
 
@@ -709,10 +703,7 @@ const contentData = {
   <p class="text-zinc-700 text-sm mb-0">Начните с другого: <strong>«Что человек должен увидеть первым, вторым и третьим?»</strong> И уже под этот порядок выстраивайте типографику.</p>
 </div>
 
-<figure class="my-6 p-4 border border-dashed border-zinc-300 rounded bg-zinc-50/70 text-center">
-  <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-2">[ Визуал 03: Пример разного веса заголовков H1 → H2 → P ]</div>
-  <p class="text-xs text-zinc-400 mb-0">Вставляется в 1 клик через админку</p>
-</figure>
+
 
 <h2>4. Фотографии могут принадлежать любому бизнесу</h2>
 
@@ -729,10 +720,7 @@ const contentData = {
   <p class="text-zinc-600 text-sm mb-0">Иногда один честный кадр процесса делает для доверия больше, чем десять идеально отретушированных стоковых фотографий.</p>
 </div>
 
-<figure class="my-6 p-4 border border-dashed border-zinc-300 rounded bg-zinc-50/70 text-center">
-  <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-2">[ Визуал 04: Живые фотографии продукта vs Стоковый клипарт ]</div>
-  <p class="text-xs text-zinc-400 mb-0">Место для вашей живой фотографии</p>
-</figure>
+
 
 <h2>5. Слишком много цветов конкурируют за внимание</h2>
 
@@ -758,10 +746,7 @@ const contentData = {
   <p class="text-zinc-600 text-sm mb-0">Это не означает, что любой сайт должен быть чёрно-белым. Задача в другом: цвет должен помогать понимать интерфейс, а не компенсировать отсутствие структуры.</p>
 </div>
 
-<figure class="my-6 p-4 border border-dashed border-zinc-300 rounded bg-zinc-50/70 text-center">
-  <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-2">[ Визуал 05: Цветовая палитра по ролям ]</div>
-  <p class="text-xs text-zinc-400 mb-0">Загрузить фото схемы цветов</p>
-</figure>
+
 
 <h2>6. Человеку приходится читать слишком много до первого действия</h2>
 
@@ -789,10 +774,7 @@ const contentData = {
   <p class="text-zinc-600 text-sm mb-0">История бренда может быть важна. Но не обязательно рассказывать её раньше, чем человек понял сам продукт.</p>
 </div>
 
-<figure class="my-6 p-4 border border-dashed border-zinc-300 rounded bg-zinc-50/70 text-center">
-  <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-2">[ Визуал 06: Порядок пользовательских вопросов ]</div>
-  <p class="text-xs text-zinc-400 mb-0">Место для иллюстрации воронки смыслов</p>
-</figure>
+
 
 <h2>7. Все элементы одинаково важны</h2>
 
@@ -810,10 +792,7 @@ const contentData = {
   <p class="text-zinc-600 text-sm mb-0">Если каждый экран кажется хорошим отдельно, но вместе сайт утомляет, попробуйте снизить визуальную громкость части секций. Не каждый блок должен быть «вау». Иногда задача блока — просто дать следующую информацию и не мешать ей.</p>
 </div>
 
-<figure class="my-6 p-4 border border-dashed border-zinc-300 rounded bg-zinc-50/70 text-center">
-  <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-2">[ Визуал 07: Ритм и контраст блоков ]</div>
-  <p class="text-xs text-zinc-400 mb-0">Место для визуальной схемы ритма</p>
-</figure>
+
 
 <h2>8. Мобильная версия — это уменьшенный desktop</h2>
 
@@ -849,10 +828,7 @@ const contentData = {
   <p class="text-zinc-700 text-sm font-semibold mb-0">Responsive — это не только <code>width: 100%</code>.</p>
 </div>
 
-<figure class="my-6 p-4 border border-dashed border-zinc-300 rounded bg-zinc-50/70 text-center">
-  <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-2">[ Визуал 08: Скриншот мобильного экрана с ошибками ]</div>
-  <p class="text-xs text-zinc-400 mb-0">Место для картинки мобильного интерфейса</p>
-</figure>
+
 
 <h2>9. Визуальный уровень сайта не соответствует цене продукта</h2>
 
@@ -881,10 +857,7 @@ const contentData = {
   <p class="text-zinc-600 text-sm mb-0">Если клиент после просмотра сайта ожидает более низкую цену, чем вы реально называете, визуальная коммуникация работает против бизнеса.</p>
 </div>
 
-<figure class="my-6 p-4 border border-dashed border-zinc-300 rounded bg-zinc-50/70 text-center">
-  <div class="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-2">[ Визуал 09: Визуальный уровень = Уровень продукта ]</div>
-  <p class="text-xs text-zinc-400 mb-0">Загрузите пример дорогого позиционирования в админке</p>
-</figure>
+
 
 <h2>Что в итоге делает сайт визуально сильнее</h2>
 

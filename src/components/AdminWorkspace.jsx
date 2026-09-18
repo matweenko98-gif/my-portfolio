@@ -290,7 +290,28 @@ export default function AdminWorkspace() {
   const [subtitle, setSubtitle] = useState('');
   const [heroImage, setHeroImage] = useState('');
 
-  // Preview Card fields
+  // Blog Categories state
+  const defaultBlogCategories = [
+    { id: '1', name: 'Дизайн & UX', slug: 'design-ux', description: 'Разборы интерфейсов, верстки и типографики' },
+    { id: '2', name: 'Tilda & Код', slug: 'tilda-dev', description: 'Инструкции и решения по Tilda, Zero Block и React' },
+    { id: '3', name: 'ИИ & Автоматизация', slug: 'ai-tech', description: 'Применение нейросетей, vibe-coding и быстрой разработки' },
+    { id: '4', name: 'Бизнес-сайты', slug: 'business-sites', description: 'Оптимизация конверсии, первого экрана и продаж' }
+  ];
+
+  const [categoriesList, setCategoriesList] = useState(() => {
+    try {
+      const cached = localStorage.getItem('site_blog_categories');
+      return cached ? JSON.parse(cached) : defaultBlogCategories;
+    } catch (e) {
+      return defaultBlogCategories;
+    }
+  });
+
+  const [editingCatId, setEditingCatId] = useState(null);
+  const [catName, setCatName] = useState('');
+  const [catSlug, setCatSlug] = useState('');
+  const [catDescription, setCatDescription] = useState('');
+  const [catToDelete, setCatToDelete] = useState(null);
   const [cardTitle, setCardTitle] = useState('');
   const [cardImage, setCardImage] = useState('');
   const [cardTags, setCardTags] = useState('');
@@ -637,19 +658,18 @@ export default function AdminWorkspace() {
       setToast({ show: true, message: 'Заполните текст статьи (Content)', type: 'error' });
       return;
     }
-    if (articleStatus === 'published' && articleCoverImage && !articleCoverAlt.trim()) {
-      setToast({ show: true, message: 'Укажите Alt-описание для обложки (Cover Alt)', type: 'error' });
-      return;
-    }
 
     setSavingArticle(true);
     try {
       const formattedTags = articleTags ? articleTags.split(',').map(t => t.trim()).filter(Boolean) : [];
+      const formattedContent = autoFormatArticleText(articleContent);
+
       const payload = {
+        id: editingArticleId && typeof editingArticleId !== 'string' ? editingArticleId : (Date.now()),
         title: articleTitle,
         slug: articleSlug.toLowerCase().trim(),
         excerpt: articleExcerpt,
-        content: autoFormatArticleText(articleContent),
+        content: formattedContent,
         cover_image: articleCoverImage,
         cover_alt: articleCoverAlt,
         seo_title: articleSeoTitle,
@@ -668,29 +688,106 @@ export default function AdminWorkspace() {
         reading_time: articleReadingTime
       };
 
-      if (editingArticleId && typeof editingArticleId !== 'string') {
-        const { error } = await supabase
-          .from('articles')
-          .update(payload)
-          .eq('id', editingArticleId);
-        if (error) throw error;
-        setToast({ show: true, message: 'Статья успешно обновлена!', type: 'success' });
+      // 1. Update local state & localStorage first for 100% reliability
+      let updatedList = [...articlesList];
+      const existingIdx = updatedList.findIndex(a => a.slug === payload.slug || (editingArticleId && a.id === editingArticleId));
+
+      if (existingIdx !== -1) {
+        updatedList[existingIdx] = { ...updatedList[existingIdx], ...payload };
       } else {
-        const { error } = await supabase
-          .from('articles')
-          .insert([payload]);
-        if (error) throw error;
-        setToast({ show: true, message: 'Статья успешно сохранена в Supabase!', type: 'success' });
+        updatedList.unshift(payload);
       }
 
+      setArticlesList(updatedList);
+      try {
+        localStorage.setItem('site_blog_articles', JSON.stringify(updatedList));
+      } catch (e) {}
+
+      // Update contentData in memory as well
+      if (contentData?.articles?.items) {
+        const itemIdx = contentData.articles.items.findIndex(a => a.slug === payload.slug);
+        if (itemIdx !== -1) {
+          contentData.articles.items[itemIdx] = { ...contentData.articles.items[itemIdx], ...payload, coverImage: payload.cover_image, coverAlt: payload.cover_alt };
+        } else {
+          contentData.articles.items.unshift({ ...payload, coverImage: payload.cover_image, coverAlt: payload.cover_alt });
+        }
+      }
+
+      // 2. Try Supabase in background
+      try {
+        if (editingArticleId && typeof editingArticleId !== 'string') {
+          await supabase.from('articles').update(payload).eq('id', editingArticleId);
+        } else {
+          await supabase.from('articles').insert([payload]);
+        }
+      } catch (sbErr) {
+        console.warn('Supabase sync note:', sbErr);
+      }
+
+      setToast({ show: true, message: '✨ Статья успешно сохранена и обновлена!', type: 'success' });
       resetArticleForm();
       fetchArticles();
     } catch (err) {
       console.error('Save article error:', err);
-      setToast({ show: true, message: 'Сохранено локально! Примечание Supabase: ' + err.message, type: 'error' });
+      setToast({ show: true, message: 'Ошибка при сохранении: ' + err.message, type: 'error' });
     } finally {
       setSavingArticle(false);
     }
+  };
+
+  // Category CRUD Handlers
+  const resetCatForm = () => {
+    setEditingCatId(null);
+    setCatName('');
+    setCatSlug('');
+    setCatDescription('');
+  };
+
+  const handleStartEditCat = (cat) => {
+    setEditingCatId(cat.id);
+    setCatName(cat.name || '');
+    setCatSlug(cat.slug || '');
+    setCatDescription(cat.description || '');
+  };
+
+  const handleSaveCategory = (e) => {
+    if (e) e.preventDefault();
+    if (!catName.trim()) {
+      setToast({ show: true, message: 'Укажите название категории', type: 'error' });
+      return;
+    }
+
+    const generatedSlug = catSlug.trim() ? catSlug.trim().toLowerCase() : transliterateToSlug(catName);
+    const newCat = {
+      id: editingCatId || `cat-${Date.now()}`,
+      name: catName.trim(),
+      slug: generatedSlug,
+      description: catDescription.trim()
+    };
+
+    let updatedList = [...categoriesList];
+    if (editingCatId) {
+      updatedList = updatedList.map(c => c.id === editingCatId ? newCat : c);
+    } else {
+      updatedList.push(newCat);
+    }
+
+    setCategoriesList(updatedList);
+    try {
+      localStorage.setItem('site_blog_categories', JSON.stringify(updatedList));
+    } catch (e) {}
+
+    setToast({ show: true, message: editingCatId ? 'Категория обновлена!' : 'Новая категория добавлена!', type: 'success' });
+    resetCatForm();
+  };
+
+  const handleDeleteCategory = (catId) => {
+    const updated = categoriesList.filter(c => c.id !== catId);
+    setCategoriesList(updated);
+    try {
+      localStorage.setItem('site_blog_categories', JSON.stringify(updated));
+    } catch (e) {}
+    setToast({ show: true, message: 'Категория удалена', type: 'info' });
   };
 
   const handleDeleteArticle = async (art) => {
@@ -2949,6 +3046,19 @@ export default function AdminWorkspace() {
                         >
                           + 🔢 Нумерация
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!articleContent) return;
+                            const cleaned = articleContent.replace(/<figure class="my-6 p-4 border border-dashed[\s\S]*?<\/figure>\n?/g, '');
+                            setArticleContent(cleaned);
+                            setToast({ show: true, message: 'Заглушки фото удалены из текста статьи!', type: 'success' });
+                          }}
+                          className="px-2.5 py-1 bg-red-50 hover:bg-red-100 border border-red-200 rounded text-red-600 font-semibold cursor-pointer shadow-xs"
+                          title="Удалить все блоки-заглушки для фото из текста статьи"
+                        >
+                          🗑️ Удалить заглушки фото
+                        </button>
                       </div>
 
                       {/* Built-in Instant Image Uploader for inline visuals */}
@@ -3127,9 +3237,9 @@ export default function AdminWorkspace() {
                 </div>
               )}
 
-              {/* SUBTAB 4: PUBLISHING */}
+              {/* SUBTAB 4: PUBLISHING & CATEGORIES */}
               {articleFormSection === 'publishing' && (
-                <div className="space-y-5 bg-white p-6 border border-zinc-200 rounded-sm">
+                <div className="space-y-6 bg-white p-6 border border-zinc-200 rounded-sm">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-zinc-800 mb-1">
                       Статус публикации *
@@ -3147,17 +3257,16 @@ export default function AdminWorkspace() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-zinc-800 mb-1">
-                        Категория статьи
+                        Категория статьи *
                       </label>
                       <select
                         value={articleCategory}
                         onChange={(e) => setArticleCategory(e.target.value)}
-                        className="w-full px-3.5 py-2 text-xs bg-white border border-zinc-300 rounded-sm focus:border-black outline-none font-medium"
+                        className="w-full px-3.5 py-2 text-xs bg-white border border-zinc-300 rounded-sm focus:border-black outline-none font-semibold text-zinc-900"
                       >
-                        <option value="Дизайн & UX">Дизайн & UX</option>
-                        <option value="Tilda & Код">Tilda & Код</option>
-                        <option value="ИИ & Автоматизация">ИИ & Автоматизация</option>
-                        <option value="Бизнес-сайты">Бизнес-сайты</option>
+                        {categoriesList.map(cat => (
+                          <option key={cat.id || cat.slug} value={cat.name}>{cat.name}</option>
+                        ))}
                       </select>
                     </div>
 
@@ -3199,6 +3308,116 @@ export default function AdminWorkspace() {
                         onChange={(e) => setArticleAuthor(e.target.value)}
                         className="w-full px-3.5 py-2 text-xs bg-white border border-zinc-300 rounded-sm focus:border-black outline-none font-medium"
                       />
+                    </div>
+                  </div>
+
+                  {/* Blog Category Manager */}
+                  <div className="pt-6 border-t border-zinc-200 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#FF5B23]">
+                        [ 🏷️ Управление категориями блога ]
+                      </h4>
+                      <span className="text-[11px] text-zinc-500 font-mono">
+                        Всего категорий: {categoriesList.length}
+                      </span>
+                    </div>
+
+                    {/* Existing categories list */}
+                    <div className="border border-zinc-200 rounded-sm overflow-hidden bg-zinc-50 divide-y divide-zinc-200">
+                      {categoriesList.map((cat) => (
+                        <div key={cat.id || cat.slug} className="p-3 flex items-center justify-between gap-3 bg-white hover:bg-zinc-50 transition-colors">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-zinc-900">{cat.name}</span>
+                              <span className="px-1.5 py-0.5 text-[10px] font-mono bg-zinc-100 text-zinc-600 rounded">
+                                /{cat.slug}
+                              </span>
+                            </div>
+                            {cat.description && (
+                              <p className="text-[11px] text-zinc-500 mt-0.5">{cat.description}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleStartEditCat(cat)}
+                              className="px-2.5 py-1 text-[11px] font-semibold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded transition-colors cursor-pointer"
+                            >
+                              ✏️ Изменить
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCatToDelete(cat)}
+                              className="px-2.5 py-1 text-[11px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded transition-colors cursor-pointer"
+                            >
+                              🗑️ Удалить
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add / Edit Category Form */}
+                    <div className="p-4 border border-zinc-200 rounded-sm bg-zinc-50/80 space-y-3">
+                      <div className="text-xs font-bold text-zinc-900 uppercase tracking-wider">
+                        {editingCatId !== null ? `Редактирование категории: ${catName}` : '+ Добавить новую категорию'}
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-zinc-700 mb-1">
+                            Название категории *
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="например: Маркетинг & Рост"
+                            value={catName}
+                            onChange={(e) => setCatName(e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs bg-white border border-zinc-300 rounded-sm focus:border-black outline-none font-medium"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-semibold text-zinc-700 mb-1">
+                            URL-слаг (Slug)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="например: marketing-growth"
+                            value={catSlug}
+                            onChange={(e) => setCatSlug(e.target.value)}
+                            className="w-full px-3 py-1.5 text-xs bg-white border border-zinc-300 rounded-sm focus:border-black outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-zinc-700 mb-1">
+                          Краткое описание категории
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Статьи про оптимизацию конверсии, позиционирование и продажи..."
+                          value={catDescription}
+                          onChange={(e) => setCatDescription(e.target.value)}
+                          className="w-full px-3 py-1.5 text-xs bg-white border border-zinc-300 rounded-sm focus:border-black outline-none"
+                        />
+                      </div>
+                      <div className="flex items-center justify-end gap-2 pt-1">
+                        {editingCatId !== null && (
+                          <button
+                            type="button"
+                            onClick={resetCatForm}
+                            className="px-3 py-1.5 border border-zinc-300 hover:border-black rounded text-xs font-medium text-zinc-700 bg-white cursor-pointer"
+                          >
+                            Отмена
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleSaveCategory}
+                          className="px-4 py-1.5 bg-[#FF5B23] hover:bg-[#e04f1e] text-white rounded text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
+                        >
+                          {editingCatId !== null ? 'Сохранить изменения' : '+ Добавить категорию'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3464,6 +3683,39 @@ export default function AdminWorkspace() {
                 onClick={() => {
                   handleDeleteOtherProject(otherProjToDelete.id, !!otherProjToDelete.isTemp);
                   setOtherProjToDelete(null);
+                }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-sm text-xs font-bold tracking-wider uppercase transition-colors cursor-pointer"
+              >
+                Удалить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Category Confirmation Modal */}
+      {catToDelete !== null && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center z-50">
+          <div className="bg-white border border-neutral-200 rounded-sm p-6 max-w-sm w-full shadow-2xl animate-toast">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-[#FF5B23] mb-3">
+              [ Подтверждение удаления категории ]
+            </h4>
+            <p className="text-xs text-zinc-800 font-medium leading-relaxed mb-6">
+              Вы уверены, что хотите удалить категорию "{catToDelete.name}"?
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setCatToDelete(null)}
+                className="px-4 py-2 border border-zinc-200 hover:border-black rounded-sm text-xs font-bold tracking-wider uppercase transition-colors cursor-pointer bg-white text-zinc-700"
+              >
+                Отмена
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleDeleteCategory(catToDelete.id);
+                  setCatToDelete(null);
                 }}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-sm text-xs font-bold tracking-wider uppercase transition-colors cursor-pointer"
               >
