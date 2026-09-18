@@ -337,6 +337,117 @@ export default function middleware(request) {
     });
   }
 
+  if (url.pathname === '/sitemap.xml') {
+    const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
+    const supabaseAnonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
+    
+    let caseUrls = [
+      'https://www.ksenweb.com/case/esthete-catering',
+      'https://www.ksenweb.com/case/apex-detailing'
+    ];
+    let articleUrls = [
+      'https://www.ksenweb.com/blog/why-website-looks-cheap'
+    ];
+
+    try {
+      const casesRes = await fetch(`${supabaseUrl}/rest/v1/cases?select=slug,id`, {
+        headers: { 'apikey': supabaseAnonKey, 'Authorization': `Bearer ${supabaseAnonKey}` }
+      });
+      if (casesRes.ok) {
+        const dbCases = await casesRes.json();
+        if (Array.isArray(dbCases)) {
+          dbCases.forEach(item => {
+            const slug = item.slug || (item.id ? String(item.id) : null);
+            if (slug && !caseUrls.includes(`https://www.ksenweb.com/case/${slug}`)) {
+              caseUrls.push(`https://www.ksenweb.com/case/${slug}`);
+            }
+          });
+        }
+      }
+
+      const articlesRes = await fetch(`${supabaseUrl}/rest/v1/articles?select=slug`, {
+        headers: { 'apikey': supabaseAnonKey, 'Authorization': `Bearer ${supabaseAnonKey}` }
+      });
+      if (articlesRes.ok) {
+        const dbArticles = await articlesRes.json();
+        if (Array.isArray(dbArticles)) {
+          dbArticles.forEach(item => {
+            if (item.slug && !articleUrls.includes(`https://www.ksenweb.com/blog/${item.slug}`)) {
+              articleUrls.push(`https://www.ksenweb.com/blog/${item.slug}`);
+            }
+          });
+        }
+      }
+    } catch (e) {}
+
+    const today = new Date().toISOString().split('T')[0];
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.ksenweb.com/</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.ksenweb.com/og-image.png</image:loc>
+      <image:title>Ксения Матвеенко — Разработка сайтов и веб-приложений</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/cases</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+${caseUrls.map(u => `  <url>
+    <loc>${u}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>`).join('\n')}
+  <url>
+    <loc>https://www.ksenweb.com/blog</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+${articleUrls.map(u => `  <url>
+    <loc>${u}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('\n')}
+  <url>
+    <loc>https://www.ksenweb.com/brief</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/privacy-policy</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/terms</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>`;
+
+    return new Response(xml, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8',
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+      }
+    });
+  }
+
   const userAgent = (request.headers.get('user-agent') || '').toLowerCase();
   const isSearchCrawler = /googlebot|yandexbot|bingbot|duckduckbot|slurp|baiduspider|facebookexternalhit|twitterbot|telegrambot|linkedinbot|embedly|whatsapp/i.test(userAgent);
   const wantsMarkdownOnly = (accept.startsWith('text/markdown') || accept.startsWith('application/x-markdown') || accept === 'text/markdown') && !accept.includes('text/html');
