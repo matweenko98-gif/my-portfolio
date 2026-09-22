@@ -4,6 +4,19 @@ import { Plus, Trash2, Upload, Loader2, ArrowLeft, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import contentData from '../contentData';
 
+function getAboutText(about, legacyText = '') {
+  if (typeof about === 'string') {
+    try {
+      const parsed = JSON.parse(about);
+      if (typeof parsed?.text === 'string') return parsed.text.trim();
+    } catch {
+      return about.trim();
+    }
+  }
+  if (typeof about?.text === 'string') return about.text.trim();
+  return typeof legacyText === 'string' ? legacyText.trim() : '';
+}
+
 // Helper to convert and resize image to WebP on the fly
 function convertToWebP(file, maxWidth = 1600, quality = 0.82) {
   return new Promise((resolve, reject) => {
@@ -269,6 +282,17 @@ function ImageUpload({ label, value, onChange, onError, pathPrefix = 'case' }) {
 }
 
 export default function AdminWorkspace() {
+  useEffect(() => {
+    const robots = document.querySelector('meta[name="robots"]');
+    const previousContent = robots?.getAttribute('content');
+
+    if (robots) robots.setAttribute('content', 'noindex, nofollow');
+
+    return () => {
+      if (robots && previousContent) robots.setAttribute('content', previousContent);
+    };
+  }, []);
+
   // Cases list state (left panel)
   const [casesList, setCasesList] = useState([]);
   const [loadingList, setLoadingList] = useState(true);
@@ -911,7 +935,7 @@ export default function AdminWorkspace() {
       setType(data.meta?.type || '');
       setStack(data.meta?.stack || '');
       setYear(data.meta?.year || '');
-      setShortBio(data.about?.text || '');
+      setShortBio(getAboutText(data.about, data.about_text || data.subtitle));
 
       // Task & Solution
       setTask(data.challenge?.task || '');
@@ -1297,10 +1321,10 @@ export default function AdminWorkspace() {
             stack,
             year
           },
-          about: {
+          about: JSON.stringify({
             title: 'О\u00a0проекте',
-            text: shortBio
-          },
+            text: shortBio.trim()
+          }),
           challenge: {
             task,
             solution,

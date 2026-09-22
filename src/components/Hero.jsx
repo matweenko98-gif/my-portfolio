@@ -178,6 +178,22 @@ export default function Hero() {
       id="hero"
       className="relative flex flex-col bg-white border-b border-zinc-100 md:min-h-screen"
     >
+      {/* Фоновая анимация: отключённый звук обязателен для автозапуска в браузерах. */}
+      <video
+        className="absolute inset-0 z-0 h-full w-full object-cover opacity-55"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        aria-hidden="true"
+      >
+        <source src="/hero-loop.mp4" type="video/mp4" />
+      </video>
+
+      {/* Светлый слой сохраняет контраст текста и карточек поверх видео. */}
+      <div className="absolute inset-0 z-0 bg-white/35 pointer-events-none" aria-hidden="true" />
+
       {/* Background coordinate grid lines — едва угадываются */}
       <div className="absolute inset-0 pointer-events-none z-0 grid grid-cols-4 gap-0 opacity-40">
         <div className="border-l border-neutral-200 h-full" />

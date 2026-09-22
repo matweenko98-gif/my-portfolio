@@ -45,7 +45,6 @@ function PageSkeleton() {
 }
 
 import contentData from './contentData';
-import { supabase } from './lib/supabaseClient';
 
 import ScrollToTopButton from './components/ScrollToTopButton';
 
@@ -72,6 +71,8 @@ export default function App() {
     // Fetch remote settings from Supabase
     const fetchRemoteSettings = async () => {
       try {
+        // The database SDK is not needed to render the first screen.
+        const { supabase } = await import('./lib/supabaseClient');
         const { data } = await supabase.from('site_settings').select('*').eq('id', 'contacts').single();
         if (data && data.data) {
           const settings = data.data;

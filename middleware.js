@@ -306,6 +306,18 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+function getAboutText(about) {
+  if (typeof about === 'string') {
+    try {
+      const parsed = JSON.parse(about);
+      if (typeof parsed?.text === 'string') return parsed.text.trim();
+    } catch {
+      return about.trim();
+    }
+  }
+  return typeof about?.text === 'string' ? about.text.trim() : '';
+}
+
 function ensureFormattedHtml(rawContent) {
   if (!rawContent) return '';
   let content = rawContent.trim();
@@ -388,9 +400,10 @@ function renderHtmlDocument({
   <meta name="twitter:image" content="${escapeHtml(ogImage)}" />
 
   <link rel="describedby" type="text/markdown" href="/llms.txt" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="shortcut icon" href="/favicon.svg" />
-  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
 
   ${jsonLdString ? `<script type="application/ld+json">\n${jsonLdString}\n</script>` : ''}
 </head>
@@ -418,7 +431,7 @@ export async function middleware(request) {
 
   // 1. Static asset bypass
   if (
-    pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|css|js|woff|woff2|ttf|json|txt|xml|map)$/i) ||
+    (pathname !== '/sitemap.xml' && pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|css|js|woff|woff2|ttf|json|txt|xml|map)$/i)) ||
     pathname.startsWith('/assets/') ||
     pathname.startsWith('/fonts/') ||
     pathname.startsWith('/demos/')
@@ -459,7 +472,7 @@ export async function middleware(request) {
         }
       }
 
-      const articlesRes = await fetch(`${supabaseUrl}/rest/v1/articles?select=slug,updated_at`, {
+      const articlesRes = await fetch(`${supabaseUrl}/rest/v1/articles?select=slug,updated_at&status=eq.published`, {
         headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
       });
       if (articlesRes.ok) {
@@ -838,7 +851,7 @@ export async function middleware(request) {
             caseItem = {
               slug: dbC.slug,
               title: dbC.title || dbC.name,
-              description: dbC.description || dbC.card_title,
+              description: getAboutText(dbC.about) || dbC.subtitle || dbC.description || dbC.card_title,
               image: dbC.card_image || dbC.imageMain,
               tags: dbC.tags || []
             };
@@ -906,7 +919,32 @@ export async function middleware(request) {
     const description = "Примеры реализованных проектов и концептов: коммерческие сайты на Tilda, кастомные веб-приложения на React/Supabase, UI/UX дизайн в Figma.";
     const canonical = "https://www.ksenweb.com/cases";
 
-    const casesListHtml = fallbackCases.map(c => `
+    const seoCases = [...fallbackCases];
+    try {
+      const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
+      const anonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
+      const res = await fetch(`${supabaseUrl}/rest/v1/cases?select=*`, {
+        headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
+      });
+      if (res.ok) {
+        const fetchedCases = await res.json();
+        if (Array.isArray(fetchedCases)) {
+          fetchedCases.forEach(dbC => {
+            if (dbC.slug && !seoCases.some(c => c.slug === dbC.slug)) {
+              seoCases.push({
+                slug: dbC.slug,
+                title: dbC.title || dbC.name || dbC.card_title,
+                description: getAboutText(dbC.about) || dbC.subtitle || dbC.description || dbC.card_title,
+                image: dbC.card_image || dbC.imageMain,
+                tags: dbC.tags || []
+              });
+            }
+          });
+        }
+      }
+    } catch (e) {}
+
+    const casesListHtml = seoCases.map(c => `
     <article style="border: 1px solid #e4e4e7; border-radius: 4px; padding: 24px; margin-bottom: 24px;">
       <h2 style="font-size: 1.35rem; font-weight: 600; margin: 0 0 12px 0;">
         <a href="/case/${escapeHtml(c.slug)}" style="color: #18181b; text-decoration: none;">${escapeHtml(c.title)}</a>
@@ -979,6 +1017,8 @@ export async function middleware(request) {
     const title = "Ксения Матвеенко | Разработка сайтов и веб-приложений (Беларусь, Россия)";
     const description = "Ксения Матвеенко — разработка коммерческих сайтов на Tilda под ключ и создание кастомных веб-приложений на React/Supabase в Беларуси (РБ), России (РФ) и удаленно по всему миру.";
     const canonical = "https://www.ksenweb.com/";
+    const ogTitle = "Ксения Матвеенко — Разработка сайтов и веб-приложений";
+    const ogDescription = "Создание сайтов на Tilda под ключ и веб-приложений/интерфейсов под задачи бизнеса.";
 
     const jsonLd = {
       "@context": "https://schema.org",
@@ -1039,7 +1079,7 @@ export async function middleware(request) {
   <p>Telegram: <a href="https://t.me/ksen_web" style="color: #ff5b23; font-weight: 500;">@ksen_web</a> | Телефон: +375 (25) 914-09-59 | Email: matweenko98@gmail.com</p>
 </div>`;
 
-    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml });
+    return renderHtmlDocument({ title, description, canonical, ogTitle, ogDescription, jsonLd, bodyHtml });
   }
 
   // ─── Route G: Unknown routes -> 404 HTML Response ───────────────────────────

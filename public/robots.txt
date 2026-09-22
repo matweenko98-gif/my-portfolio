@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /admin-keis
+Disallow: /admin
 
 Host: https://www.ksenweb.com
 Sitemap: https://www.ksenweb.com/sitemap.xml
@@ -11,4 +12,3 @@ Disallow: /images/otziv.png
 
 User-agent: YandexImages
 Disallow: /images/otziv.png
-

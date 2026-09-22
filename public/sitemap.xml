@@ -30,6 +30,48 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://www.ksenweb.com/case/elison-stroi</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/case/plant-market-b2b</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/case/oasis-camp-redesign</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/case/stenografist-ai</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/case/marketing-emsoft</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/case/mir-tartaletok</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/case/medical-center</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://www.ksenweb.com/blog</loc>
     <lastmod>2026-09-18</lastmod>
     <changefreq>daily</changefreq>
@@ -60,5 +102,4 @@
     <priority>0.3</priority>
   </url>
 </urlset>
-
 

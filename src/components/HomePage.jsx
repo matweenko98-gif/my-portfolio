@@ -4,17 +4,17 @@ import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Hero from './Hero';
 import Services from './Services';
-import Cases from './Cases';
 import Workflow from './Workflow';
 import Reviews from './Reviews';
 import FAQ from './FAQ';
-import BlogSection from './BlogSection';
 import Contacts from './Contacts';
 import contentData from '../contentData';
 import { FlickeringGrid } from "./ui/FlickeringGrid";
 
 // ─── Тяжёлые декоративные компоненты — lazy-loaded ───────────────────────────
 const KineticMarquee = lazy(() => import('./ui/KineticMarquee'));
+const Cases = lazy(() => import('./Cases'));
+const BlogSection = lazy(() => import('./BlogSection'));
 
 function SectionFallback() {
   return <div style={{ minHeight: '100px' }} />;
@@ -139,11 +139,15 @@ export default function HomePage() {
             {/* Hero грузится синхронно — критический контент первого экрана */}
             <Hero />
             <Services />
-            <Cases />
+            <Suspense fallback={<SectionFallback />}>
+              <Cases />
+            </Suspense>
             <Workflow />
             <Reviews />
             <FAQ />
-            <BlogSection />
+            <Suspense fallback={<SectionFallback />}>
+              <BlogSection />
+            </Suspense>
             <Contacts />
             <Suspense fallback={<SectionFallback />}>
               <KineticMarquee />

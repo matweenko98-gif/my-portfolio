@@ -17,6 +17,19 @@ const sectionReveal = {
   transition: { duration: 0.8, ease: [0.215, 0.610, 0.355, 1.000] }
 };
 
+function getAboutText(about, legacyText = '') {
+  if (typeof about === 'string') {
+    try {
+      const parsed = JSON.parse(about);
+      if (typeof parsed?.text === 'string') return parsed.text.trim();
+    } catch {
+      return about.trim();
+    }
+  }
+  if (typeof about?.text === 'string') return about.text.trim();
+  return typeof legacyText === 'string' ? legacyText.trim() : '';
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // CONTACTS BLOCK (Обсудить проект) — полная копия логики из Contacts.jsx
 // Переиспользуем внутри шаблона кейса со всей интерактивностью.
@@ -592,7 +605,7 @@ export default function CaseTemplate() {
   }
 
   const heroImageSrc = data.heroImage || data.hero_image;
-  const aboutText = typeof data.about === 'string' ? data.about : (data.about?.text || data.about_text || '');
+  const aboutText = getAboutText(data.about, data.about_text || data.description || data.subtitle);
   const outroImages = data.outro?.images || (data.outro?.image ? [data.outro.image] : (Array.isArray(data.outro_images) ? data.outro_images : []));
   const liveUrl = data.challenge?.liveUrl || data.live_url || data.demoUrl || data.demo_url;
   const panoramaImages = data.panorama_images || data.panoramaImages || [];
