@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import contentData from '../contentData';
 import { avatarImg } from '../utils/imageUtils';
 
@@ -52,7 +52,13 @@ export default function Sidebar({ activeSection }) {
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
         className="lg:hidden flex items-center justify-between px-6 py-4 sticky top-0 bg-white/85 backdrop-blur-md border-b\u00a0border-zinc-100 z-[200]"
       >
-        <span className="text-sm font-medium text-zinc-900">{contentData.sidebar.profile.name}</span>
+        <Link
+          to="/"
+          className="text-sm font-medium text-zinc-900 no-underline hover:text-[#FF5B23] transition-colors"
+          aria-label="На главную страницу"
+        >
+          {contentData.sidebar.profile.name}
+        </Link>
         <button
           onClick={() => setIsOpen(true)}
           className="w-9 h-9 flex items-center justify-center border border-zinc-200/40 rounded-sm bg-white cursor-pointer hover:bg-zinc-50 transition-colors"
@@ -145,16 +151,18 @@ export default function Sidebar({ activeSection }) {
       >
         {/* Profile */}
         <div className="shrink-0 mb-6 xl:mb-8 sidebar-profile">
-          <div className="w-16 h-16 xl:w-20 xl:h-20 rounded-md overflow-hidden mb-4 border border-zinc-200/30 bg-zinc-50">
-            <img
-              src={avatarImg(contentData.sidebar.profile.avatarUrl)}
-              alt={contentData.sidebar.profile.altText}
-              width={80}
-              height={80}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <h2 className="text-base xl:text-lg font-medium text-black mb-0.5 leading-tight tracking-tight">{contentData.sidebar.profile.name}</h2>
+          <Link to="/" className="block w-fit no-underline group" aria-label="На главную страницу">
+            <div className="w-16 h-16 xl:w-20 xl:h-20 rounded-md overflow-hidden mb-4 border border-zinc-200/30 bg-zinc-50">
+              <img
+                src={avatarImg(contentData.sidebar.profile.avatarUrl)}
+                alt={contentData.sidebar.profile.altText}
+                width={80}
+                height={80}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+            <h2 className="text-base xl:text-lg font-medium text-black mb-0.5 leading-tight tracking-tight group-hover:text-[#FF5B23] transition-colors">{contentData.sidebar.profile.name}</h2>
+          </Link>
           <p className="text-[12px] xl:text-[13px] text-neutral-400 font-normal leading-snug sidebar-role">{contentData.sidebar.profile.role}</p>
         </div>
 
