@@ -14,27 +14,6 @@ export default function BlogSection() {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        let cached = null;
-        try {
-          const cachedStr = localStorage.getItem('site_blog_articles');
-          if (cachedStr) {
-            const parsed = JSON.parse(cachedStr);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              cached = parsed.map(item => ({
-                id: item.id,
-                slug: item.slug,
-                title: item.title,
-                excerpt: item.excerpt,
-                coverImage: item.cover_image || item.coverImage,
-                coverAlt: item.cover_alt || item.coverAlt,
-                category: item.category || 'Статья',
-                publishedAt: item.published_at || item.publishedAt,
-                readingTime: item.reading_time || item.readingTime || '5 мин'
-              })).slice(0, 3);
-            }
-          }
-        } catch (e) {}
-
         const { data, error } = await supabase
           .from('articles')
           .select('*')
@@ -42,7 +21,9 @@ export default function BlogSection() {
           .order('published_at', { ascending: false })
           .limit(3);
 
-        if (!error && data && data.length > 0) {
+        if (error) throw error;
+
+        if (data && data.length > 0) {
           const formatted = data.map(item => ({
             id: item.id,
             slug: item.slug,
@@ -55,17 +36,12 @@ export default function BlogSection() {
             readingTime: item.reading_time || item.readingTime || '5 мин'
           }));
           setArticles(formatted);
-          try {
-            localStorage.setItem('site_blog_articles', JSON.stringify(formatted));
-          } catch (e) {}
-        } else if (cached && cached.length > 0) {
-          setArticles(cached);
         } else {
-          setArticles(contentData?.articles?.items || []);
+          setArticles([]);
         }
       } catch (err) {
         console.error('Error fetching blog articles for section:', err);
-        setArticles(contentData?.articles?.items || []);
+        setArticles([]);
       } finally {
         setLoading(false);
       }

@@ -202,7 +202,8 @@ Query the professional portfolio information of Ksenia Matveenko.
 `;
 
 // Static Fallback Data for SSR
-const fallbackArticles = [
+// Kept only as a migration record; live blog pages never read local article data.
+const legacyFallbackArticles = [
   {
     id: "why-website-looks-cheap",
     slug: "why-website-looks-cheap",
@@ -260,7 +261,7 @@ const fallbackArticles = [
 <h2>9. Визуальный уровень сайта не соответствует цене продукта</h2>
 <p>Дизайн формирует ожидания еще до разговора с менеджером. Визуальное ощущение стоимости создают качество материалов, воздух, акцентная типографика и аккуратность деталей.</p>
 `,
-    coverImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
+    coverImage: "",
     coverAlt: "9 ошибок веб-дизайна",
     seoTitle: "9 ошибок, из-за которых сайт выглядит дешево — и как это исправить | KSENWEB",
     metaDescription: "Практический разбор 9 ошибок в UI/UX дизайне, типографике, цветах и мобильной верстке сайтов. Как сделать сайт визуально дорогим и повысить конверсию.",
@@ -268,7 +269,7 @@ const fallbackArticles = [
     noindex: false,
     ogTitle: "9 ошибок, из-за которых сайт выглядит дешево — и как это исправить",
     ogDescription: "Практический разбор 9 ошибок в UI/UX дизайне, типографике, цветах и мобильной верстке сайтов.",
-    ogImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
+    ogImage: "",
     author: "Ксения Матвеенко",
     category: "Дизайн & UX",
     tags: ["UI/UX", "Редизайн", "Типографика"],
@@ -278,6 +279,7 @@ const fallbackArticles = [
     readingTime: "7 мин"
   }
 ];
+const fallbackArticles = [];
 
 const fallbackCases = [
   {
@@ -446,9 +448,7 @@ export async function middleware(request) {
       { slug: 'esthete-catering', date: today },
       { slug: 'apex-detailing', date: today }
     ];
-    let articles = [
-      { slug: 'why-website-looks-cheap', date: today }
-    ];
+    let articles = [];
 
     try {
       const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';

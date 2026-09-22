@@ -65,19 +65,7 @@ export default function ArticlePage() {
         let found = null;
         let allPublished = [];
 
-        // 0. Check localStorage cache first
-        let localCacheItem = null;
-        try {
-          const cachedStr = localStorage.getItem('site_blog_articles');
-          if (cachedStr) {
-            const parsed = JSON.parse(cachedStr);
-            if (Array.isArray(parsed)) {
-              localCacheItem = parsed.find(a => a.slug === slug);
-            }
-          }
-        } catch (e) {}
-
-        // 1. Try Supabase
+        // Articles are authoritative in Supabase.
         const { data: dbArticle } = await supabase
           .from('articles')
           .select('*')
@@ -115,15 +103,6 @@ export default function ArticlePage() {
           };
         }
 
-        // If database article was NOT found, fallback to localCacheItem
-        if (!found && localCacheItem) {
-          found = {
-            ...localCacheItem,
-            coverImage: localCacheItem.cover_image || localCacheItem.coverImage,
-            coverAlt: localCacheItem.cover_alt || localCacheItem.coverAlt
-          };
-        }
-
         if (dbAll && dbAll.length > 0) {
           allPublished = dbAll.map(item => ({
             id: item.id,
@@ -136,16 +115,6 @@ export default function ArticlePage() {
             publishedAt: item.published_at || item.publishedAt,
             readingTime: item.reading_time || item.readingTime || '5 мин'
           }));
-        } else {
-          allPublished = contentData?.articles?.items || [];
-        }
-
-        // 2. Fallback to local contentData if not found in DB or localStorage
-        if (!found && contentData?.articles?.items) {
-          const localMatch = contentData.articles.items.find(a => a.slug === slug);
-          if (localMatch) {
-            found = localMatch;
-          }
         }
 
         if (found) {
@@ -158,11 +127,7 @@ export default function ArticlePage() {
         }
       } catch (err) {
         console.error('Error fetching article:', err);
-        const localMatch = contentData?.articles?.items?.find(a => a.slug === slug);
-        if (localMatch) {
-          setArticle(localMatch);
-          applySeoMetadata(localMatch);
-        }
+        setArticle(null);
       } finally {
         setLoading(false);
       }

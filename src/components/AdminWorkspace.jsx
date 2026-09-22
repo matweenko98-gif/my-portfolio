@@ -596,14 +596,11 @@ export default function AdminWorkspace() {
         .select('*')
         .order('published_at', { ascending: false });
 
-      if (!error && data && data.length > 0) {
-        setArticlesList(data);
-      } else {
-        setArticlesList(contentData?.articles?.items || []);
-      }
+      if (error) throw error;
+      setArticlesList(data || []);
     } catch (err) {
       console.error('Error fetching articles:', err);
-      setArticlesList(contentData?.articles?.items || []);
+      setArticlesList([]);
     } finally {
       setLoadingArticles(false);
     }
@@ -689,7 +686,6 @@ export default function AdminWorkspace() {
       const formattedContent = autoFormatArticleText(articleContent);
 
       const payload = {
-        id: editingArticleId && typeof editingArticleId !== 'string' ? editingArticleId : (Date.now()),
         title: articleTitle,
         slug: articleSlug.toLowerCase().trim(),
         excerpt: articleExcerpt,
@@ -712,41 +708,11 @@ export default function AdminWorkspace() {
         reading_time: articleReadingTime
       };
 
-      // 1. Update local state & localStorage first for 100% reliability
-      let updatedList = [...articlesList];
-      const existingIdx = updatedList.findIndex(a => a.slug === payload.slug || (editingArticleId && a.id === editingArticleId));
-
-      if (existingIdx !== -1) {
-        updatedList[existingIdx] = { ...updatedList[existingIdx], ...payload };
-      } else {
-        updatedList.unshift(payload);
-      }
-
-      setArticlesList(updatedList);
-      try {
-        localStorage.setItem('site_blog_articles', JSON.stringify(updatedList));
-      } catch (e) {}
-
-      // Update contentData in memory as well
-      if (contentData?.articles?.items) {
-        const itemIdx = contentData.articles.items.findIndex(a => a.slug === payload.slug);
-        if (itemIdx !== -1) {
-          contentData.articles.items[itemIdx] = { ...contentData.articles.items[itemIdx], ...payload, coverImage: payload.cover_image, coverAlt: payload.cover_alt };
-        } else {
-          contentData.articles.items.unshift({ ...payload, coverImage: payload.cover_image, coverAlt: payload.cover_alt });
-        }
-      }
-
-      // 2. Try Supabase in background
-      try {
-        if (editingArticleId && typeof editingArticleId !== 'string') {
-          await supabase.from('articles').update(payload).eq('id', editingArticleId);
-        } else {
-          await supabase.from('articles').insert([payload]);
-        }
-      } catch (sbErr) {
-        console.warn('Supabase sync note:', sbErr);
-      }
+      const request = editingArticleId && typeof editingArticleId !== 'string'
+        ? supabase.from('articles').update(payload).eq('id', editingArticleId)
+        : supabase.from('articles').insert([payload]);
+      const { error } = await request;
+      if (error) throw error;
 
       setToast({ show: true, message: '✨ Статья успешно сохранена и обновлена!', type: 'success' });
       resetArticleForm();
