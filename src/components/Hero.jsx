@@ -9,7 +9,14 @@ const CARDS_DATA = [
     tag: 'Tilda',
     scrollTargetId: 'service-card-01',
     // top-left, верхняя позиция
-    desktopStyle: { left: '0%', top: '14%', width: '19%', height: '28%' },
+    desktopStyle: { left: '0%', top: '10%', width: '220px', height: '120px' },
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF5B23" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+        <path d="M2 17l10 5 10-5" />
+        <path d="M2 12l10 5 10-5" />
+      </svg>
+    ),
   },
   {
     id: 'webapps',
@@ -17,19 +24,33 @@ const CARDS_DATA = [
     tag: 'AI-development',
     scrollTargetId: 'service-card-03',
     // центр, ступенька вниз
-    desktopStyle: { left: '30%', top: '42%', width: '19%', height: '28%' },
+    desktopStyle: { left: '30%', top: '40%', width: '220px', height: '120px' },
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF5B23" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="11" width="4" height="9" rx="0.5" />
+        <rect x="10" y="4" width="4" height="16" rx="0.5" />
+        <rect x="17" y="8" width="4" height="12" rx="0.5" />
+      </svg>
+    ),
   },
   {
     id: 'platforms',
     title: 'ПЛАТФОРМЫ/\nСЕРВИСЫ',
     tag: 'AI-development',
     scrollTargetId: 'service-card-03',
-    // справа, top:22% гарантирует чёткий зазор ниже строки статуса
-    desktopStyle: { right: '5%', top: '22%', width: '19%', height: '28%' },
+    // справа, top:20% гарантирует чёткий зазор ниже строки статуса
+    desktopStyle: { right: '5%', top: '20%', width: '220px', height: '120px' },
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF5B23" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+        <line x1="12" y1="22.08" x2="12" y2="12" />
+      </svg>
+    ),
   },
 ];
 
-function ServiceCard({ title, tag, scrollTargetId, desktopStyle }) {
+function ServiceCard({ title, tag, icon, scrollTargetId, desktopStyle }) {
   const outerRef = useRef(null);
   const rectRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -80,7 +101,7 @@ function ServiceCard({ title, tag, scrollTargetId, desktopStyle }) {
     >
       {/* Magnetic spring wrapper */}
       <motion.div className="absolute inset-0" style={{ x: springX, y: springY }}>
-        {/* Draggable card */}
+        {/* Draggable card — без скруглений (rounded-none) */}
         <motion.div
           drag
           dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -91,7 +112,7 @@ function ServiceCard({ title, tag, scrollTargetId, desktopStyle }) {
           onTap={handleScroll}
           whileDrag={{ scale: 1.04, zIndex: 50 }}
           className={[
-            'w-full h-full bg-white rounded-[2px] p-4 relative select-none',
+            'w-full h-full bg-white rounded-none p-3.5 sm:p-4 relative select-none flex flex-col justify-between',
             'cursor-grab active:cursor-grabbing',
             'transition-[border-color,box-shadow] duration-300',
             isHovered && !isDragging
@@ -99,40 +120,49 @@ function ServiceCard({ title, tag, scrollTargetId, desktopStyle }) {
               : 'border border-neutral-200',
           ].join(' ')}
         >
-          {/* Tag — строго верхний правый угол */}
-          <span className="absolute top-3 right-3 font-mono text-[9px] text-neutral-400 tracking-wide select-none">
-            {tag}
-          </span>
-          {/* Title — строго нижний левый угол */}
-          <div className="flex flex-col justify-between h-full">
-            <div className="h-4" />
-            <span className="text-[11px] font-semibold tracking-tight text-zinc-900 leading-snug whitespace-pre-line select-none">
-              {title}
+          {/* Верхний ряд: плашка с иконкой и тэг */}
+          <div className="flex items-start justify-between w-full">
+            {/* Плашка без скруглений */}
+            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#FFF2EA] border border-[#FF5B23]/15 rounded-none flex items-center justify-center shrink-0">
+              {icon}
+            </div>
+            {/* Tag — строго верхний правый угол */}
+            <span className="font-mono text-[9px] text-neutral-400 tracking-wide select-none pt-0.5">
+              {tag}
             </span>
           </div>
+
+          {/* Title — строго нижний левый угол */}
+          <span className="text-[11px] sm:text-[12px] font-semibold tracking-tight text-zinc-900 leading-snug whitespace-pre-line select-none mt-2">
+            {title}
+          </span>
         </motion.div>
       </motion.div>
     </div>
   );
 }
 
-function MobileCard({ title, tag, scrollTargetId }) {
+function MobileCard({ title, tag, icon, scrollTargetId }) {
   return (
     <button
       type="button"
       onClick={() =>
         document.getElementById(scrollTargetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
-      className="flex-1 bg-white border border-neutral-200 rounded-[2px] p-3 relative text-left cursor-pointer hover:border-[#FF5B23]/50 transition-colors duration-200 min-h-[76px] sm:min-h-[82px]"
+      className="flex-1 bg-white border border-neutral-200 rounded-none p-3 relative text-left cursor-pointer hover:border-[#FF5B23]/50 transition-colors duration-200 min-h-[92px] flex flex-col justify-between"
     >
-      <span className="absolute top-2 right-2 font-mono text-[8px] text-neutral-400 tracking-wide">
-        {tag}
-      </span>
-      <div className="flex flex-col justify-end h-full">
-        <span className="block text-[10px] font-semibold tracking-tight text-zinc-900 leading-snug whitespace-pre-line select-none">
-          {title}
+      <div className="flex items-start justify-between w-full">
+        {/* Плашка без скруглений */}
+        <div className="w-7 h-7 bg-[#FFF2EA] border border-[#FF5B23]/15 rounded-none flex items-center justify-center shrink-0">
+          {icon}
+        </div>
+        <span className="font-mono text-[8px] text-neutral-400 tracking-wide">
+          {tag}
         </span>
       </div>
+      <span className="block text-[10px] font-semibold tracking-tight text-zinc-900 leading-snug whitespace-pre-line select-none mt-2">
+        {title}
+      </span>
     </button>
   );
 }

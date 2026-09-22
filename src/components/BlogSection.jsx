@@ -55,7 +55,10 @@ export default function BlogSection() {
             readingTime: item.reading_time || item.readingTime || '5 мин'
           }));
           setArticles(formatted);
-        } else if (cached) {
+          try {
+            localStorage.setItem('site_blog_articles', JSON.stringify(formatted));
+          } catch (e) {}
+        } else if (cached && cached.length > 0) {
           setArticles(cached);
         } else {
           setArticles(contentData?.articles?.items || []);

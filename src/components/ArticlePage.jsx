@@ -115,20 +115,13 @@ export default function ArticlePage() {
           };
         }
 
-        // If localCacheItem has a cover image or content update, override found
-        if (localCacheItem) {
-          if (!found) {
-            found = {
-              ...localCacheItem,
-              coverImage: localCacheItem.cover_image || localCacheItem.coverImage,
-              coverAlt: localCacheItem.cover_alt || localCacheItem.coverAlt
-            };
-          } else if (localCacheItem.cover_image || localCacheItem.coverImage) {
-            found.coverImage = localCacheItem.cover_image || localCacheItem.coverImage;
-            if (localCacheItem.title) found.title = localCacheItem.title;
-            if (localCacheItem.content) found.content = localCacheItem.content;
-            if (localCacheItem.excerpt) found.excerpt = localCacheItem.excerpt;
-          }
+        // If database article was NOT found, fallback to localCacheItem
+        if (!found && localCacheItem) {
+          found = {
+            ...localCacheItem,
+            coverImage: localCacheItem.cover_image || localCacheItem.coverImage,
+            coverAlt: localCacheItem.cover_alt || localCacheItem.coverAlt
+          };
         }
 
         if (dbAll && dbAll.length > 0) {

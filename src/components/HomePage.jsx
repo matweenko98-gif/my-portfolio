@@ -3,40 +3,39 @@ import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Hero from './Hero';
+import Services from './Services';
+import Cases from './Cases';
+import Workflow from './Workflow';
+import Reviews from './Reviews';
+import FAQ from './FAQ';
+import BlogSection from './BlogSection';
+import Contacts from './Contacts';
 import contentData from '../contentData';
 import { FlickeringGrid } from "./ui/FlickeringGrid";
 
-// ─── Тяжёлые секции — lazy-loaded ─────────────────────────────────────────────
-// Services (~86 KB), Cases, Workflow, Reviews, Contacts, KineticMarquee
-// подгружаются асинхронно после того, как Hero уже отрисован.
-const Services     = lazy(() => import('./Services'));
-const Cases        = lazy(() => import('./Cases'));
-const Workflow     = lazy(() => import('./Workflow'));
-const Reviews      = lazy(() => import('./Reviews'));
-const FAQ          = lazy(() => import('./FAQ'));
-const BlogSection  = lazy(() => import('./BlogSection'));
-const Contacts     = lazy(() => import('./Contacts'));
+// ─── Тяжёлые декоративные компоненты — lazy-loaded ───────────────────────────
 const KineticMarquee = lazy(() => import('./ui/KineticMarquee'));
 
-// Минималистичный плейсхолдер для секций пока чанк грузится
 function SectionFallback() {
-  return <div style={{ minHeight: '200px' }} />;
+  return <div style={{ minHeight: '100px' }} />;
 }
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState('hero');
   const location = useLocation();
 
-  // Scroll to hash element if present in url (e.g. /#services)
+  // Scroll to hash element if present in url (e.g. /#blog, /#faq)
   useEffect(() => {
     if (location.hash) {
       const id = location.hash.substring(1);
-      const timer = setTimeout(() => {
+      const scrollToHash = () => {
         const el = document.getElementById(id);
         if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      }, 350); // slight delay to allow lazy-loaded sections to mount
+      };
+      // Выполняем скролл после отрисовки макета
+      const timer = setTimeout(scrollToHash, 100);
       return () => clearTimeout(timer);
     }
   }, [location.hash]);
@@ -139,29 +138,13 @@ export default function HomePage() {
           <div id="main-content-wrapper" className="relative z-10 flex flex-col w-full">
             {/* Hero грузится синхронно — критический контент первого экрана */}
             <Hero />
-
-            {/* Все остальные секции — lazy, подгрузятся после первого экрана */}
-            <Suspense fallback={<SectionFallback />}>
-              <Services />
-            </Suspense>
-            <Suspense fallback={<SectionFallback />}>
-              <Cases />
-            </Suspense>
-            <Suspense fallback={<SectionFallback />}>
-              <Workflow />
-            </Suspense>
-            <Suspense fallback={<SectionFallback />}>
-              <Reviews />
-            </Suspense>
-            <Suspense fallback={<SectionFallback />}>
-              <FAQ />
-            </Suspense>
-            <Suspense fallback={<SectionFallback />}>
-              <BlogSection />
-            </Suspense>
-            <Suspense fallback={<SectionFallback />}>
-              <Contacts />
-            </Suspense>
+            <Services />
+            <Cases />
+            <Workflow />
+            <Reviews />
+            <FAQ />
+            <BlogSection />
+            <Contacts />
             <Suspense fallback={<SectionFallback />}>
               <KineticMarquee />
             </Suspense>
