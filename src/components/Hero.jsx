@@ -149,14 +149,14 @@ function MobileCard({ title, tag, icon, scrollTargetId }) {
       onClick={() =>
         document.getElementById(scrollTargetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
-      className="flex-1 bg-white border border-neutral-200 rounded-none p-3 relative text-left cursor-pointer hover:border-[#FF5B23]/50 transition-colors duration-200 min-h-[92px] flex flex-col justify-between"
+      className="flex-1 min-w-0 bg-white border border-neutral-200 rounded-none p-2.5 relative text-left cursor-pointer hover:border-[#FF5B23]/50 transition-colors duration-200 min-h-[92px] flex flex-col justify-between"
     >
-      <div className="flex items-start justify-between w-full">
+      <div className="flex items-start justify-between gap-1 w-full min-w-0">
         {/* Плашка без скруглений */}
-        <div className="w-7 h-7 bg-[#FFF2EA] border border-[#FF5B23]/15 rounded-none flex items-center justify-center shrink-0">
+        <div className="w-5 h-5 bg-[#FFF2EA] border border-[#FF5B23]/15 rounded-none flex items-center justify-center shrink-0 [&_svg]:w-3.5 [&_svg]:h-3.5">
           {icon}
         </div>
-        <span className="font-mono text-[8px] text-neutral-400 tracking-wide">
+        <span className="min-w-0 flex-1 text-right break-words font-mono text-[8px] leading-tight text-neutral-400 tracking-wide">
           {tag}
         </span>
       </div>
