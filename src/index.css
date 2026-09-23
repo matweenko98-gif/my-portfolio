@@ -177,6 +177,37 @@
   display: block !important;
 }
 
+.article-content-body h2 {
+  scroll-margin-top: 1.5rem;
+}
+
+.article-content-body .article-inline-image {
+  overflow: hidden;
+  border: 1px solid #e4e4e7;
+  border-radius: 3px;
+  background: #f4f4f5;
+}
+
+.article-content-body .article-inline-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+}
+
+.article-content-body .article-inline-image figcaption {
+  width: 100%;
+  margin: 0 !important;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid #e4e4e7;
+  background: #f4f4f5;
+  color: #71717a !important;
+  text-align: center;
+  font-size: 12px !important;
+  font-style: italic;
+  line-height: 1.45;
+}
+
 /* Explicit Article CTA Buttons & Links Styling */
 .prose .article-cta-box,
 .article-content-body .article-cta-box {
@@ -402,20 +433,6 @@ a.article-link-cases:hover,
 .scrollbar-hide {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
-}
-
-/* Hero service cards: shimmer border on hover */
-@keyframes card-shimmer {
-  0%, 100% {
-    box-shadow: 0 0 0 0.5px rgba(255, 91, 35, 0.3), 0 2px 12px rgba(255, 91, 35, 0.06);
-  }
-  50% {
-    box-shadow: 0 0 0 0.5px rgba(255, 91, 35, 0.7), 0 4px 18px rgba(255, 91, 35, 0.13);
-  }
-}
-
-.card-shimmer {
-  animation: card-shimmer 2s ease-in-out infinite;
 }
 
 /* Case template: floating feature image shadow */

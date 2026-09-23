@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, Clock, ChevronRight, Share2, ArrowUpRight } from 'lucide-react';
@@ -7,6 +7,8 @@ import contentData from '../contentData';
 import { supabase } from '../lib/supabaseClient';
 import { avatarImg } from '../utils/imageUtils';
 import { FlickeringGrid } from "./ui/FlickeringGrid";
+
+const SEO_BRAND_SUFFIX = 'Ксения Матвеенко — разработка сайтов/приложений';
 
 function ensureFormattedHtml(rawContent) {
   if (!rawContent) return '';
@@ -49,12 +51,99 @@ function ensureFormattedHtml(rawContent) {
   return content;
 }
 
+function slugifyHeading(value) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-+|-+$/g, '') || 'section';
+}
+
+function removeFinalHeadingPeriod(value = '') {
+  return value.replace(/\.\s*$/, '').trim();
+}
+
+function preventHangingWords(value = '') {
+  return value.replace(
+    /(^|[\s(«—–-])(и|а|но|или|либо|да|в|во|к|ко|с|со|у|о|об|от|до|за|из|по|на|над|под|при|для|без|про|через)\s+/giu,
+    '$1$2\u00A0'
+  );
+}
+
+function formatArticleText(value = '') {
+  return preventHangingWords(removeFinalHeadingPeriod(value));
+}
+
+function createSeoTitle(value = '') {
+  const base = value
+    .replace(/\s*\|\s*KSENWEB\s*$/i, '')
+    .replace(new RegExp(`\\s*\\|\\s*${SEO_BRAND_SUFFIX.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, 'i'), '')
+    .trim();
+  return `${base || 'Статья'} | ${SEO_BRAND_SUFFIX}`;
+}
+
+function applyArticleTypography(documentForContent) {
+  // Do not retain pasted dark "callout" containers: they create poor contrast
+  // with the article typography and visually disconnect the article ending.
+  documentForContent.body.querySelectorAll('div').forEach((container) => {
+    if (/\b(?:bg-black|bg-(?:zinc|neutral)-(?:8|9)\d{2})\b/.test(container.className)) {
+      container.replaceWith(...Array.from(container.childNodes));
+    }
+  });
+
+  documentForContent.body.querySelectorAll('p').forEach((paragraph) => {
+    if (!paragraph.textContent.trim() && !paragraph.querySelector('img, br')) paragraph.remove();
+  });
+
+  documentForContent.body.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
+    heading.textContent = formatArticleText(heading.textContent || '');
+  });
+
+  const ignoredTags = new Set(['CODE', 'PRE', 'SCRIPT', 'STYLE']);
+  const textWalker = documentForContent.createTreeWalker(documentForContent.body, 4);
+  const textNodes = [];
+  let currentNode;
+  while ((currentNode = textWalker.nextNode())) textNodes.push(currentNode);
+
+  textNodes.forEach((node) => {
+    if (ignoredTags.has(node.parentElement?.tagName)) return;
+    node.nodeValue = preventHangingWords(node.nodeValue);
+  });
+}
+
+function createArticleContentModel(rawContent) {
+  const documentForContent = new DOMParser().parseFromString(ensureFormattedHtml(rawContent), 'text/html');
+  applyArticleTypography(documentForContent);
+  const usedIds = new Set();
+  const headings = Array.from(documentForContent.body.querySelectorAll('h2'))
+    .map((heading, index) => {
+      const title = removeFinalHeadingPeriod(heading.textContent.replace(/\s+/g, ' ').trim());
+      if (!title) return null;
+
+      const baseId = heading.id || `section-${index + 1}-${slugifyHeading(title)}`;
+      let id = baseId;
+      let duplicate = 2;
+      while (usedIds.has(id)) id = `${baseId}-${duplicate++}`;
+      usedIds.add(id);
+      heading.id = id;
+      return { id, title };
+    })
+    .filter(Boolean);
+
+  return { html: documentForContent.body.innerHTML, headings };
+}
+
 export default function ArticlePage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [article, setArticle] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeSectionId, setActiveSectionId] = useState('');
+  const contentModel = useMemo(
+    () => (article ? createArticleContentModel(article.content) : { html: '', headings: [] }),
+    [article]
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -119,6 +208,7 @@ export default function ArticlePage() {
 
         if (found) {
           setArticle(found);
+          setActiveSectionId('');
           const other = allPublished.filter(a => a.slug !== found.slug).slice(0, 3);
           setRelatedArticles(other);
           applySeoMetadata(found);
@@ -138,13 +228,13 @@ export default function ArticlePage() {
 
   // SEO & Head tag Injection
   const applySeoMetadata = (art) => {
-    const pageTitle = art.seoTitle ? art.seoTitle : `${art.title} | KSENWEB`;
+    const pageTitle = createSeoTitle(art.seoTitle || art.title);
     const pageDesc = art.metaDescription ? art.metaDescription : art.excerpt;
     const pageCanonical = art.canonicalOverride
       ? art.canonicalOverride
       : `https://www.ksenweb.com/blog/${art.slug}`;
     const pageOgImage = art.ogImage || art.coverImage;
-    const pageOgTitle = art.ogTitle || art.seoTitle || art.title;
+    const pageOgTitle = art.ogTitle || pageTitle;
     const pageOgDesc = art.ogDescription || art.metaDescription || art.excerpt;
 
     document.title = pageTitle;
@@ -243,6 +333,11 @@ export default function ArticlePage() {
     }
   };
 
+  const scrollToSection = (sectionId) => {
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActiveSectionId(sectionId);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -257,7 +352,7 @@ export default function ArticlePage() {
         <h1 className="text-2xl font-light text-zinc-900 mb-2">Статья не найдена</h1>
         <p className="text-zinc-500 text-xs mb-6">Возможно, она была перемещена или удалена.</p>
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/blog')}
           className="px-5 py-2.5 bg-black text-white rounded-[2px] text-xs font-medium uppercase tracking-wider"
         >
           Назад
@@ -287,7 +382,7 @@ export default function ArticlePage() {
             <div className="mb-8">
               <button
                 type="button"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/blog')}
                 className="inline-flex items-center gap-2 text-xs font-medium text-zinc-600 hover:text-black transition-colors py-2 px-3.5 rounded-[2px] border border-zinc-200 bg-white shadow-sm cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
@@ -301,7 +396,7 @@ export default function ArticlePage() {
               <ChevronRight className="w-3 h-3 shrink-0" />
               <Link to="/blog" className="hover:text-zinc-900 transition-colors shrink-0">Блог</Link>
               <ChevronRight className="w-3 h-3 shrink-0" />
-              <span className="text-zinc-700 truncate max-w-xs">{article.title}</span>
+              <span className="text-zinc-700 truncate max-w-xs">{formatArticleText(article.title)}</span>
             </nav>
 
             {/* Semantic Article */}
@@ -313,11 +408,11 @@ export default function ArticlePage() {
                 </div>
 
                 <h1 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-black leading-tight mb-6">
-                  {article.title}
+                  {formatArticleText(article.title)}
                 </h1>
 
                 <p className="text-zinc-500 text-base lg:text-lg leading-relaxed mb-8 font-normal">
-                  {article.excerpt}
+                  {preventHangingWords(article.excerpt)}
                 </p>
 
                 {/* Author & Info Bar */}
@@ -358,9 +453,34 @@ export default function ArticlePage() {
                 </figure>
               )}
 
+              {contentModel.headings.length > 0 && (
+                <nav aria-label="Содержание статьи" className="mb-10 border border-zinc-200 bg-zinc-50/70 rounded-[3px] p-4 sm:p-5">
+                  <div className="text-[10px] font-mono font-medium uppercase tracking-[0.14em] text-zinc-500 mb-3">
+                    Содержание
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {contentModel.headings.map((heading, index) => (
+                      <button
+                        key={heading.id}
+                        type="button"
+                        onClick={() => scrollToSection(heading.id)}
+                        className={`w-full rounded-[2px] border px-3 py-2.5 text-left text-[13px] sm:text-sm leading-snug transition-colors cursor-pointer ${
+                          activeSectionId === heading.id
+                            ? 'border-[#FF5B23] bg-[#FF5B23] text-white'
+                            : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 hover:text-black'
+                        }`}
+                      >
+                        <span className="mr-1.5 font-mono text-[10px] opacity-60">{String(index + 1).padStart(2, '0')}</span>
+                        {heading.title}
+                      </button>
+                    ))}
+                  </div>
+                </nav>
+              )}
+
               {/* Main Content Body */}
               <div
-                className="prose prose-zinc max-w-none 
+                className="article-content-body prose prose-zinc max-w-none
                   prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900
                   prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:pt-6 prose-h2:border-t prose-h2:border-zinc-200 prose-h2:font-bold prose-h2:text-zinc-900
                   prose-h3:text-lg sm:prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:font-semibold prose-h3:text-zinc-900
@@ -369,7 +489,7 @@ export default function ArticlePage() {
                   prose-li:text-zinc-700 prose-li:my-2 prose-li:text-[14px] sm:prose-li:text-[15px] prose-li:font-normal
                   prose-blockquote:border-l-4 prose-blockquote:border-[#FF5B23] prose-blockquote:bg-orange-50/40 prose-blockquote:p-4 sm:prose-blockquote:p-5 prose-blockquote:my-8 prose-blockquote:rounded-r prose-blockquote:not-italic prose-blockquote:text-zinc-800 prose-blockquote:text-[14px] sm:prose-blockquote:text-[15px] prose-blockquote:font-medium
                   prose-img:rounded-[2px] prose-img:border prose-img:border-zinc-200 prose-img:my-6 prose-img:w-full"
-                dangerouslySetInnerHTML={{ __html: ensureFormattedHtml(article.content) }}
+                dangerouslySetInnerHTML={{ __html: contentModel.html }}
               />
 
               {/* Dedicated Article CTA Box (Standalone React Component) */}
@@ -406,7 +526,7 @@ export default function ArticlePage() {
             <div className="mt-16 pt-8 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-4">
               <button
                 type="button"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/blog')}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-black hover:bg-neutral-800 text-white text-xs font-medium uppercase tracking-wider rounded-[2px] transition-colors shadow-sm cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />

@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { Plus, Trash2, Upload, Loader2, ArrowLeft, Pencil } from 'lucide-react';
+import { Plus, Trash2, Upload, Loader2, ArrowLeft, Pencil, Calendar, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import contentData from '../contentData';
+import { avatarImg } from '../utils/imageUtils';
+
+const SEO_BRAND_SUFFIX = 'Ксения Матвеенко — разработка сайтов/приложений';
 
 function getAboutText(about, legacyText = '') {
   if (typeof about === 'string') {
@@ -85,12 +88,112 @@ function transliterateToSlug(text) {
     .replace(/\s+/g, '-');
 }
 
+function cleanArticleHeading(text = '') {
+  return text.replace(/\.\s*$/, '').trim();
+}
+
+function removeDarkArticleContainers(html) {
+  return html.replace(/<div\b([^>]*)>/gi, (match, attributes) => (
+    /\b(?:bg-black|bg-(?:zinc|neutral)-(?:8|9)\d{2})\b/.test(attributes) ? '<div>' : match
+  ));
+}
+
+function preventArticleHangingWords(value = '') {
+  return value.replace(
+    /(^|[\s(«—–-])(и|а|но|или|либо|да|в|во|к|ко|с|со|у|о|об|от|до|за|из|по|на|над|под|при|для|без|про|через)\s+/giu,
+    '$1$2\u00A0'
+  );
+}
+
+function createAdminArticlePreview(rawContent) {
+  const previewDocument = new DOMParser().parseFromString(autoFormatArticleText(rawContent), 'text/html');
+  previewDocument.body.querySelectorAll('div').forEach((container) => {
+    if (/\b(?:bg-black|bg-(?:zinc|neutral)-(?:8|9)\d{2})\b/.test(container.className)) {
+      container.replaceWith(...Array.from(container.childNodes));
+    }
+  });
+  previewDocument.body.querySelectorAll('p').forEach((paragraph) => {
+    if (!paragraph.textContent.trim() && !paragraph.querySelector('img, br')) paragraph.remove();
+  });
+
+  const usedIds = new Set();
+  const headings = Array.from(previewDocument.body.querySelectorAll('h2')).map((heading, index) => {
+    const title = preventArticleHangingWords(cleanArticleHeading(heading.textContent.replace(/\s+/g, ' ').trim()));
+    heading.textContent = title;
+    const baseId = `preview-section-${index + 1}`;
+    let id = baseId;
+    let duplicate = 2;
+    while (usedIds.has(id)) id = `${baseId}-${duplicate++}`;
+    usedIds.add(id);
+    heading.id = id;
+    return { id, title };
+  }).filter((heading) => heading.title);
+
+  const textWalker = previewDocument.createTreeWalker(previewDocument.body, 4);
+  const textNodes = [];
+  let textNode;
+  while ((textNode = textWalker.nextNode())) textNodes.push(textNode);
+  textNodes.forEach((node) => {
+    if (!['CODE', 'PRE', 'SCRIPT', 'STYLE'].includes(node.parentElement?.tagName)) {
+      node.nodeValue = preventArticleHangingWords(node.nodeValue);
+    }
+  });
+
+  return { html: previewDocument.body.innerHTML, headings };
+}
+
+function formatArticlePreviewDate(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function createArticleImageAlt({ title = '', caption = '', type = 'image' }) {
+  const cleanTitle = cleanArticleHeading(title.trim());
+  const cleanCaption = caption.trim();
+  if (cleanCaption) return cleanCaption;
+  if (cleanTitle) {
+    return type === 'cover'
+      ? `Обложка статьи «${cleanTitle}»`
+      : `Иллюстрация к статье «${cleanTitle}»`;
+  }
+  return type === 'cover' ? 'Обложка статьи' : 'Иллюстрация к статье';
+}
+
+function buildArticleSeoFields({ title, excerpt, content, slug, coverImage }) {
+  const sourceDocument = new DOMParser().parseFromString(autoFormatArticleText(content), 'text/html');
+  const firstHeading = sourceDocument.body.querySelector('h2')?.textContent?.replace(/\s+/g, ' ').trim() || '';
+  const articleText = sourceDocument.body.textContent.replace(/\s+/g, ' ').trim();
+  const descriptionSource = excerpt.trim() || [title.trim(), firstHeading, articleText].filter(Boolean).join('. ');
+  const description = descriptionSource.length > 160
+    ? `${descriptionSource.slice(0, 157).replace(/\s+\S*$/, '').trim()}...`
+    : descriptionSource;
+  const seoTitle = `${cleanArticleHeading(title.trim()) || firstHeading || 'Статья'} | ${SEO_BRAND_SUFFIX}`;
+
+  return {
+    seoTitle,
+    metaDescription: description,
+    canonical: slug.trim() ? `https://ksenweb.com/blog/${slug.trim().toLowerCase()}` : '',
+    ogTitle: seoTitle,
+    ogDescription: description,
+    ogImage: coverImage.trim()
+  };
+}
+
 // 1-Click Auto-Formatter logic for option 2
 function autoFormatArticleText(rawText) {
   if (!rawText) return '';
   
   // Replace JSX className with HTML class and clean up inline Mso styles from Word
-  let text = rawText.replace(/className=/g, 'class=').replace(/style="[^"]*"/gi, '');
+  let text = removeDarkArticleContainers(rawText.replace(/className=/g, 'class=').replace(/style="[^"]*"/gi, ''));
+  // A figure is a multi-line semantic block. Preserve it before line-by-line
+  // formatting so its <img> and optional <figcaption> are never wrapped in <p>.
+  const figures = [];
+  text = text.replace(/<figure\b[\s\S]*?<\/figure>/gi, (figure) => {
+    const token = `@@ARTICLE_FIGURE_${figures.length}@@`;
+    figures.push(figure);
+    return `\n${token}\n`;
+  });
 
   const lines = text.split(/\r?\n/).map(l => l.trim());
   let formattedBlocks = [];
@@ -110,6 +213,13 @@ function autoFormatArticleText(rawText) {
 
     if (!line) {
       flushList();
+      continue;
+    }
+
+    const figureToken = /^@@ARTICLE_FIGURE_(\d+)@@$/.exec(line);
+    if (figureToken) {
+      flushList();
+      formattedBlocks.push(figures[Number(figureToken[1])]);
       continue;
     }
 
@@ -137,7 +247,7 @@ function autoFormatArticleText(rawText) {
 
     if (isH2Pattern.test(line) && line.length < 130) {
       flushList();
-      const cleanText = line.replace(/<\/?h2[^>]*>/gi, '');
+      const cleanText = cleanArticleHeading(line.replace(/<\/?h2[^>]*>/gi, ''));
       formattedBlocks.push(`<h2>${cleanText}</h2>`);
       continue;
     }
@@ -154,7 +264,7 @@ function autoFormatArticleText(rawText) {
 
     if (isH3Pattern.test(line) && line.length < 100) {
       flushList();
-      const cleanText = line.replace(/<\/?h3[^>]*>/gi, '');
+      const cleanText = cleanArticleHeading(line.replace(/<\/?h3[^>]*>/gi, ''));
       formattedBlocks.push(`<h3>${cleanText}</h3>`);
       continue;
     }
@@ -436,6 +546,31 @@ export default function AdminWorkspace() {
   const [articleStatus, setArticleStatus] = useState('published');
   const [articlePublishedAt, setArticlePublishedAt] = useState(new Date().toISOString());
   const [articleReadingTime, setArticleReadingTime] = useState('5 мин');
+  const [inlineImageAlt, setInlineImageAlt] = useState('');
+  const [inlineImageCaption, setInlineImageCaption] = useState('');
+  const articlePreview = useMemo(() => createAdminArticlePreview(articleContent), [articleContent]);
+
+  useEffect(() => {
+    if (articleTitle.trim()) {
+      setArticleCoverAlt((current) => current || createArticleImageAlt({ title: articleTitle, type: 'cover' }));
+    }
+  }, [articleTitle]);
+
+  const fillArticleSeoFields = () => {
+    const generated = buildArticleSeoFields({
+      title: articleTitle,
+      excerpt: articleExcerpt,
+      content: articleContent,
+      slug: articleSlug,
+      coverImage: articleCoverImage
+    });
+    setArticleSeoTitle((current) => (!current || /\|\s*KSENWEB\s*$/i.test(current) ? generated.seoTitle : current));
+    setArticleMetaDescription((current) => current || generated.metaDescription);
+    setArticleCanonicalOverride((current) => current || generated.canonical);
+    setArticleOgTitle((current) => (!current || /\|\s*KSENWEB\s*$/i.test(current) ? generated.ogTitle : current));
+    setArticleOgDescription((current) => current || generated.ogDescription);
+    setArticleOgImage((current) => current || generated.ogImage);
+  };
 
   useEffect(() => {
     const cached = localStorage.getItem('site_contacts_settings');
@@ -633,6 +768,8 @@ export default function AdminWorkspace() {
     setArticleStatus('published');
     setArticlePublishedAt(new Date().toISOString());
     setArticleReadingTime('5 мин');
+    setInlineImageAlt('');
+    setInlineImageCaption('');
     setArticleFormSection('content');
   };
 
@@ -2719,7 +2856,10 @@ export default function AdminWorkspace() {
                 <button
                   key={subTab.id}
                   type="button"
-                  onClick={() => setArticleFormSection(subTab.id)}
+                  onClick={() => {
+                    if (subTab.id === 'seo') fillArticleSeoFields();
+                    setArticleFormSection(subTab.id);
+                  }}
                   className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-sm transition-all cursor-pointer ${
                     articleFormSection === subTab.id
                       ? 'bg-black text-white shadow-sm'
@@ -2873,7 +3013,7 @@ export default function AdminWorkspace() {
                             const start = textarea.selectionStart;
                             const end = textarea.selectionEnd;
                             const selected = articleContent.substring(start, end);
-                            const contentToWrap = selected || 'Заголовок раздела (H2)';
+                            const contentToWrap = cleanArticleHeading(selected || 'Заголовок раздела (H2)');
                             const newText = articleContent.substring(0, start) + `<h2>${contentToWrap}</h2>` + articleContent.substring(end);
                             setArticleContent(newText);
                           }}
@@ -2890,7 +3030,7 @@ export default function AdminWorkspace() {
                             const start = textarea.selectionStart;
                             const end = textarea.selectionEnd;
                             const selected = articleContent.substring(start, end);
-                            const contentToWrap = selected || 'Подзаголовок раздела (H3)';
+                            const contentToWrap = cleanArticleHeading(selected || 'Подзаголовок раздела (H3)');
                             const newText = articleContent.substring(0, start) + `<h3>${contentToWrap}</h3>` + articleContent.substring(end);
                             setArticleContent(newText);
                           }}
@@ -3053,10 +3193,23 @@ export default function AdminWorkspace() {
 
                       {/* Built-in Instant Image Uploader for inline visuals */}
                       <div className="pt-2 border-t border-zinc-200 flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-[11px] font-semibold text-zinc-700 flex items-center gap-1.5">
-                          <span>🖼️</span>
-                          <span>Добавить визуал / фотографию в текст статьи:</span>
-                        </span>
+                        <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            value={inlineImageAlt}
+                            onChange={(e) => setInlineImageAlt(e.target.value)}
+                            placeholder={createArticleImageAlt({ title: articleTitle })}
+                            className="w-full px-3 py-2 text-xs bg-white border border-zinc-300 rounded focus:border-black outline-none"
+                          />
+                          <input
+                            type="text"
+                            value={inlineImageCaption}
+                            onChange={(e) => setInlineImageCaption(e.target.value)}
+                            placeholder="Подпись или источник — необязательно"
+                            className="w-full px-3 py-2 text-xs bg-white border border-zinc-300 rounded focus:border-black outline-none"
+                          />
+                        </div>
+                        <span className="text-[11px] text-zinc-500">Alt-текст создаётся из подписи или названия статьи; его можно изменить до загрузки. Пустая подпись не будет показана.</span>
                         <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-zinc-800 text-white text-xs font-semibold rounded cursor-pointer transition-colors shadow-xs">
                           <Upload className="w-3.5 h-3.5" />
                           <span>Загрузить фото в текст</span>
@@ -3084,9 +3237,17 @@ export default function AdminWorkspace() {
 
                                 const textarea = document.getElementById('article-content-textarea');
                                 const start = textarea ? textarea.selectionStart : articleContent.length;
-                                const figureHtml = `\n<figure class="my-6 p-2 border border-zinc-200 rounded bg-zinc-50">\n  <img src="${publicUrl}" alt="Визуал" class="w-full rounded mb-2" />\n  <figcaption class="text-center text-xs text-zinc-500 italic">Описание визуала</figcaption>\n</figure>\n`;
+                                const escapeHtmlAttribute = (value) => value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                const escapeHtmlText = (value) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                const caption = inlineImageCaption.trim();
+                                const generatedAlt = createArticleImageAlt({ title: articleTitle, caption });
+                                const alt = escapeHtmlAttribute(inlineImageAlt.trim() || generatedAlt);
+                                const captionHtml = caption ? `\n  <figcaption>${escapeHtmlText(caption)}</figcaption>` : '';
+                                const figureHtml = `\n<figure class="article-inline-image">\n  <img src="${publicUrl}" alt="${alt}" />${captionHtml}\n</figure>\n`;
                                 const newText = articleContent.substring(0, start) + figureHtml + articleContent.substring(start);
                                 setArticleContent(newText);
+                                setInlineImageAlt('');
+                                setInlineImageCaption('');
                                 setToast({ show: true, message: 'Визуал успешно вставлен в текст!', type: 'success' });
                               } catch (err) {
                                 console.error('Inline image upload error:', err);
@@ -3134,7 +3295,10 @@ export default function AdminWorkspace() {
                   <ImageUpload
                     label="Обложка статьи (Cover Image)"
                     value={articleCoverImage}
-                    onChange={(url) => setArticleCoverImage(url)}
+                    onChange={(url) => {
+                      setArticleCoverImage(url);
+                      setArticleCoverAlt((current) => current || createArticleImageAlt({ title: articleTitle, type: 'cover' }));
+                    }}
                     onError={(msg) => setToast({ show: true, message: msg, type: 'error' })}
                     pathPrefix="article"
                   />
@@ -3151,7 +3315,7 @@ export default function AdminWorkspace() {
                       className="w-full px-3.5 py-2 text-xs bg-white border border-zinc-300 rounded-sm focus:border-black outline-none"
                     />
                     <span className="text-[10px] text-zinc-400 mt-1 block">
-                      Обязательное поле перед публикацией. Важно для SEO и доступности.
+                      Заполняется автоматически из названия статьи. Проверьте и при необходимости уточните, что изображено на фото.
                     </span>
                   </div>
                 </div>
@@ -3160,6 +3324,16 @@ export default function AdminWorkspace() {
               {/* SUBTAB 3: SEO & OG */}
               {articleFormSection === 'seo' && (
                 <div className="space-y-5 bg-white p-6 border border-zinc-200 rounded-sm">
+                  <div className="flex items-center justify-between gap-3 pb-4 border-b border-zinc-100">
+                    <p className="text-xs text-zinc-500 leading-relaxed">Поля заполнены из названия, анонса, текста, H2 и обложки. Их можно отредактировать вручную.</p>
+                    <button
+                      type="button"
+                      onClick={fillArticleSeoFields}
+                      className="shrink-0 px-3 py-2 border border-zinc-200 hover:border-zinc-400 bg-white text-xs font-semibold rounded-sm transition-colors cursor-pointer"
+                    >
+                      Обновить SEO
+                    </button>
+                  </div>
                   <div>
                     <div className="flex justify-between mb-1">
                       <label className="text-xs font-bold uppercase tracking-wider text-zinc-800">
@@ -3171,13 +3345,13 @@ export default function AdminWorkspace() {
                     </div>
                     <input
                       type="text"
-                      placeholder={articleTitle ? `${articleTitle} | KSENWEB` : "Заголовок для вывода в Google"}
+                      placeholder={articleTitle ? `${articleTitle} | ${SEO_BRAND_SUFFIX}` : "Заголовок для вывода в Google"}
                       value={articleSeoTitle}
                       onChange={(e) => setArticleSeoTitle(e.target.value)}
                       className="w-full px-3.5 py-2 text-xs bg-white border border-zinc-300 rounded-sm focus:border-black outline-none"
                     />
                     <span className="text-[10px] text-zinc-400 mt-1 block">
-                      Если оставить пустым, используется основной заголовок статьи + | KSENWEB.
+                      Используется заголовок статьи + «{SEO_BRAND_SUFFIX}».
                     </span>
                   </div>
 
@@ -3559,47 +3733,76 @@ export default function AdminWorkspace() {
                 https://ksenweb.com/blog/{articleSlug || 'your-slug'}
               </div>
               <div className="text-base font-semibold text-blue-700 hover:underline cursor-pointer">
-                {articleSeoTitle || articleTitle || 'Заголовок статьи'} | KSENWEB
+                {articleSeoTitle || `${articleTitle || 'Заголовок статьи'} | ${SEO_BRAND_SUFFIX}`}
               </div>
               <div className="text-xs text-zinc-600 line-clamp-2">
                 {articleMetaDescription || articleExcerpt || 'Описание статьи в поиске...'}
               </div>
             </div>
 
-            {/* Rendered Article Preview Header */}
-            <div className="max-w-2xl mx-auto">
-              <div className="inline-block px-3 py-1 bg-zinc-100 text-[#FF5B23] text-xs font-semibold rounded-full mb-3 uppercase tracking-wider">
-                {articleCategory}
-              </div>
-              <h1 className="text-3xl font-extrabold text-zinc-900 leading-tight mb-4">
-                {articleTitle || 'Название вашей статьи'}
-              </h1>
-              <p className="text-zinc-600 text-base mb-6 leading-relaxed">{articleExcerpt}</p>
-
-              {articleCoverImage && (
-                <div className="mb-6 rounded-sm overflow-hidden border border-zinc-200">
-                  <img
-                    src={articleCoverImage}
-                    alt={articleCoverAlt || articleTitle}
-                    className="w-full max-h-96 object-cover"
-                  />
-                  {articleCoverAlt && (
-                    <div className="p-2 bg-zinc-50 text-center text-xs text-zinc-400 italic border-t border-zinc-100">
-                      {articleCoverAlt}
+            {/* Public article rendering preview */}
+            <div className="max-w-4xl mx-auto">
+              <article className="w-full">
+                <header className="mb-10">
+                  <div className="text-[11px] font-mono text-zinc-400 tracking-wider uppercase mb-3">
+                    [ {articleCategory || 'Статья'} ]
+                  </div>
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-black leading-tight mb-6">
+                    {preventArticleHangingWords(cleanArticleHeading(articleTitle || 'Название вашей статьи'))}
+                  </h1>
+                  <p className="text-zinc-500 text-base lg:text-lg leading-relaxed mb-8 font-normal">
+                    {preventArticleHangingWords(articleExcerpt || 'Краткое описание статьи появится здесь.')}
+                  </p>
+                  <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-y border-zinc-100 text-xs text-zinc-500 font-normal">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={avatarImg(contentData?.sidebar?.profile?.avatarUrl)}
+                        alt={articleAuthor || 'Ксения Матвеенко'}
+                        className="w-10 h-10 rounded-full object-cover border border-zinc-200 shrink-0"
+                      />
+                      <div>
+                        <div className="font-medium text-zinc-900 text-sm">{articleAuthor || 'Ксения Матвеенко'}</div>
+                        <div className="text-zinc-400 text-[11px]">Веб-дизайнер & Разработчик</div>
+                      </div>
                     </div>
-                  )}
-                </div>
-              )}
+                    <div className="flex items-center gap-6">
+                      <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-zinc-400" />{formatArticlePreviewDate(articlePublishedAt)}</span>
+                      <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-zinc-400" />{articleReadingTime || '5 мин'}</span>
+                    </div>
+                  </div>
+                </header>
 
-              <div
-                className="prose prose-zinc max-w-none 
-                  prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900
-                  prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pt-5 prose-h2:border-t prose-h2:border-zinc-200 prose-h2:font-bold prose-h2:text-zinc-900
-                  prose-h3:text-lg sm:prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:font-semibold prose-h3:text-zinc-900
-                  prose-p:text-zinc-700 prose-p:text-[14px] sm:prose-p:text-[15px] prose-p:leading-[1.75] prose-p:mb-6 prose-p:font-normal
-                  prose-ul:my-6 prose-ol:my-6 prose-li:text-zinc-700 prose-li:text-[14px] sm:prose-li:text-[15px] prose-li:my-2"
-                dangerouslySetInnerHTML={{ __html: autoFormatArticleText(articleContent) || '<p>Содержимое статьи...</p>' }}
-              />
+                {articleCoverImage && (
+                  <figure className="mb-12 rounded-[2px] overflow-hidden border border-zinc-200 bg-zinc-50">
+                    <img src={articleCoverImage} alt={articleCoverAlt || articleTitle} className="w-full max-h-[520px] object-cover" />
+                  </figure>
+                )}
+
+                {articlePreview.headings.length > 0 && (
+                  <nav aria-label="Содержание статьи" className="mb-10 border border-zinc-200 bg-zinc-50/70 rounded-[3px] p-4 sm:p-5">
+                    <div className="text-[10px] font-mono font-medium uppercase tracking-[0.14em] text-zinc-500 mb-3">Содержание</div>
+                    <div className="flex flex-col gap-2">
+                      {articlePreview.headings.map((heading, index) => (
+                        <div key={heading.id} className="w-full rounded-[2px] border border-zinc-200 bg-white px-3 py-2.5 text-left text-[13px] sm:text-sm leading-snug text-zinc-700">
+                          <span className="mr-1.5 font-mono text-[10px] text-zinc-400">{String(index + 1).padStart(2, '0')}</span>
+                          {heading.title}
+                        </div>
+                      ))}
+                    </div>
+                  </nav>
+                )}
+
+                <div
+                  className="article-content-body prose prose-zinc max-w-none
+                    prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900
+                    prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-5 prose-h2:pt-6 prose-h2:border-t prose-h2:border-zinc-200
+                    prose-h3:text-lg sm:prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:font-semibold
+                    prose-p:text-zinc-700 prose-p:leading-[1.75] prose-p:mb-6 prose-p:text-[14px] sm:prose-p:text-[15px]
+                    prose-ul:my-6 prose-ol:my-6 prose-ul:pl-5 prose-ol:pl-5 prose-li:text-zinc-700 prose-li:my-2 prose-li:text-[14px] sm:prose-li:text-[15px]
+                    prose-img:rounded-[2px] prose-img:border prose-img:border-zinc-200 prose-img:my-6 prose-img:w-full"
+                  dangerouslySetInnerHTML={{ __html: articlePreview.html || '<p>Содержимое статьи...</p>' }}
+                />
+              </article>
             </div>
           </div>
         </div>

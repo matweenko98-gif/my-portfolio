@@ -114,9 +114,9 @@ function ServiceCard({ title, tag, icon, scrollTargetId, desktopStyle }) {
           className={[
             'w-full h-full bg-white rounded-none p-3.5 sm:p-4 relative select-none flex flex-col justify-between',
             'cursor-grab active:cursor-grabbing',
-            'transition-[border-color,box-shadow] duration-300',
+            'transition-[border-color] duration-300',
             isHovered && !isDragging
-              ? 'border border-[#FF5B23]/50 card-shimmer'
+              ? 'border border-[#FF5B23]/25'
               : 'border border-neutral-200',
           ].join(' ')}
         >
