@@ -1,27 +1,32 @@
-# Ksenia Matveenko — UI/UX Designer, Frontend Developer & AI Prompt Engineer
+# KSENWEB — Ксения Матвеенко
 
-## Core Identity & Professional Overview
-- **Full Name**: Матвеенко Ксения Александровна (Ksenia Alexandrovna Matveenko)
-- **Role**: Professional Web Designer, UI/UX Specialist, and Frontend/AI Engineer.
-- **Location & Target Markets**: Based in Belarus (Минск / Минская область). Serves clients across all of Belarus (РБ), Russia (РФ), CIS, and international remote projects.
-- **Legal & Tax Status**: Registered professional under the "Tax on Professional Income" (Налог на профессиональный доход - НПД) system in Belarus. **УНП**: ЕЕ7594998.
+> Официальное портфолио веб-дизайнера и разработчика Ксении Матвеенко: сайты на Tilda, UI/UX-дизайн в Figma, веб-приложения и MVP на React/Supabase.
 
-- **Design Philosophy**: Minimalist, Apple-like aesthetic. Focuses on "optimization over decoration" and clean, functional, high-performing interfaces.
+Ксения Матвеенко работает из Минска с клиентами из Беларуси, России и других стран удалённо. Сотрудничество оформляется официально; УНП ЕЕ7594998.
 
-## Technical Stack & Competencies
-- **Design & UI/UX**: Figma, Bento-style grids, responsive interface architecture, premium layout prototyping.
-- **Frontend & Web Development**: React, Next.js, Vite, Tailwind CSS, Semantic HTML, CSS-in-JS.
-- **Backend & Cloud Integration**: Supabase, PostgreSQL database architecture, secure authentication, API integrations.
-- **No-Code Platforms**: Tilda (expert level custom design, Zero Block modification).
-- **AI & Vibe-Coding**: Advanced AI Prompt Engineering, integration of neural networks into web applications, development with AI agents (Cursor, Lovable, Google Stitch, Claude).
+## Основные страницы
 
-## Primary Services & Cost Optimization Models
-1. **Premium Turnkey Websites on Tilda**: Landing pages, multi-page corporate sites, catalogs, and interactive e-commerce layouts with custom animation and basic SEO.
-2. **Website Redesign & Structural Optimization**: Visual transformation, migration to modern platforms for better performance and speed.
-3. **AI-Driven Web Applications & MVPs**: Full-stack web applications with dashboards, custom databases (Supabase), secure payment systems, and neural network integrations. Cost calculation is optimized per screen complexity.
+- [Главная](https://www.ksenweb.com/): услуги, процесс работы, отзывы, FAQ и контакты.
+- [Кейсы](https://www.ksenweb.com/cases): клиентские проекты и демонстрационные концепты.
+- [Блог](https://www.ksenweb.com/blog): материалы о веб-дизайне, разработке и интерфейсах.
+- [Бриф](https://www.ksenweb.com/brief): исходные вопросы для оценки проекта.
+- [Цены в машиночитаемом формате](https://www.ksenweb.com/pricing.md): стартовые цены, сроки и состав работ.
+- [Политика конфиденциальности](https://www.ksenweb.com/privacy-policy)
+- [Условия использования](https://www.ksenweb.com/terms)
 
-## Verified Contact Channels
-- **Official Portfolio Website**: https://www.ksenweb.com
-- **Telegram Direct Link**: https://t.me/ksen_web
-- **Phone Number**: +375259140959
-- **Official Inquiries**: Commercial briefs and agreements are fully verified under UNP EE7594998.
+## Услуги
+
+- Сайты на Tilda: лендинги, корпоративные сайты, каталоги и интернет-магазины.
+- Редизайн и UX-оптимизация существующих сайтов.
+- UI/UX-дизайн сайтов и интерфейсов в Figma.
+- Веб-приложения, личные кабинеты, MVP и платформы на React/Supabase.
+- Интеграции CRM, аналитики, платежей и AI-функций.
+
+## Подтверждённые контакты
+
+- Сайт: https://www.ksenweb.com/
+- Email: matweenko98@gmail.com
+- Telegram: https://t.me/ksen_web
+- Телефон: +375259140959
+
+Последнее обновление: 2026-09-25.

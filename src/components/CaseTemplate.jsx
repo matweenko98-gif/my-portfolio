@@ -421,13 +421,61 @@ export default function CaseTemplate() {
   useEffect(() => {
     if (data) {
       const caseTitle = data.title || data.card_title || 'Проект';
+      const caseDescription = data.meta_description || data.subtitle || data.card_description || `Подробный кейс по дизайну и разработке: ${caseTitle}. Ксения Матвеенко.`;
+      const canonicalUrl = `https://www.ksenweb.com/case/${encodeURIComponent(id)}`;
       document.title = `${caseTitle} — Кейс Ксении Матвеенко`;
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
-        metaDesc.setAttribute('content', data.meta_description || data.subtitle || data.card_description || `Подробный кейс по дизайну и разработке: ${caseTitle}. Ксения Матвеенко.`);
+        metaDesc.setAttribute('content', caseDescription);
       }
+
+      const canonical = document.querySelector('link[rel="canonical"]');
+      if (canonical) canonical.setAttribute('href', canonicalUrl);
+
+      const ogUrl = document.querySelector('meta[property="og:url"]');
+      if (ogUrl) ogUrl.setAttribute('content', canonicalUrl);
+      const caseImage = data.card_image || data.cardImage || data.hero_image || data.heroImage || data.imageMain || 'https://www.ksenweb.com/og-image.png';
+      const socialMeta = [
+        ['meta[property="og:type"]', 'property', 'og:type', 'article'],
+        ['meta[property="og:title"]', 'property', 'og:title', `${caseTitle} — Кейс Ксении Матвеенко`],
+        ['meta[property="og:description"]', 'property', 'og:description', caseDescription],
+        ['meta[property="og:image"]', 'property', 'og:image', caseImage],
+        ['meta[name="twitter:title"]', 'name', 'twitter:title', `${caseTitle} — Кейс Ксении Матвеенко`],
+        ['meta[name="twitter:description"]', 'name', 'twitter:description', caseDescription],
+        ['meta[name="twitter:image"]', 'name', 'twitter:image', caseImage],
+      ];
+      socialMeta.forEach(([selector, attribute, key, value]) => {
+        let node = document.querySelector(selector);
+        if (!node) {
+          node = document.createElement('meta');
+          node.setAttribute(attribute, key);
+          document.head.appendChild(node);
+        }
+        node.setAttribute('content', value);
+      });
+
+      let schema = document.getElementById('jsonld-case');
+      if (!schema) {
+        schema = document.createElement('script');
+        schema.id = 'jsonld-case';
+        schema.type = 'application/ld+json';
+        document.head.appendChild(schema);
+      }
+      schema.text = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'CreativeWork',
+        name: caseTitle,
+        description: caseDescription,
+        url: canonicalUrl,
+        image: caseImage,
+        creator: {
+          '@type': 'Person',
+          name: 'Ксения Матвеенко',
+          url: 'https://www.ksenweb.com/',
+        },
+      });
     }
-  }, [data]);
+  }, [data, id]);
 
 
   // Fetch cases list for navigation

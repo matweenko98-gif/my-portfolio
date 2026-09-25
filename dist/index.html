@@ -9,7 +9,6 @@
   <title>Ксения Матвеенко — Разработка сайтов и веб-приложений</title>
   <meta name="description"
     content="Создание сайтов на Tilda под ключ и веб-приложений/интерфейсов под задачи бизнеса.">
-  <meta name="keywords" content="создание сайтов Tilda, разработка веб приложений, веб дизайнер Беларусь, разработка сайтов Минск, заказать сайт Tilda Россия, веб приложения React Supabase, UI UX дизайн Figma" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="https://www.ksenweb.com/" />
 
@@ -41,6 +40,24 @@
   {
     "@context": "https://schema.org",
     "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://www.ksenweb.com/#website",
+        "url": "https://www.ksenweb.com/",
+        "name": "KSENWEB — Ксения Матвеенко",
+        "inLanguage": "ru",
+        "publisher": { "@id": "https://www.ksenweb.com/#person" }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://www.ksenweb.com/#webpage",
+        "url": "https://www.ksenweb.com/",
+        "name": "Ксения Матвеенко — Дизайн и разработка веб-продуктов",
+        "description": "Создание сайтов на Tilda, UI/UX-дизайн и разработка веб-приложений для бизнеса.",
+        "inLanguage": "ru",
+        "isPartOf": { "@id": "https://www.ksenweb.com/#website" },
+        "about": { "@id": "https://www.ksenweb.com/#person" }
+      },
       {
         "@type": "Person",
         "@id": "https://www.ksenweb.com/#person",
@@ -113,6 +130,13 @@
         },
         "telephone": "+375259140959",
         "email": "matweenko98@gmail.com",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer service",
+          "telephone": "+375259140959",
+          "email": "matweenko98@gmail.com",
+          "availableLanguage": ["ru"]
+        },
         "priceRange": "$$$"
       }
     ]
@@ -136,11 +160,13 @@
       document.head.appendChild(script);
     }
 
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(loadGtag);
-    } else {
-      window.addEventListener('load', loadGtag);
-    }
+    window.ksEnableAnalytics = function () {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadGtag);
+      } else {
+        loadGtag();
+      }
+    };
   </script>
 
   <script>
@@ -167,13 +193,23 @@
       document.head.appendChild(script);
     }
 
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(loadMetrika);
-    } else {
-      window.addEventListener('load', loadMetrika);
-    }
+    var previousEnableAnalytics = window.ksEnableAnalytics;
+    window.ksEnableAnalytics = function () {
+      if (previousEnableAnalytics) previousEnableAnalytics();
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadMetrika);
+      } else {
+        loadMetrika();
+      }
+    };
+
+    try {
+      if (localStorage.getItem('cookie_accepted') === 'true') {
+        window.ksEnableAnalytics();
+      }
+    } catch (e) {}
   </script>
-  <script type="module" crossorigin src="/assets/index-D7MMVnhv.js"></script>
+  <script type="module" crossorigin src="/assets/index-CctCX7CE.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-Cyuzqnbw.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-framer-B4_J9g5e.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-react-CGAOf7HK.js">
@@ -183,9 +219,6 @@
 </head>
 
 <body class="bg-white text-zinc-900 antialiased font-sans m-0 p-0">
-  <noscript>
-    <div><img src="https://mc.yandex.ru/watch/109905970" style="position:absolute; left:-9999px;" alt="" /></div>
-  </noscript>
   <div id="root"></div>
 </body>
 

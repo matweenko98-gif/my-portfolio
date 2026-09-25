@@ -3,8 +3,39 @@ Allow: /
 Disallow: /admin-keis
 Disallow: /admin
 
-Host: https://www.ksenweb.com
+Host: www.ksenweb.com
 Sitemap: https://www.ksenweb.com/sitemap.xml
+
+# AI search and answer engines are explicitly allowed to retrieve public pages.
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+Disallow: /admin-keis
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin
+Disallow: /admin-keis
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin
+Disallow: /admin-keis
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin
+Disallow: /admin-keis
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /admin
+Disallow: /admin-keis
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin
+Disallow: /admin-keis
 
 # Запрещаем роботам картинок индексировать специфическое изображение отзывов
 User-agent: Googlebot-Image

@@ -173,7 +173,7 @@ function buildArticleSeoFields({ title, excerpt, content, slug, coverImage }) {
   return {
     seoTitle,
     metaDescription: description,
-    canonical: slug.trim() ? `https://ksenweb.com/blog/${slug.trim().toLowerCase()}` : '',
+    canonical: slug.trim() ? `https://www.ksenweb.com/blog/${slug.trim().toLowerCase()}` : '',
     ogTitle: seoTitle,
     ogDescription: description,
     ogImage: coverImage.trim()
@@ -508,7 +508,7 @@ export default function AdminWorkspace() {
 
   // Contact settings state
   const [contactPhone, setContactPhone] = useState(contentData.contacts?.phone || '+375 25 914 09 59');
-  const [contactEmail, setContactEmail] = useState(contentData.contacts?.email || 'verameeva77@mail.ru');
+  const [contactEmail, setContactEmail] = useState(contentData.contacts?.email || 'matweenko98@gmail.com');
   const [contactTelegramUrl, setContactTelegramUrl] = useState(contentData.sidebar?.socialLinks?.telegram || 'https://t.me/ksen_web');
   const [contactMaxUrl, setContactMaxUrl] = useState(contentData.sidebar?.socialLinks?.max || 'https://max.ru/u/f9LHodD0cOLc1tgODx5Hvuln4-rgmfFJqN4Q5OLgnaxmSTG2FxgU9ZVRnGg');
   const [savingContacts, setSavingContacts] = useState(false);
@@ -2910,7 +2910,7 @@ export default function AdminWorkspace() {
                     </div>
                     <div className="flex items-center">
                       <span className="px-3 py-2 bg-zinc-100 border border-r-0 border-zinc-300 text-xs text-zinc-500 rounded-l-sm">
-                        https://ksenweb.com/blog/
+                        https://www.ksenweb.com/blog/
                       </span>
                       <input
                         type="text"
@@ -3379,7 +3379,7 @@ export default function AdminWorkspace() {
                     </label>
                     <input
                       type="text"
-                      placeholder="https://ksenweb.com/blog/your-slug"
+                      placeholder="https://www.ksenweb.com/blog/your-slug"
                       value={articleCanonicalOverride}
                       onChange={(e) => setArticleCanonicalOverride(e.target.value)}
                       className="w-full px-3.5 py-2 text-xs bg-white border border-zinc-300 rounded-sm focus:border-black outline-none"
@@ -3654,7 +3654,7 @@ export default function AdminWorkspace() {
                   type="email"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
-                  placeholder="verameeva77@mail.ru"
+                  placeholder="matweenko98@gmail.com"
                   className="w-full px-4 py-2.5 text-xs bg-white border border-zinc-300 rounded-sm focus:outline-none focus:border-black font-medium text-zinc-900"
                 />
               </div>
@@ -3730,7 +3730,7 @@ export default function AdminWorkspace() {
                 Предпросмотр в выдаче Google Search
               </span>
               <div className="text-xs text-emerald-700 truncate font-mono">
-                https://ksenweb.com/blog/{articleSlug || 'your-slug'}
+                https://www.ksenweb.com/blog/{articleSlug || 'your-slug'}
               </div>
               <div className="text-base font-semibold text-blue-700 hover:underline cursor-pointer">
                 {articleSeoTitle || `${articleTitle || 'Заголовок статьи'} | ${SEO_BRAND_SUFFIX}`}

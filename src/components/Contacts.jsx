@@ -199,7 +199,7 @@ export default function Contacts() {
                 className="bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/email flex items-center gap-3 text-neutral-300 hover:text-white transition-colors duration-300 select-all pt-1"
               >
                 <span className="text-xl md:text-2xl font-light tracking-wide text-neutral-300 group-hover/email:text-[#FF5B23] transition-colors duration-300">
-                  {contacts.email || 'verameeva77@mail.ru'}
+                  {contacts.email || 'matweenko98@gmail.com'}
                 </span>
                 <span className="text-neutral-500 group-hover/email:text-white transition-colors duration-300">
                   {emailCopied ? (
@@ -336,7 +336,7 @@ export default function Contacts() {
               className="bg-transparent border-none p-0 cursor-pointer focus:outline-none focus:ring-0 group/email flex items-center gap-2.5 select-all text-neutral-300 hover:text-white transition-colors duration-300"
             >
               <span className="text-base sm:text-lg font-light tracking-wide text-neutral-300 group-hover/email:text-[#FF5B23]">
-                {contacts.email || 'verameeva77@mail.ru'}
+                {contacts.email || 'matweenko98@gmail.com'}
               </span>
               <span className="text-neutral-500 group-hover/email:text-white transition-colors duration-300">
                 {emailCopied ? (

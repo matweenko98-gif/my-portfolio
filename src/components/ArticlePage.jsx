@@ -284,6 +284,20 @@ export default function ArticlePage() {
     if (pageOgImage) setOgMeta('og:image', pageOgImage);
     if (art.publishedAt) setOgMeta('article:published_time', art.publishedAt);
 
+    const setTwitterMeta = (name, value) => {
+      let meta = document.querySelector(`meta[name="${name}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', name);
+        document.head.appendChild(meta);
+      }
+      meta.content = value;
+    };
+    setTwitterMeta('twitter:card', 'summary_large_image');
+    setTwitterMeta('twitter:title', pageOgTitle);
+    setTwitterMeta('twitter:description', pageOgDesc);
+    if (pageOgImage) setTwitterMeta('twitter:image', pageOgImage);
+
     // Schema.org BlogPosting JSON-LD
     let scriptLd = document.getElementById('jsonld-blog-posting');
     if (!scriptLd) {
@@ -307,13 +321,11 @@ export default function ArticlePage() {
         "url": "https://www.ksenweb.com"
       },
       "publisher": {
-        "@type": "Organization",
-        "name": "KSENWEB",
+        "@type": "Person",
+        "@id": "https://www.ksenweb.com/#person",
+        "name": "Ксения Матвеенко",
         "url": "https://www.ksenweb.com",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://www.ksenweb.com/og-image.png"
-        }
+        "image": "https://www.ksenweb.com/og-image.png"
       },
       "mainEntityOfPage": {
         "@type": "WebPage",

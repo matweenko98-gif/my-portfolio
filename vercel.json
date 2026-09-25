@@ -1,12 +1,37 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "design-matweenko.vercel.app" }],
+      "destination": "https://www.ksenweb.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "ksenweb.com" }],
+      "destination": "https://www.ksenweb.com/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/admin",
       "headers": [
         {
           "key": "X-Robots-Tag",
-          "value": "noindex, nofollow"
+          "value": "noindex, nofollow, noarchive"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
         }
+      ]
+    },
+    {
+      "source": "/admin/:path*",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
+        { "key": "Cache-Control", "value": "private, no-store" }
       ]
     },
     {
@@ -14,8 +39,37 @@
       "headers": [
         {
           "key": "X-Robots-Tag",
-          "value": "noindex, nofollow"
+          "value": "noindex, nofollow, noarchive"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
         }
+      ]
+    },
+    {
+      "source": "/admin-keis/:path*",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
+        { "key": "Cache-Control", "value": "private, no-store" }
+      ]
+    },
+    {
+      "source": "/demos/:path*",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/google5262767274b3245d.html",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/yandex_762ce613be15bfd0.html",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
       ]
     },
     {
@@ -78,6 +132,30 @@
         {
           "key": "Content-Type",
           "value": "text/markdown; charset=utf-8"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/llms.txt",
+      "headers": [
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
+        { "key": "X-Robots-Tag", "value": "noindex, follow, noarchive" }
+      ]
+    },
+    {
+      "source": "/pricing.md",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/markdown; charset=utf-8"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow, noarchive"
         }
       ]
     },
@@ -105,6 +183,10 @@
         {
           "key": "Content-Type",
           "value": "text/markdown; charset=utf-8"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow, noarchive"
         }
       ]
     }

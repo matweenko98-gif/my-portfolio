@@ -29,6 +29,7 @@ export default function CookieBanner() {
     } catch (e) {}
     setAccepted(true);
     setVisible(false);
+    window.ksEnableAnalytics?.();
   };
 
   if (!visible) return null;

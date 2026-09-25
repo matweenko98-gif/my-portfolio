@@ -353,7 +353,6 @@ function ensureFormattedHtml(rawContent) {
 function renderHtmlDocument({
   title,
   description,
-  keywords = "создание сайтов Tilda, разработка веб приложений, веб дизайнер Беларусь, разработка сайтов Минск, UI UX дизайн Figma",
   canonical,
   robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
   ogType = "website",
@@ -380,7 +379,6 @@ function renderHtmlDocument({
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}" />
-  <meta name="keywords" content="${escapeHtml(keywords)}" />
   <meta name="robots" content="${escapeHtml(robots)}" />
   <link rel="canonical" href="${escapeHtml(canonical)}" />
 
@@ -421,18 +419,25 @@ function renderHtmlDocument({
     status: statusCode,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'public, max-age=60, s-maxage=3600'
+      'Cache-Control': 'public, max-age=60, s-maxage=3600',
+      'Vary': 'User-Agent, Accept',
+      ...(statusCode >= 400 ? { 'X-Robots-Tag': 'noindex, follow' } : {})
     }
   });
 }
 
-export async function middleware(request) {
+export default async function middleware(request) {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const accept = request.headers.get('accept') || '';
+  const verificationFiles = new Set([
+    '/google5262767274b3245d.html',
+    '/yandex_762ce613be15bfd0.html'
+  ]);
 
   // 1. Static asset bypass
   if (
+    verificationFiles.has(pathname) ||
     (pathname !== '/sitemap.xml' && pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|css|js|woff|woff2|ttf|json|txt|xml|map)$/i)) ||
     pathname.startsWith('/assets/') ||
     pathname.startsWith('/fonts/') ||
@@ -563,31 +568,39 @@ export async function middleware(request) {
   }
 
   // 3. Discovery endpoints
+  const privateDiscoveryHeaders = {
+    'X-Robots-Tag': 'noindex, nofollow, noarchive',
+    'Cache-Control': 'no-store'
+  };
+  const publicMachineReadableHeaders = {
+    'X-Robots-Tag': 'noindex, follow, noarchive'
+  };
+
   if (pathname === '/.well-known/api-catalog') {
-    return new Response(apiCatalogJson, { status: 200, headers: { 'Content-Type': 'application/linkset+json; charset=utf-8' } });
+    return new Response(apiCatalogJson, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/linkset+json; charset=utf-8' } });
   }
   if (pathname === '/.well-known/openid-configuration' || pathname === '/.well-known/oauth-authorization-server') {
-    return new Response(openidConfigurationJson, { status: 200, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+    return new Response(openidConfigurationJson, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/json; charset=utf-8' } });
   }
   if (pathname === '/.well-known/oauth-protected-resource') {
-    return new Response(oauthProtectedResourceJson, { status: 200, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+    return new Response(oauthProtectedResourceJson, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/json; charset=utf-8' } });
   }
   if (pathname === '/.well-known/mcp/server-card.json') {
-    return new Response(mcpServerCardJson, { status: 200, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+    return new Response(mcpServerCardJson, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/json; charset=utf-8' } });
   }
   if (pathname === '/.well-known/agent-skills/index.json') {
-    return new Response(agentSkillsJson, { status: 200, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+    return new Response(agentSkillsJson, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/json; charset=utf-8' } });
   }
   if (pathname === '/skills/portfolio-query/SKILL.md') {
-    return new Response(skillMdContent, { status: 200, headers: { 'Content-Type': 'text/markdown; charset=utf-8' } });
+    return new Response(skillMdContent, { status: 200, headers: { ...publicMachineReadableHeaders, 'Content-Type': 'text/markdown; charset=utf-8' } });
   }
   if (pathname === '/auth.md') {
-    return new Response(authMdContent, { status: 200, headers: { 'Content-Type': 'text/markdown; charset=utf-8' } });
+    return new Response(authMdContent, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'text/markdown; charset=utf-8' } });
   }
 
   // 4. LLM Markdown Content Negotiation
   const userAgent = (request.headers.get('user-agent') || '').toLowerCase();
-  const isSearchCrawler = /googlebot|yandexbot|bingbot|duckduckbot|slurp|baiduspider|facebookexternalhit|twitterbot|telegrambot|linkedinbot|embedly|whatsapp/i.test(userAgent);
+  const isSearchCrawler = /googlebot|google-inspectiontool|google-extended|yandexbot|bingbot|duckduckbot|slurp|baiduspider|facebookexternalhit|twitterbot|telegrambot|linkedinbot|embedly|whatsapp|gptbot|chatgpt-user|perplexitybot|claudebot|anthropic-ai/i.test(userAgent);
   const wantsMarkdownOnly = (accept.startsWith('text/markdown') || accept.startsWith('application/x-markdown') || accept === 'text/markdown') && !accept.includes('text/html');
 
   if (!isSearchCrawler && wantsMarkdownOnly && (pathname === '/' || pathname === '/index.html')) {
@@ -596,9 +609,18 @@ export async function middleware(request) {
       status: 200,
       headers: {
         'Content-Type': 'text/markdown; charset=utf-8',
-        'x-markdown-tokens': String(tokensCount)
+        'x-markdown-tokens': String(tokensCount),
+        'Vary': 'User-Agent, Accept'
       }
     });
+  }
+
+  // The HTML below is a search/social crawler rendering layer. Regular visitors
+  // must continue to the Vite SPA so the production asset manifest is used.
+  // Returning this handcrafted document to browsers would reference /src/main.jsx,
+  // which does not exist in a Vite production build.
+  if (!isSearchCrawler) {
+    return;
   }
 
   // 5. SSR / Server-Rendered HTML generation for pages
@@ -795,15 +817,25 @@ export async function middleware(request) {
 
     const jsonLd = {
       "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      "name": "Блог о веб-дизайне и разработке сайтов",
-      "url": canonical,
-      "description": description,
-      "publisher": {
-        "@type": "Person",
-        "name": "Ксения Матвеенко",
-        "url": "https://www.ksenweb.com"
-      }
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "@id": `${canonical}#webpage`,
+          "name": "Блог о веб-дизайне и разработке сайтов",
+          "url": canonical,
+          "description": description,
+          "inLanguage": "ru",
+          "publisher": { "@id": "https://www.ksenweb.com/#person" },
+          "isPartOf": { "@id": "https://www.ksenweb.com/#website" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Главная", "item": "https://www.ksenweb.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Блог", "item": canonical }
+          ]
+        }
+      ]
     };
 
     const articlesListHtml = articles.map(a => `
@@ -918,6 +950,27 @@ export async function middleware(request) {
     const title = "Результаты и кейсы | Ксения Матвеенко";
     const description = "Примеры реализованных проектов и концептов: коммерческие сайты на Tilda, кастомные веб-приложения на React/Supabase, UI/UX дизайн в Figma.";
     const canonical = "https://www.ksenweb.com/cases";
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "@id": `${canonical}#webpage`,
+          "name": title,
+          "description": description,
+          "url": canonical,
+          "inLanguage": "ru",
+          "isPartOf": { "@id": "https://www.ksenweb.com/#website" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Главная", "item": "https://www.ksenweb.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Кейсы", "item": canonical }
+          ]
+        }
+      ]
+    };
 
     const seoCases = [...fallbackCases];
     try {
@@ -960,7 +1013,7 @@ export async function middleware(request) {
   ${casesListHtml}
 </div>`;
 
-    return renderHtmlDocument({ title, description, canonical, bodyHtml });
+    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml });
   }
 
   // ─── Route D: Brief (/brief) ────────────────────────────────────────────────
@@ -968,6 +1021,16 @@ export async function middleware(request) {
     const title = "Бриф на разработку сайта или веб-приложения | KSENWEB";
     const description = "Заполните онлайн-бриф для расчета стоимости и сроков вашего проекта по разработке сайта на Tilda или веб-приложения.";
     const canonical = "https://www.ksenweb.com/brief";
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${canonical}#webpage`,
+      "name": title,
+      "description": description,
+      "url": canonical,
+      "inLanguage": "ru",
+      "isPartOf": { "@id": "https://www.ksenweb.com/#website" }
+    };
 
     const bodyHtml = `
 <div style="padding: 32px; font-family: system-ui, -apple-system, sans-serif; color: #18181b; max-width: 800px; margin: 0 auto; line-height: 1.6;">
@@ -978,7 +1041,7 @@ export async function middleware(request) {
   </div>
 </div>`;
 
-    return renderHtmlDocument({ title, description, canonical, bodyHtml });
+    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml });
   }
 
   // ─── Route E: Legal pages (/privacy-policy, /terms) ─────────────────────────
@@ -986,6 +1049,15 @@ export async function middleware(request) {
     const title = "Политика конфиденциальности | KSENWEB";
     const description = "Политика обработки персональных данных ИП Матвеенко К.А. (УНП ЕЕ7594998).";
     const canonical = "https://www.ksenweb.com/privacy-policy";
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${canonical}#webpage`,
+      "name": title,
+      "description": description,
+      "url": canonical,
+      "inLanguage": "ru"
+    };
 
     const bodyHtml = `
 <div style="padding: 32px; font-family: system-ui, -apple-system, sans-serif; color: #18181b; max-width: 800px; margin: 0 auto; line-height: 1.6;">
@@ -994,13 +1066,22 @@ export async function middleware(request) {
   <p style="color: #71717a;">Оператор: Матвеенко Ксения Александровна (УНП ЕЕ7594998). Email: matweenko98@gmail.com</p>
 </div>`;
 
-    return renderHtmlDocument({ title, description, canonical, bodyHtml });
+    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml });
   }
 
   if (pathname === '/terms') {
     const title = "Условия использования и публичная оферта | KSENWEB";
     const description = "Условия оказания услуг по разработке сайтов и веб-приложений (УНП ЕЕ7594998).";
     const canonical = "https://www.ksenweb.com/terms";
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${canonical}#webpage`,
+      "name": title,
+      "description": description,
+      "url": canonical,
+      "inLanguage": "ru"
+    };
 
     const bodyHtml = `
 <div style="padding: 32px; font-family: system-ui, -apple-system, sans-serif; color: #18181b; max-width: 800px; margin: 0 auto; line-height: 1.6;">
@@ -1009,7 +1090,7 @@ export async function middleware(request) {
   <p style="color: #71717a;">Матвеенко Ксения Александровна (Плательщик НПД, УНП ЕЕ7594998).</p>
 </div>`;
 
-    return renderHtmlDocument({ title, description, canonical, bodyHtml });
+    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml });
   }
 
   // ─── Route F: Homepage (/) ──────────────────────────────────────────────────
@@ -1023,6 +1104,24 @@ export async function middleware(request) {
     const jsonLd = {
       "@context": "https://schema.org",
       "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://www.ksenweb.com/#website",
+          "url": "https://www.ksenweb.com/",
+          "name": "KSENWEB — Ксения Матвеенко",
+          "inLanguage": "ru",
+          "publisher": { "@id": "https://www.ksenweb.com/#person" }
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://www.ksenweb.com/#webpage",
+          "url": "https://www.ksenweb.com/",
+          "name": title,
+          "description": description,
+          "inLanguage": "ru",
+          "isPartOf": { "@id": "https://www.ksenweb.com/#website" },
+          "about": { "@id": "https://www.ksenweb.com/#person" }
+        },
         {
           "@type": "Person",
           "@id": "https://www.ksenweb.com/#person",
@@ -1057,6 +1156,13 @@ export async function middleware(request) {
           ],
           "telephone": "+375259140959",
           "email": "matweenko98@gmail.com",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "telephone": "+375259140959",
+            "email": "matweenko98@gmail.com",
+            "availableLanguage": ["ru"]
+          },
           "priceRange": "$$$"
         }
       ]
