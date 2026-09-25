@@ -298,6 +298,20 @@ const fallbackCases = [
   }
 ];
 
+// Keep every known public case discoverable even if the Supabase request used
+// to enrich the sitemap is temporarily unavailable or its schema changes.
+const fallbackSitemapCaseSlugs = [
+  'esthete-catering',
+  'apex-detailing',
+  'elison-stroi',
+  'plant-market-b2b',
+  'oasis-camp-redesign',
+  'stenografist-ai',
+  'marketing-emsoft',
+  'mir-tartaletok',
+  'medical-center'
+];
+
 function escapeHtml(str) {
   if (!str) return '';
   return String(str)
@@ -449,10 +463,7 @@ export default async function middleware(request) {
   // 2. Dynamic sitemap.xml
   if (pathname === '/sitemap.xml') {
     const today = new Date().toISOString().split('T')[0];
-    let cases = [
-      { slug: 'esthete-catering', date: today },
-      { slug: 'apex-detailing', date: today }
-    ];
+    let cases = fallbackSitemapCaseSlugs.map(slug => ({ slug, date: today }));
     let articles = [];
 
     try {

@@ -61,8 +61,8 @@ function normalizeContactEmail(email) {
 
 const STATIC_ROUTE_SEO = {
   '/': {
-    title: 'Ксения Матвеенко — Дизайн & Разработка премиальных сайтов',
-    description: 'Создание высококлассных сайтов, интерфейсов и UX/UI дизайна с упором на чистую эстетику и техническое совершенство.',
+    title: 'Ксения Матвеенко — Разработка сайтов и веб-приложений',
+    description: 'Создание сайтов на Tilda под ключ и веб-приложений/интерфейсов под задачи бизнеса.',
   },
   '/cases': {
     title: 'Все кейсы — Ксения Матвеенко',
@@ -99,7 +99,25 @@ function setMeta(selector, attribute, value) {
   node.setAttribute(attribute, value);
 }
 
+let cachedStaticHomeGraph = null;
+
+function consumeStaticHomeGraph() {
+  const staticScript = document.getElementById('jsonld-static-site');
+  if (!staticScript) return cachedStaticHomeGraph;
+
+  try {
+    const parsed = JSON.parse(staticScript.textContent || '{}');
+    if (Array.isArray(parsed['@graph'])) cachedStaticHomeGraph = parsed['@graph'];
+  } catch (error) {
+    console.warn('Unable to parse the static homepage schema.', error);
+  }
+
+  staticScript.remove();
+  return cachedStaticHomeGraph;
+}
+
 function setRouteSchema(pathname, canonicalUrl, seo, isArticle, isCase) {
+  const staticHomeGraph = consumeStaticHomeGraph();
   let script = document.getElementById('jsonld-route');
   if (!script) {
     script = document.createElement('script');
@@ -110,26 +128,30 @@ function setRouteSchema(pathname, canonicalUrl, seo, isArticle, isCase) {
 
   const graph = [];
   if (pathname === '/') {
-    graph.push(
-      {
-        '@type': 'WebSite',
-        '@id': `${SITE_ORIGIN}/#website`,
-        url: `${SITE_ORIGIN}/`,
-        name: 'KSENWEB — Ксения Матвеенко',
-        inLanguage: 'ru',
-        publisher: { '@id': `${SITE_ORIGIN}/#person` },
-      },
-      {
-        '@type': 'WebPage',
-        '@id': `${SITE_ORIGIN}/#webpage`,
-        url: `${SITE_ORIGIN}/`,
-        name: seo?.title,
-        description: seo?.description,
-        inLanguage: 'ru',
-        isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
-        about: { '@id': `${SITE_ORIGIN}/#person` },
-      },
-    );
+    if (staticHomeGraph?.length) {
+      graph.push(...staticHomeGraph);
+    } else {
+      graph.push(
+        {
+          '@type': 'WebSite',
+          '@id': `${SITE_ORIGIN}/#website`,
+          url: `${SITE_ORIGIN}/`,
+          name: 'KSENWEB — Ксения Матвеенко',
+          inLanguage: 'ru',
+          publisher: { '@id': `${SITE_ORIGIN}/#person` },
+        },
+        {
+          '@type': 'WebPage',
+          '@id': `${SITE_ORIGIN}/#webpage`,
+          url: `${SITE_ORIGIN}/`,
+          name: seo?.title,
+          description: seo?.description,
+          inLanguage: 'ru',
+          isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
+          about: { '@id': `${SITE_ORIGIN}/#person` },
+        },
+      );
+    }
   } else {
     const pageName = seo?.title || (isArticle ? 'Статья блога' : isCase ? 'Кейс' : document.title);
     graph.push({
