@@ -159,6 +159,7 @@ export default function ArticlePage() {
           .from('articles')
           .select('*')
           .eq('slug', slug)
+          .eq('status', 'published')
           .maybeSingle();
 
         const { data: dbAll } = await supabase

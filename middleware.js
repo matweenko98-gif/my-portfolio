@@ -364,6 +364,33 @@ function ensureFormattedHtml(rawContent) {
   return content;
 }
 
+let spaAssetsPromise;
+
+async function getSpaAssets(request) {
+  if (!spaAssetsPromise) {
+    const shellUrl = new URL('/index.html?__spa_shell=1', request.url);
+    spaAssetsPromise = fetch(shellUrl, { headers: { accept: 'text/html' } })
+      .then(async response => {
+        if (!response.ok) throw new Error(`SPA shell returned ${response.status}`);
+        const shell = await response.text();
+        const assetTags = [
+          ...shell.matchAll(/<link\b[^>]*\brel=["'](?:stylesheet|modulepreload)["'][^>]*>/gi),
+          ...shell.matchAll(/<script\b[^>]*\btype=["']module["'][^>]*\bsrc=["'][^"']+["'][^>]*><\/script>/gi)
+        ].map(match => match[0]);
+
+        if (!assetTags.some(tag => /<script\b/i.test(tag) && /\/assets\//i.test(tag))) {
+          throw new Error('Built SPA entry script was not found');
+        }
+        return assetTags.join('\n');
+      })
+      .catch(error => {
+        spaAssetsPromise = undefined;
+        throw error;
+      });
+  }
+  return spaAssetsPromise;
+}
+
 function renderHtmlDocument({
   title,
   description,
@@ -378,13 +405,14 @@ function renderHtmlDocument({
   author = "Ксения Матвеенко",
   jsonLd,
   bodyHtml,
+  spaAssets = '',
   statusCode = 200
 }) {
   const finalOgTitle = ogTitle || title;
   const finalOgDesc = ogDescription || description;
   const finalOgUrl = ogUrl || canonical;
 
-  const jsonLdString = jsonLd ? JSON.stringify(jsonLd) : null;
+  const jsonLdString = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
 
   const html = `<!DOCTYPE html>
 <html lang="ru">
@@ -421,12 +449,12 @@ function renderHtmlDocument({
   <link rel="apple-touch-icon" href="/favicon.png" />
 
   ${jsonLdString ? `<script type="application/ld+json">\n${jsonLdString}\n</script>` : ''}
+  ${spaAssets}
 </head>
 <body class="bg-white text-zinc-900 antialiased font-sans m-0 p-0">
   <div id="root">
     ${bodyHtml}
   </div>
-  <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>`;
 
@@ -434,7 +462,7 @@ function renderHtmlDocument({
     status: statusCode,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'public, max-age=60, s-maxage=3600',
+      'Cache-Control': statusCode >= 500 ? 'no-store' : 'public, max-age=0, s-maxage=300, stale-while-revalidate=60',
       'Vary': 'User-Agent, Accept',
       ...(statusCode >= 400 ? { 'X-Robots-Tag': 'noindex, follow' } : {})
     }
@@ -445,6 +473,9 @@ export default async function middleware(request) {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const accept = request.headers.get('accept') || '';
+
+  // The article response loads the production Vite entry from this static file.
+  if (pathname === '/index.html' && url.searchParams.has('__spa_shell')) return;
   const verificationFiles = new Set([
     '/google5262767274b3245d.html',
     '/yandex_762ce613be15bfd0.html'
@@ -627,11 +658,9 @@ export default async function middleware(request) {
     });
   }
 
-  // The HTML below is a search/social crawler rendering layer. Regular visitors
-  // must continue to the Vite SPA so the production asset manifest is used.
-  // Returning this handcrafted document to browsers would reference /src/main.jsx,
-  // which does not exist in a Vite production build.
-  if (!isSearchCrawler) {
+  // Other routes still use the crawler rendering layer. Blog routes below
+  // return the same article HTML to every visitor and load the built SPA.
+  if (!isSearchCrawler && pathname !== '/blog' && !pathname.startsWith('/blog/')) {
     return;
   }
 
@@ -642,6 +671,7 @@ export default async function middleware(request) {
     const slug = pathname.replace('/blog/', '').trim();
     if (slug) {
       let article = null;
+      let lookupFailed = false;
       try {
         const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
         const anonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
@@ -672,8 +702,20 @@ export default async function middleware(request) {
               readingTime: dbA.reading_time || dbA.readingTime || '5 мин'
             };
           }
+        } else {
+          lookupFailed = true;
         }
-      } catch (e) {}
+      } catch (e) {
+        lookupFailed = true;
+      }
+
+      let spaAssets = '';
+      try {
+        spaAssets = await getSpaAssets(request);
+      } catch (error) {
+        console.error('Unable to load the production SPA assets for article HTML:', error);
+        if (!isSearchCrawler) return;
+      }
 
       if (!article) {
         const localMatch = fallbackArticles.find(a => a.slug === slug);
@@ -682,7 +724,10 @@ export default async function middleware(request) {
 
       if (article) {
         const canonical = article.canonicalOverride || `https://www.ksenweb.com/blog/${slug}`;
-        const title = article.seoTitle || `${article.title} | KSENWEB`;
+        const title = `${(article.seoTitle || article.title)
+          .replace(/\s*\|\s*KSENWEB\s*$/i, '')
+          .replace(/\s*\|\s*Ксения Матвеенко — разработка сайтов\/приложений\s*$/i, '')
+          .trim()} | Ксения Матвеенко — разработка сайтов/приложений`;
         const description = article.metaDescription || article.excerpt;
         const ogImage = article.ogImage || article.coverImage || "https://www.ksenweb.com/og-image.png";
 
@@ -766,18 +811,21 @@ export default async function middleware(request) {
           publishedTime: article.publishedAt,
           author: article.author,
           jsonLd,
-          bodyHtml
+          bodyHtml,
+          spaAssets
         });
       } else {
         // 404 for unknown article
-        const title = "404 — Статья не найдена | KSENWEB";
-        const description = "Запрошенная статья не существует или была перемещена.";
+        const title = lookupFailed ? 'Статья временно недоступна' : '404 — Статья не найдена';
+        const description = lookupFailed
+          ? 'Не удалось загрузить статью. Попробуйте открыть страницу позже.'
+          : 'Запрошенная статья не существует или была перемещена.';
         const canonical = `https://www.ksenweb.com/blog/${slug}`;
         const bodyHtml = `
 <div style="padding: 64px 32px; font-family: system-ui, -apple-system, sans-serif; color: #18181b; max-width: 600px; margin: 0 auto; text-align: center;">
-  <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; color: #18181b;">404</h1>
-  <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Статья не найдена</h2>
-  <p style="color: #71717a; margin-bottom: 2rem;">К сожалению, по данному адресу статья не найдена. Возможно, она была удалена или перенесена.</p>
+  <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; color: #18181b;">${lookupFailed ? '503' : '404'}</h1>
+  <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">${escapeHtml(title)}</h2>
+  <p style="color: #71717a; margin-bottom: 2rem;">${escapeHtml(description)}</p>
   <a href="/blog" style="display: inline-block; padding: 12px 24px; background: #FF5B23; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: 500;">
     Перейти ко всем статьям
   </a>
@@ -789,7 +837,8 @@ export default async function middleware(request) {
           canonical,
           robots: "noindex, follow",
           bodyHtml,
-          statusCode: 404
+          spaAssets,
+          statusCode: lookupFailed ? 503 : 404
         });
       }
     }
@@ -797,6 +846,13 @@ export default async function middleware(request) {
 
   // ─── Route B: Blog Index (/blog) ───────────────────────────────────────────
   if (pathname === '/blog') {
+    let spaAssets = '';
+    try {
+      spaAssets = await getSpaAssets(request);
+    } catch (error) {
+      console.error('Unable to load the production SPA assets for blog HTML:', error);
+      if (!isSearchCrawler) return;
+    }
     const title = "Блог о веб-дизайне, разработке сайтов и ИИ | KSENWEB";
     const description = "Полезные статьи и материалы для владельцев бизнеса: как сделать сайт эффективным, избежать ошибок в дизайне и выстроить системные продажи в сети.";
     const canonical = "https://www.ksenweb.com/blog";
@@ -873,7 +929,7 @@ export default async function middleware(request) {
   </div>
 </div>`;
 
-    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml });
+    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml, spaAssets });
   }
 
   // ─── Route C: Cases Index (/cases) & Case Page (/case/:id) ──────────────────
