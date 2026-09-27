@@ -337,6 +337,9 @@ function getAboutText(about) {
 function ensureFormattedHtml(rawContent) {
   if (!rawContent) return '';
   let content = rawContent.trim();
+  content = content.replace(/<div\b([^>]*)>/gi, (match, attributes) => (
+    /\b(?:bg-black|bg-(?:zinc|neutral)-(?:8|9)\d{2})\b/.test(attributes) ? '<div>' : match
+  ));
   content = content.replace(/<div\s+class="article-cta-box[\s\S]*?<\/div>\s*<\/div>/gi, '');
   content = content.replace(/<div\s+class="article-cta-box[\s\S]*?<\/div>/gi, '');
   content = content.replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, (match) => match.replace(/\n\s*/g, ' '));
@@ -786,7 +789,7 @@ export default async function middleware(request) {
       <img src="${escapeHtml(article.coverImage)}" alt="${escapeHtml(article.coverAlt || article.title)}" style="width:100%; height:auto; border-radius:4px; aspect-ratio:16/9; object-fit:cover;" />
     </div>` : ''}
 
-    <div class="article-body" style="font-size: 1.05rem; color: #27272a;">
+    <div class="article-body article-content-body" style="font-size: 1.05rem; color: #27272a;">
       ${ensureFormattedHtml(article.content)}
     </div>
 

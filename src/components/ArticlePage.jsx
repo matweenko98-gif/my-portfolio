@@ -6,49 +6,16 @@ import Sidebar from './Sidebar';
 import contentData from '../contentData';
 import { supabase } from '../lib/supabaseClient';
 import { avatarImg } from '../utils/imageUtils';
+import { autoFormatArticleText } from '../utils/articleFormatting';
 import { FlickeringGrid } from "./ui/FlickeringGrid";
 
 const SEO_BRAND_SUFFIX = 'Ксения Матвеенко — разработка сайтов/приложений';
 
 function ensureFormattedHtml(rawContent) {
-  if (!rawContent) return '';
-  let content = rawContent.trim();
-  
-  // Strip legacy embedded CTA box HTML from raw content (since it is rendered natively below)
-  content = content.replace(/<div\s+class="article-cta-box[\s\S]*?<\/div>\s*<\/div>/gi, '');
-  content = content.replace(/<div\s+class="article-cta-box[\s\S]*?<\/div>/gi, '');
-
-  // Collapse newlines inside <a> tags to prevent nested spans from breaking onto new lines
-  content = content.replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, (match) => {
-    return match.replace(/\n\s*/g, ' ');
-  });
-
-  // If content is plain text or lacks paragraph tags (<p>), auto format it
-  if (!/<p\b[^>]*>/i.test(content)) {
-    // Convert numbered headers like "1. Первый экран..." into <h2>1. Первый экран...</h2>
-    content = content.replace(/(^|\n)(\d+\.\s+[^\n]+)/g, '$1<h2>$2</h2>');
-    
-    // Split by double newlines into paragraphs
-    const blocks = content.split(/\n\s*\n/);
-    content = blocks.map(block => {
-      const trimmed = block.trim();
-      if (!trimmed) return '';
-      if (
-        trimmed.startsWith('<h') ||
-        trimmed.startsWith('<div') ||
-        trimmed.startsWith('<figure') ||
-        trimmed.startsWith('<blockquote') ||
-        trimmed.startsWith('<ul') ||
-        trimmed.startsWith('<ol') ||
-        trimmed.startsWith('<a')
-      ) {
-        return trimmed;
-      }
-      return `<p>${trimmed.replace(/\n/g, '<br />')}</p>`;
-    }).filter(Boolean).join('\n\n');
-  }
-
-  return content;
+  const withoutLegacyCta = (rawContent || '')
+    .replace(/<div\s+class="article-cta-box[\s\S]*?<\/div>\s*<\/div>/gi, '')
+    .replace(/<div\s+class="article-cta-box[\s\S]*?<\/div>/gi, '');
+  return autoFormatArticleText(withoutLegacyCta);
 }
 
 function slugifyHeading(value) {

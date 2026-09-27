@@ -4,6 +4,7 @@ import { Plus, Trash2, Upload, Loader2, ArrowLeft, Pencil, Calendar, Clock } fro
 import { Link } from 'react-router-dom';
 import contentData from '../contentData';
 import { avatarImg } from '../utils/imageUtils';
+import { autoFormatArticleText as formatArticleContent } from '../utils/articleFormatting';
 
 const SEO_BRAND_SUFFIX = 'Ксения Матвеенко — разработка сайтов/приложений';
 
@@ -92,12 +93,6 @@ function cleanArticleHeading(text = '') {
   return text.replace(/\.\s*$/, '').trim();
 }
 
-function removeDarkArticleContainers(html) {
-  return html.replace(/<div\b([^>]*)>/gi, (match, attributes) => (
-    /\b(?:bg-black|bg-(?:zinc|neutral)-(?:8|9)\d{2})\b/.test(attributes) ? '<div>' : match
-  ));
-}
-
 function preventArticleHangingWords(value = '') {
   return value.replace(
     /(^|[\s(«—–-])(и|а|но|или|либо|да|в|во|к|ко|с|со|у|о|об|от|до|за|из|по|на|над|под|при|для|без|про|через)\s+/giu,
@@ -106,7 +101,7 @@ function preventArticleHangingWords(value = '') {
 }
 
 function createAdminArticlePreview(rawContent) {
-  const previewDocument = new DOMParser().parseFromString(autoFormatArticleText(rawContent), 'text/html');
+  const previewDocument = new DOMParser().parseFromString(formatArticleContent(rawContent), 'text/html');
   previewDocument.body.querySelectorAll('div').forEach((container) => {
     if (/\b(?:bg-black|bg-(?:zinc|neutral)-(?:8|9)\d{2})\b/.test(container.className)) {
       container.replaceWith(...Array.from(container.childNodes));
@@ -161,7 +156,7 @@ function createArticleImageAlt({ title = '', caption = '', type = 'image' }) {
 }
 
 function buildArticleSeoFields({ title, excerpt, content, slug, coverImage }) {
-  const sourceDocument = new DOMParser().parseFromString(autoFormatArticleText(content), 'text/html');
+  const sourceDocument = new DOMParser().parseFromString(formatArticleContent(content), 'text/html');
   const firstHeading = sourceDocument.body.querySelector('h2')?.textContent?.replace(/\s+/g, ' ').trim() || '';
   const articleText = sourceDocument.body.textContent.replace(/\s+/g, ' ').trim();
   const descriptionSource = excerpt.trim() || [title.trim(), firstHeading, articleText].filter(Boolean).join('. ');
@@ -178,121 +173,6 @@ function buildArticleSeoFields({ title, excerpt, content, slug, coverImage }) {
     ogDescription: description,
     ogImage: coverImage.trim()
   };
-}
-
-// 1-Click Auto-Formatter logic for option 2
-function autoFormatArticleText(rawText) {
-  if (!rawText) return '';
-  
-  // Replace JSX className with HTML class and clean up inline Mso styles from Word
-  let text = removeDarkArticleContainers(rawText.replace(/className=/g, 'class=').replace(/style="[^"]*"/gi, ''));
-  // A figure is a multi-line semantic block. Preserve it before line-by-line
-  // formatting so its <img> and optional <figcaption> are never wrapped in <p>.
-  const figures = [];
-  text = text.replace(/<figure\b[\s\S]*?<\/figure>/gi, (figure) => {
-    const token = `@@ARTICLE_FIGURE_${figures.length}@@`;
-    figures.push(figure);
-    return `\n${token}\n`;
-  });
-
-  const lines = text.split(/\r?\n/).map(l => l.trim());
-  let formattedBlocks = [];
-  let inList = false;
-  let listItems = [];
-
-  const flushList = () => {
-    if (inList && listItems.length > 0) {
-      formattedBlocks.push(`<ul>\n${listItems.map(item => `  <li>${item}</li>`).join('\n')}\n</ul>`);
-      listItems = [];
-      inList = false;
-    }
-  };
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    if (!line) {
-      flushList();
-      continue;
-    }
-
-    const figureToken = /^@@ARTICLE_FIGURE_(\d+)@@$/.exec(line);
-    if (figureToken) {
-      flushList();
-      formattedBlocks.push(figures[Number(figureToken[1])]);
-      continue;
-    }
-
-    // Check if line is already an HTML tag like <div>, <figure>, <blockquote>, <img />
-    if (
-      line.startsWith('<div') ||
-      line.startsWith('<figure') ||
-      line.startsWith('<blockquote') ||
-      line.startsWith('<img')
-    ) {
-      flushList();
-      formattedBlocks.push(line);
-      continue;
-    }
-
-    // Check if line is H2 (e.g. "1. Название...", "Ошибка 1...", "Раздел 1:", or <h2>...</h2>)
-    const isH2Pattern = /^(\d+[\.\)]\s+[^\n]+|ошибка\s+\d+[\.\:]?\s+[^\n]+|раздел\s+\d+[\.\:]?\s+[^\n]+|что в итоге[^\n]*|вывод[^\n]*)/i;
-    const isExplicitH2 = /^<h2[^>]*>(.*?)<\/h2>/i;
-
-    if (isExplicitH2.test(line)) {
-      flushList();
-      formattedBlocks.push(line);
-      continue;
-    }
-
-    if (isH2Pattern.test(line) && line.length < 130) {
-      flushList();
-      const cleanText = cleanArticleHeading(line.replace(/<\/?h2[^>]*>/gi, ''));
-      formattedBlocks.push(`<h2>${cleanText}</h2>`);
-      continue;
-    }
-
-    // Check if line is H3 (e.g. "1.1. ...", "а) ...", or short subtitle)
-    const isH3Pattern = /^([a-яa-zA-ЯA-Z]\)\s+[^\n]+|\d+\.\d+\s+[^\n]+)/i;
-    const isExplicitH3 = /^<h3[^>]*>(.*?)<\/h3>/i;
-
-    if (isExplicitH3.test(line)) {
-      flushList();
-      formattedBlocks.push(line);
-      continue;
-    }
-
-    if (isH3Pattern.test(line) && line.length < 100) {
-      flushList();
-      const cleanText = cleanArticleHeading(line.replace(/<\/?h3[^>]*>/gi, ''));
-      formattedBlocks.push(`<h3>${cleanText}</h3>`);
-      continue;
-    }
-
-    // Check if line is a list item (starts with -, •, *, or bullet)
-    const isListItem = /^[•\-\*]\s+(.*)/.exec(line);
-    if (isListItem) {
-      inList = true;
-      listItems.push(isListItem[1]);
-      continue;
-    } else {
-      flushList();
-    }
-
-    // Check if line is Callout / Что изменить
-    if (/^что изменить[:\s]*/i.test(line)) {
-      const content = line.replace(/^что изменить[:\s]*/i, '').trim();
-      formattedBlocks.push(`\n<div class="article-callout bg-zinc-50 border border-zinc-200/80 rounded-[4px] p-4 sm:p-5 my-6">\n  <div class="text-[11px] font-mono font-medium text-[#FF5B23] uppercase tracking-wider mb-2">Что изменить</div>\n  <p class="text-zinc-700 text-sm mb-0">${content || 'Рекомендация...'}</p>\n</div>\n`);
-      continue;
-    }
-
-    // Normal paragraph line
-    const cleanP = line.replace(/^<p[^>]*>/i, '').replace(/<\/p>$/i, '');
-    formattedBlocks.push(`<p>${cleanP}</p>`);
-  }
-
-  flushList();
-  return formattedBlocks.join('\n\n');
 }
 
 // Simple Image Upload component for clean modular state
@@ -820,7 +700,7 @@ export default function AdminWorkspace() {
     setSavingArticle(true);
     try {
       const formattedTags = articleTags ? articleTags.split(',').map(t => t.trim()).filter(Boolean) : [];
-      const formattedContent = autoFormatArticleText(articleContent);
+      const formattedContent = formatArticleContent(articleContent);
 
       const payload = {
         title: articleTitle,
@@ -2968,7 +2848,7 @@ export default function AdminWorkspace() {
                               setToast({ show: true, message: 'Сначала вставьте текст статьи в поле ниже!', type: 'error' });
                               return;
                             }
-                            const formatted = autoFormatArticleText(articleContent);
+                            const formatted = formatArticleContent(articleContent);
                             setArticleContent(formatted);
                             setToast({ show: true, message: '✨ Текст статьи отформатирован! Расставлены H2, H3 и отступы.', type: 'success' });
                           }}
@@ -3277,13 +3157,13 @@ export default function AdminWorkspace() {
                       👁️ Живой вид форматированного текста (Как будет выглядеть статья):
                     </div>
                     <div
-                      className="prose prose-zinc max-w-none bg-white p-4 sm:p-6 border border-zinc-200 rounded-sm
+                      className="article-content-body prose prose-zinc max-w-none bg-white p-4 sm:p-6 border border-zinc-200 rounded-sm
                         prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900
                         prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pt-5 prose-h2:border-t prose-h2:border-zinc-200 prose-h2:font-bold prose-h2:text-zinc-900
                         prose-h3:text-lg sm:prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:font-semibold prose-h3:text-zinc-900
                         prose-p:text-zinc-700 prose-p:text-[14px] sm:prose-p:text-[15px] prose-p:leading-[1.75] prose-p:mb-6 prose-p:font-normal
                         prose-ul:my-6 prose-ol:my-6 prose-li:text-zinc-700 prose-li:text-[14px] sm:prose-li:text-[15px] prose-li:my-2"
-                      dangerouslySetInnerHTML={{ __html: autoFormatArticleText(articleContent) || '<p class="text-zinc-400 italic">Начните вводить текст статьи...</p>' }}
+                      dangerouslySetInnerHTML={{ __html: articlePreview.html || '<p class="text-zinc-400 italic">Начните вводить текст статьи...</p>' }}
                     />
                   </div>
                 </div>
@@ -3783,10 +3663,15 @@ export default function AdminWorkspace() {
                     <div className="text-[10px] font-mono font-medium uppercase tracking-[0.14em] text-zinc-500 mb-3">Содержание</div>
                     <div className="flex flex-col gap-2">
                       {articlePreview.headings.map((heading, index) => (
-                        <div key={heading.id} className="w-full rounded-[2px] border border-zinc-200 bg-white px-3 py-2.5 text-left text-[13px] sm:text-sm leading-snug text-zinc-700">
+                        <button
+                          key={heading.id}
+                          type="button"
+                          onClick={() => document.getElementById(heading.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                          className="w-full rounded-[2px] border border-zinc-200 bg-white px-3 py-2.5 text-left text-[13px] sm:text-sm leading-snug text-zinc-700 hover:border-zinc-400 hover:text-black transition-colors cursor-pointer"
+                        >
                           <span className="mr-1.5 font-mono text-[10px] text-zinc-400">{String(index + 1).padStart(2, '0')}</span>
                           {heading.title}
-                        </div>
+                        </button>
                       ))}
                     </div>
                   </nav>
