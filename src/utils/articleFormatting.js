@@ -2,6 +2,35 @@ function escapeHtml(value = '') {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+export function normalizeRussianQuotes(value = '', state = { open: false }) {
+  let result = '';
+  for (const character of value) {
+    if (character === '«' || character === '“') {
+      state.open = true;
+      result += '«';
+    } else if (character === '»' || character === '”') {
+      state.open = false;
+      result += '»';
+    } else if (character === '"') {
+      result += state.open ? '»' : '«';
+      state.open = !state.open;
+    } else {
+      result += character;
+    }
+  }
+  return result;
+}
+
+export function normalizeRussianQuotesInElement(element) {
+  const quoteState = { open: false };
+  const walker = element.ownerDocument.createTreeWalker(element, 4);
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (node.parentElement?.closest('code, pre, script, style, textarea')) continue;
+    node.textContent = normalizeRussianQuotes(node.textContent, quoteState);
+  }
+}
+
 function cleanHeading(value = '') {
   return value.replace(/\.\s*$/, '').trim();
 }
@@ -50,7 +79,8 @@ function plainTextToHtml(source) {
 }
 
 function isSectionHeading(paragraph) {
-  if (!paragraph.textContent || Array.from(paragraph.children).some(child => !['STRONG', 'B'].includes(child.tagName))) return false;
+  if (paragraph.tagName !== 'P' || !paragraph.textContent ||
+    Array.from(paragraph.children).some(child => !['STRONG', 'B'].includes(child.tagName))) return false;
   const text = paragraph.textContent.replace(/\s+/g, ' ').trim();
   const words = text.split(/\s+/);
   if (text.length < 12 || text.length > 105 || words.length < 2) return false;
@@ -194,7 +224,7 @@ export function autoFormatArticleText(rawText) {
   source = source.replace(/<div\b([^>]*)>/gi, (match, attributes) => (
     /\b(?:bg-black|bg-(?:zinc|neutral)-(?:8|9)\d{2})\b/.test(attributes) ? '<div>' : match
   ));
-  const hasBlockHtml = /<\/?(?:p|h[1-6]|div|ul|ol|li|figure|blockquote|table)\b/i.test(source);
+  const hasBlockHtml = /<\/?(?:p|h[1-6]|div|aside|ul|ol|li|figure|blockquote|table)\b/i.test(source);
   const document = new DOMParser().parseFromString(hasBlockHtml ? source : plainTextToHtml(source), 'text/html');
   const { body } = document;
 
@@ -239,6 +269,8 @@ export function autoFormatArticleText(rawText) {
   body.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(heading => {
     heading.textContent = cleanHeading(heading.textContent);
   });
+
+  normalizeRussianQuotesInElement(body);
 
   return body.innerHTML;
 }

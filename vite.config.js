@@ -339,6 +339,10 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/@supabase')) {
             return 'vendor-supabase';
           }
+          // Rich-text editor is only needed in the admin workspace.
+          if (id.includes('node_modules/@tiptap') || id.includes('node_modules/prosemirror-')) {
+            return 'vendor-editor';
+          }
           // Остальные node_modules
           if (id.includes('node_modules/')) {
             return 'vendor-misc';

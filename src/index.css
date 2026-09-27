@@ -131,24 +131,24 @@
 .prose ul, .article-content-body ul {
   list-style-type: disc !important;
   padding-left: 1.5rem !important;
-  margin-top: 1rem !important;
-  margin-bottom: 1.5rem !important;
+  margin-top: 0.65rem !important;
+  margin-bottom: 1rem !important;
   display: block !important;
 }
 
 .prose ol, .article-content-body ol {
   list-style-type: decimal !important;
   padding-left: 1.5rem !important;
-  margin-top: 1rem !important;
-  margin-bottom: 1.5rem !important;
+  margin-top: 0.65rem !important;
+  margin-bottom: 1rem !important;
   display: block !important;
 }
 
 .prose li, .article-content-body li {
   font-size: 14px !important;
-  line-height: 1.7 !important;
+  line-height: 1.55 !important;
   color: #3f3f46 !important;
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 0.2rem !important;
   display: list-item !important;
 }
 
@@ -175,6 +175,17 @@
   margin-top: 1.5rem !important;
   margin-bottom: 1.5rem !important;
   display: block !important;
+}
+
+.article-content-body ul:not(.article-detail-list):not(.article-question-list) > li::marker,
+.prose ul:not(.article-detail-list):not(.article-question-list) > li::marker {
+  color: #ff5b23;
+}
+
+.article-content-body li > p,
+.prose li > p {
+  margin: 0 !important;
+  line-height: inherit !important;
 }
 
 .article-content-body h2 {
@@ -216,16 +227,28 @@
   border-radius: 3px;
 }
 
-.article-content-body .article-table-wrap table {
+.article-content-body .article-table-wrap table,
+.article-content-body > table,
+.article-content-body .article-editor-surface > table {
   width: 100%;
-  min-width: 560px;
   border-collapse: collapse;
   font-size: 14px;
   line-height: 1.5;
 }
 
+.article-content-body > table,
+.article-content-body .article-editor-surface > table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid #e4e4e7;
+}
+
 .article-content-body .article-table-wrap th,
-.article-content-body .article-table-wrap td {
+.article-content-body .article-table-wrap td,
+.article-content-body table th,
+.article-content-body table td {
   padding: 0.7rem 0.85rem;
   border-bottom: 1px solid #e4e4e7;
   text-align: left;
@@ -233,6 +256,12 @@
 }
 
 .article-content-body .article-table-wrap th {
+  background: #f4f4f5;
+  color: #18181b;
+  font-weight: 600;
+}
+
+.article-content-body table th {
   background: #f4f4f5;
   color: #18181b;
   font-weight: 600;
@@ -280,6 +309,163 @@
 
 .article-content-body .article-callout p:last-child {
   margin-bottom: 0 !important;
+}
+
+.article-content-body .article-example,
+.article-content-body .article-tip,
+.article-content-body .article-keypoint,
+.article-content-body .article-conclusion {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e4e4e7;
+  border-radius: 4px;
+  background: #fafafa;
+  color: #27272a;
+}
+
+.article-content-body .article-example::before,
+.article-content-body .article-tip::before,
+.article-content-body .article-keypoint::before,
+.article-content-body .article-conclusion::before {
+  display: block;
+  margin-bottom: 0.65rem;
+  color: #ff5b23;
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.article-content-body .article-example::before { content: attr(data-label); }
+.article-content-body .article-tip::before { content: attr(data-label); }
+.article-content-body .article-keypoint::before { content: attr(data-label); }
+.article-content-body .article-conclusion::before { content: attr(data-label); color: #18181b; }
+
+.article-content-body .article-example:not([data-label])::before { content: 'Пример'; }
+.article-content-body .article-tip:not([data-label])::before { content: 'Что изменить'; }
+.article-content-body .article-keypoint:not([data-label])::before { content: 'Главная мысль'; }
+.article-content-body .article-conclusion:not([data-label])::before { content: 'Вывод'; }
+
+.article-content-body .article-conclusion {
+  border-color: #d4d4d8;
+  background: #f4f4f5;
+}
+
+.article-content-body .article-block-label {
+  margin-bottom: 0.65rem;
+  color: #ff5b23;
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.article-content-body .article-conclusion .article-block-label {
+  color: #18181b;
+}
+
+.article-content-body .article-example > :last-child,
+.article-content-body .article-tip > :last-child,
+.article-content-body .article-keypoint > :last-child,
+.article-content-body .article-conclusion > :last-child {
+  margin-bottom: 0 !important;
+}
+
+.article-content-body .article-example > p,
+.article-content-body .article-tip > p,
+.article-content-body .article-keypoint > p,
+.article-content-body .article-conclusion > p {
+  margin-bottom: 0.55rem !important;
+}
+
+.article-content-body p[data-compact="true"] {
+  margin-bottom: 0.3rem !important;
+}
+
+.article-content-body .article-detail-list {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 1.25rem 0 !important;
+}
+
+.article-content-body .article-detail-list li {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #e4e4e7;
+  margin: 0 !important;
+}
+
+.article-content-body .article-detail-list li:first-child {
+  border-top: 1px solid #e4e4e7;
+}
+
+.article-content-body .article-detail-list strong {
+  min-width: 9rem;
+  color: #18181b;
+  font-weight: 700;
+}
+
+.article-content-body .article-detail-list span {
+  flex: 1 1 16rem;
+}
+
+.article-content-body .article-detail-list li p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  margin: 0 !important;
+}
+
+.article-rich-editor .article-editor-surface {
+  min-height: 100%;
+  padding: 1.5rem clamp(1rem, 4vw, 3rem);
+  outline: none;
+  color: #27272a;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.article-rich-editor {
+  height: clamp(420px, 66vh, 820px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.article-edit-preview {
+  height: clamp(420px, 66vh, 820px);
+  overscroll-behavior: contain;
+}
+
+.article-content-body a:not(.article-cta-btn-orange):not(.article-link-cases) {
+  color: #18181b;
+  text-decoration: underline;
+  text-decoration-color: #ff5b23;
+  text-underline-offset: 3px;
+}
+
+.article-rich-editor .article-editor-surface:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(255, 91, 35, 0.35);
+}
+
+.article-rich-editor .article-editor-surface > :first-child {
+  margin-top: 0;
+}
+
+.article-rich-editor .article-editor-surface p.is-editor-empty:first-child::before {
+  content: 'Начните писать статью или вставьте готовый текст…';
+  color: #a1a1aa;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+.article-rich-editor .ProseMirror-selectednode {
+  outline: 2px solid #ff5b23;
+  outline-offset: 3px;
 }
 
 /* Explicit Article CTA Buttons & Links Styling */

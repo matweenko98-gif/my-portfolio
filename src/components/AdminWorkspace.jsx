@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Plus, Trash2, Upload, Loader2, ArrowLeft, Pencil, Calendar, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import contentData from '../contentData';
 import { avatarImg } from '../utils/imageUtils';
 import { autoFormatArticleText as formatArticleContent } from '../utils/articleFormatting';
+import ArticleRichEditor from './ArticleRichEditor';
 
 const SEO_BRAND_SUFFIX = 'Ксения Матвеенко — разработка сайтов/приложений';
 
@@ -411,6 +412,7 @@ export default function AdminWorkspace() {
   const [articleSlug, setArticleSlug] = useState('');
   const [articleExcerpt, setArticleExcerpt] = useState('');
   const [articleContent, setArticleContent] = useState('');
+  const articleEditorRef = useRef(null);
   const [articleCoverImage, setArticleCoverImage] = useState('');
   const [articleCoverAlt, setArticleCoverAlt] = useState('');
   const [articleSeoTitle, setArticleSeoTitle] = useState('');
@@ -420,6 +422,7 @@ export default function AdminWorkspace() {
   const [articleOgTitle, setArticleOgTitle] = useState('');
   const [articleOgDescription, setArticleOgDescription] = useState('');
   const [articleOgImage, setArticleOgImage] = useState('');
+  const lastGeneratedSeoRef = useRef(null);
   const [articleAuthor, setArticleAuthor] = useState('Ксения Матвеенко');
   const [articleCategory, setArticleCategory] = useState('Дизайн & UX');
   const [articleTags, setArticleTags] = useState('');
@@ -436,7 +439,7 @@ export default function AdminWorkspace() {
     }
   }, [articleTitle]);
 
-  const fillArticleSeoFields = () => {
+  const fillArticleSeoFields = (force = false) => {
     const generated = buildArticleSeoFields({
       title: articleTitle,
       excerpt: articleExcerpt,
@@ -444,12 +447,15 @@ export default function AdminWorkspace() {
       slug: articleSlug,
       coverImage: articleCoverImage
     });
-    setArticleSeoTitle((current) => (!current || /\|\s*KSENWEB\s*$/i.test(current) ? generated.seoTitle : current));
-    setArticleMetaDescription((current) => current || generated.metaDescription);
-    setArticleCanonicalOverride((current) => current || generated.canonical);
-    setArticleOgTitle((current) => (!current || /\|\s*KSENWEB\s*$/i.test(current) ? generated.ogTitle : current));
-    setArticleOgDescription((current) => current || generated.ogDescription);
-    setArticleOgImage((current) => current || generated.ogImage);
+    const previous = lastGeneratedSeoRef.current;
+    const shouldUpdate = (current, field) => force || !current || current === previous?.[field] || (field === 'seoTitle' || field === 'ogTitle') && /\|\s*KSENWEB\s*$/i.test(current);
+    setArticleSeoTitle((current) => shouldUpdate(current, 'seoTitle') ? generated.seoTitle : current);
+    setArticleMetaDescription((current) => shouldUpdate(current, 'metaDescription') ? generated.metaDescription : current);
+    setArticleCanonicalOverride((current) => shouldUpdate(current, 'canonical') ? generated.canonical : current);
+    setArticleOgTitle((current) => shouldUpdate(current, 'ogTitle') ? generated.ogTitle : current);
+    setArticleOgDescription((current) => shouldUpdate(current, 'ogDescription') ? generated.ogDescription : current);
+    setArticleOgImage((current) => shouldUpdate(current, 'ogImage') ? generated.ogImage : current);
+    lastGeneratedSeoRef.current = generated;
   };
 
   useEffect(() => {
@@ -628,6 +634,7 @@ export default function AdminWorkspace() {
   }, []);
 
   const resetArticleForm = () => {
+    lastGeneratedSeoRef.current = null;
     setEditingArticleId(null);
     setArticleTitle('');
     setArticleSlug('');
@@ -654,6 +661,7 @@ export default function AdminWorkspace() {
   };
 
   const handleStartEditArticle = (art) => {
+    lastGeneratedSeoRef.current = null;
     setEditingArticleId(art.id || art.slug);
     setArticleTitle(art.title || '');
     setArticleSlug(art.slug || '');
@@ -2737,7 +2745,7 @@ export default function AdminWorkspace() {
                   key={subTab.id}
                   type="button"
                   onClick={() => {
-                    if (subTab.id === 'seo') fillArticleSeoFields();
+                    if (subTab.id === 'seo') fillArticleSeoFields(false);
                     setArticleFormSection(subTab.id);
                   }}
                   className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-sm transition-all cursor-pointer ${
@@ -2823,20 +2831,21 @@ export default function AdminWorkspace() {
                         Основной текст статьи (Content) *
                       </label>
                       <span className="text-[11px] text-zinc-500 font-medium">
-                        💡 Выделите любой фразу или текст мышкою в поле ниже и нажмите нужную кнопку для форматирования!
+                        Выделите текст или поставьте курсор в абзац и выберите оформление. Результат виден сразу.
                       </span>
                     </div>
 
-                    {/* 1-Click Magic Auto-Formatter Banner */}
-                    <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white p-3.5 rounded-t-sm flex flex-wrap items-center justify-between gap-3 shadow-sm border border-orange-600 border-b-0">
+                    <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4 items-start">
+                    <div className="min-w-0">
+                    <div className="bg-zinc-50 text-zinc-900 p-3.5 rounded-t-sm flex flex-wrap items-center justify-between gap-3 border border-zinc-300 border-b-0">
                       <div className="flex items-center gap-2.5">
-                        <span className="text-xl animate-pulse">🪄</span>
+                        <span className="text-xl">✦</span>
                         <div>
-                          <div className="text-xs font-bold uppercase tracking-wider text-white">
-                            Авто-форматирование структуры в 1 клик
+                          <div className="text-xs font-bold uppercase tracking-wider text-zinc-900">
+                            Предложить структуру статьи
                           </div>
-                          <div className="text-[11px] text-orange-100 font-normal">
-                            Вставьте любой скопированный сырой текст из Word / Notion и нажмите эту кнопку!
+                          <div className="text-[11px] text-zinc-500 font-normal">
+                            Можно начать с автоматической структуры, а затем поправить её прямо в тексте.
                           </div>
                         </div>
                       </div>
@@ -2850,11 +2859,11 @@ export default function AdminWorkspace() {
                             }
                             const formatted = formatArticleContent(articleContent);
                             setArticleContent(formatted);
-                            setToast({ show: true, message: '✨ Текст статьи отформатирован! Расставлены H2, H3 и отступы.', type: 'success' });
+                            setToast({ show: true, message: 'Структура предложена. Проверьте оформление в редакторе.', type: 'success' });
                           }}
-                          className="px-4 py-2 bg-white hover:bg-orange-50 text-orange-600 font-bold text-xs rounded shadow-md transition-all cursor-pointer flex items-center gap-1.5 shrink-0 hover:scale-[1.02] active:scale-[0.98]"
+                          className="px-4 py-2 bg-[#FF5B23] hover:bg-[#e04f1e] text-white font-bold text-xs rounded-sm transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
                         >
-                          <span>🪄 Авто-форматировать текст (1 клик)</span>
+                          <span>🪄 Предложить структуру</span>
                         </button>
                         <button
                           type="button"
@@ -2865,7 +2874,7 @@ export default function AdminWorkspace() {
                               setToast({ show: true, message: 'HTML-теги удалены', type: 'info' });
                             }
                           }}
-                          className="px-2.5 py-2 bg-orange-700/60 hover:bg-orange-800/80 text-white text-[11px] font-medium rounded transition-colors cursor-pointer"
+                          className="px-2.5 py-2 bg-white hover:bg-zinc-100 border border-zinc-300 text-zinc-700 text-[11px] font-medium rounded-sm transition-colors cursor-pointer"
                           title="Очистить HTML-теги и оставить простой текст"
                         >
                           Очистить теги
@@ -2873,298 +2882,92 @@ export default function AdminWorkspace() {
                       </div>
                     </div>
 
-                    {/* Rich Formatting Toolbar & Selection Wrappers */}
-                    <div className="bg-zinc-100 p-3 border border-zinc-300 border-b-0 space-y-2.5">
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 pb-2">
-                        <span className="text-[11px] font-bold text-zinc-700 uppercase tracking-wider">
-                          Выбор размера шрифта и заголовков:
-                        </span>
-                        <span className="text-[10px] text-zinc-500 italic">
-                          (Основной наборный текст статьи по умолчанию 14px-15px)
-                        </span>
-                      </div>
+                    <ArticleRichEditor
+                      key={editingArticleId || 'new'}
+                      ref={articleEditorRef}
+                      content={articleContent}
+                      onChange={setArticleContent}
+                    />
 
-                      <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const textarea = document.getElementById('article-content-textarea');
-                            if (!textarea) return;
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            const selected = articleContent.substring(start, end);
-                            const contentToWrap = cleanArticleHeading(selected || 'Заголовок раздела (H2)');
-                            const newText = articleContent.substring(0, start) + `<h2>${contentToWrap}</h2>` + articleContent.substring(end);
-                            setArticleContent(newText);
-                          }}
-                          className="px-2.5 py-1 bg-white hover:bg-zinc-50 border border-zinc-300 rounded text-zinc-900 font-semibold cursor-pointer shadow-xs"
-                          title="Применить заголовок H2 (24px)"
-                        >
-                          H2 (24px)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const textarea = document.getElementById('article-content-textarea');
-                            if (!textarea) return;
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            const selected = articleContent.substring(start, end);
-                            const contentToWrap = cleanArticleHeading(selected || 'Подзаголовок раздела (H3)');
-                            const newText = articleContent.substring(0, start) + `<h3>${contentToWrap}</h3>` + articleContent.substring(end);
-                            setArticleContent(newText);
-                          }}
-                          className="px-2.5 py-1 bg-white hover:bg-zinc-50 border border-zinc-300 rounded text-zinc-800 font-medium cursor-pointer shadow-xs"
-                          title="Применить подзаголовок H3 (20px)"
-                        >
-                          H3 (20px)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const textarea = document.getElementById('article-content-textarea');
-                            if (!textarea) return;
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            const selected = articleContent.substring(start, end);
-                            const contentToWrap = selected || 'Текст параграфа...';
-                            const newText = articleContent.substring(0, start) + `<p>${contentToWrap}</p>` + articleContent.substring(end);
-                            setArticleContent(newText);
-                          }}
-                          className="px-2.5 py-1 bg-white hover:bg-zinc-50 border border-zinc-300 rounded text-zinc-700 cursor-pointer shadow-xs font-normal"
-                          title="Обычный текст P (14px по умолчанию)"
-                        >
-                          P (14px по умолчанию)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const textarea = document.getElementById('article-content-textarea');
-                            if (!textarea) return;
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            const selected = articleContent.substring(start, end);
-                            const contentToWrap = selected || 'Мелкая подпись';
-                            const newText = articleContent.substring(0, start) + `<small>${contentToWrap}</small>` + articleContent.substring(end);
-                            setArticleContent(newText);
-                          }}
-                          className="px-2 py-1 bg-white hover:bg-zinc-50 border border-zinc-300 rounded text-zinc-500 text-[11px] cursor-pointer shadow-xs"
-                          title="Мелкая подпись (12px)"
-                        >
-                          12px (Small)
-                        </button>
-                        <span className="h-4 w-px bg-zinc-300 mx-1" />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const textarea = document.getElementById('article-content-textarea');
-                            if (!textarea) return;
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            const selected = articleContent.substring(start, end);
-                            const contentToWrap = selected || 'выделенный текст';
-                            const newText = articleContent.substring(0, start) + `<strong>${contentToWrap}</strong>` + articleContent.substring(end);
-                            setArticleContent(newText);
-                          }}
-                          className="px-2.5 py-1 bg-white hover:bg-zinc-50 border border-zinc-300 rounded font-bold text-zinc-900 cursor-pointer shadow-xs"
-                          title="Сделать выделенный текст жирным"
-                        >
-                          Ж (Жирный)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const textarea = document.getElementById('article-content-textarea');
-                            if (!textarea) return;
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            const selected = articleContent.substring(start, end);
-                            const contentToWrap = selected || 'текст курсивом';
-                            const newText = articleContent.substring(0, start) + `<em>${contentToWrap}</em>` + articleContent.substring(end);
-                            setArticleContent(newText);
-                          }}
-                          className="px-2.5 py-1 bg-white hover:bg-zinc-50 border border-zinc-300 rounded italic text-zinc-800 cursor-pointer shadow-xs"
-                          title="Сделать выделенный текст курсивом"
-                        >
-                          К (Курсив)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const textarea = document.getElementById('article-content-textarea');
-                            if (!textarea) return;
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            const selected = articleContent.substring(start, end);
-                            const contentToWrap = selected || 'Главная рекомендация или совет...';
-                            const snippet = `\n<div class="article-callout bg-zinc-50 border border-zinc-200/80 rounded-[4px] p-4 sm:p-5 my-6">\n  <div class="text-[11px] font-mono font-medium text-[#FF5B23] uppercase tracking-wider mb-2">Что изменить</div>\n  <p class="text-zinc-700 text-sm mb-0">${contentToWrap}</p>\n</div>\n`;
-                            const newText = articleContent.substring(0, start) + snippet + articleContent.substring(end);
-                            setArticleContent(newText);
-                          }}
-                          className="px-2.5 py-1 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded text-[#FF5B23] font-semibold cursor-pointer shadow-xs"
-                        >
-                          + 💡 Плашка "Что изменить"
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const textarea = document.getElementById('article-content-textarea');
-                            if (!textarea) return;
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            const selected = articleContent.substring(start, end);
-                            const contentToWrap = selected || '«Важная мысль или вопрос пользователя...»';
-                            const snippet = `\n<blockquote class="my-6 p-4 bg-orange-50/60 border-l-4 border-[#FF5B23] rounded-r text-zinc-800 font-medium italic text-sm sm:text-base">\n  ${contentToWrap}\n</blockquote>\n`;
-                            const newText = articleContent.substring(0, start) + snippet + articleContent.substring(end);
-                            setArticleContent(newText);
-                          }}
-                          className="px-2.5 py-1 bg-white hover:bg-zinc-50 border border-zinc-300 rounded text-zinc-800 font-medium italic cursor-pointer shadow-xs"
-                        >
-                          + 💬 Цитата
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const textarea = document.getElementById('article-content-textarea');
-                            if (!textarea) return;
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            const selected = articleContent.substring(start, end);
-                            const items = selected ? selected.split('\n').filter(Boolean).map(line => `  <li>${line}</li>`).join('\n') : '  <li>Пункт 1</li>\n  <li>Пункт 2</li>';
-                            const snippet = `\n<ul>\n${items}\n</ul>\n`;
-                            const newText = articleContent.substring(0, start) + snippet + articleContent.substring(end);
-                            setArticleContent(newText);
-                          }}
-                          className="px-2.5 py-1 bg-white hover:bg-zinc-50 border border-zinc-300 rounded text-zinc-700 cursor-pointer shadow-xs"
-                        >
-                          + 📋 Список
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const textarea = document.getElementById('article-content-textarea');
-                            if (!textarea) return;
-                            const start = textarea.selectionStart;
-                            const end = textarea.selectionEnd;
-                            const selected = articleContent.substring(start, end);
-                            const items = selected ? selected.split('\n').filter(Boolean).map((line, idx) => `  <li>${idx + 1}. ${line}</li>`).join('\n') : '  <li>1. Шаг первый</li>\n  <li>2. Шаг второй</li>';
-                            const snippet = `\n<ol>\n${items}\n</ol>\n`;
-                            const newText = articleContent.substring(0, start) + snippet + articleContent.substring(end);
-                            setArticleContent(newText);
-                          }}
-                          className="px-2.5 py-1 bg-white hover:bg-zinc-50 border border-zinc-300 rounded text-zinc-700 cursor-pointer shadow-xs"
-                        >
-                          + 🔢 Нумерация
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!articleContent) return;
-                            const cleaned = articleContent.replace(/<figure class="my-6 p-4 border border-dashed[\s\S]*?<\/figure>\n?/g, '');
-                            setArticleContent(cleaned);
-                            setToast({ show: true, message: 'Заглушки фото удалены из текста статьи!', type: 'success' });
-                          }}
-                          className="px-2.5 py-1 bg-red-50 hover:bg-red-100 border border-red-200 rounded text-red-600 font-semibold cursor-pointer shadow-xs"
-                          title="Удалить все блоки-заглушки для фото из текста статьи"
-                        >
-                          🗑️ Удалить заглушки фото
-                        </button>
+                    <div className="mt-3 p-3 sm:p-4 border border-zinc-200 rounded-sm bg-zinc-50 space-y-3">
+                      <div className="text-xs font-semibold text-zinc-800">Фото внутри статьи</div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={inlineImageAlt}
+                          onChange={(event) => setInlineImageAlt(event.target.value)}
+                          placeholder={createArticleImageAlt({ title: articleTitle })}
+                          aria-label="ALT-текст фотографии"
+                          className="w-full px-3 py-2 text-xs bg-white border border-zinc-300 rounded focus:border-black outline-none"
+                        />
+                        <input
+                          type="text"
+                          value={inlineImageCaption}
+                          onChange={(event) => setInlineImageCaption(event.target.value)}
+                          placeholder="Подпись или источник — необязательно"
+                          className="w-full px-3 py-2 text-xs bg-white border border-zinc-300 rounded focus:border-black outline-none"
+                        />
                       </div>
-
-                      {/* Built-in Instant Image Uploader for inline visuals */}
-                      <div className="pt-2 border-t border-zinc-200 flex flex-wrap items-center justify-between gap-2">
-                        <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          <input
-                            type="text"
-                            value={inlineImageAlt}
-                            onChange={(e) => setInlineImageAlt(e.target.value)}
-                            placeholder={createArticleImageAlt({ title: articleTitle })}
-                            className="w-full px-3 py-2 text-xs bg-white border border-zinc-300 rounded focus:border-black outline-none"
-                          />
-                          <input
-                            type="text"
-                            value={inlineImageCaption}
-                            onChange={(e) => setInlineImageCaption(e.target.value)}
-                            placeholder="Подпись или источник — необязательно"
-                            className="w-full px-3 py-2 text-xs bg-white border border-zinc-300 rounded focus:border-black outline-none"
-                          />
-                        </div>
-                        <span className="text-[11px] text-zinc-500">Alt-текст создаётся из подписи или названия статьи; его можно изменить до загрузки. Пустая подпись не будет показана.</span>
-                        <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-zinc-800 text-white text-xs font-semibold rounded cursor-pointer transition-colors shadow-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-[11px] text-zinc-500">Фото вставится в место курсора. ALT можно изменить; пустая подпись не показывается.</span>
+                        <label className="inline-flex items-center gap-1.5 px-3 py-2 bg-black hover:bg-zinc-800 text-white text-xs font-semibold rounded cursor-pointer">
                           <Upload className="w-3.5 h-3.5" />
-                          <span>Загрузить фото в текст</span>
+                          Загрузить фото в текст
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
+                            className="hidden"
+                            onChange={async (event) => {
+                              const file = event.target.files?.[0];
                               if (!file) return;
                               try {
-                                setToast({ show: true, message: 'Загрузка визуала...', type: 'info' });
+                                setToast({ show: true, message: 'Загрузка фотографии...', type: 'info' });
                                 const webpFile = await convertToWebP(file, 1600, 0.85);
-                                const fileName = `inline-article-${Date.now()}-${Math.random().toString(36).substring(2,7)}.webp`;
-                                const filePath = `uploads/${fileName}`;
-
-                                const { error: upErr } = await supabase.storage
+                                const fileName = 'inline-article-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7) + '.webp';
+                                const filePath = 'uploads/' + fileName;
+                                const { error: uploadError } = await supabase.storage
                                   .from('case-images')
                                   .upload(filePath, webpFile, { upsert: true });
-
-                                if (upErr) throw upErr;
-
-                                const { data: { publicUrl } } = supabase.storage
-                                  .from('case-images')
-                                  .getPublicUrl(filePath);
-
-                                const textarea = document.getElementById('article-content-textarea');
-                                const start = textarea ? textarea.selectionStart : articleContent.length;
-                                const escapeHtmlAttribute = (value) => value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                                const escapeHtmlText = (value) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                if (uploadError) throw uploadError;
+                                const { data: { publicUrl } } = supabase.storage.from('case-images').getPublicUrl(filePath);
                                 const caption = inlineImageCaption.trim();
-                                const generatedAlt = createArticleImageAlt({ title: articleTitle, caption });
-                                const alt = escapeHtmlAttribute(inlineImageAlt.trim() || generatedAlt);
-                                const captionHtml = caption ? `\n  <figcaption>${escapeHtmlText(caption)}</figcaption>` : '';
-                                const figureHtml = `\n<figure class="article-inline-image">\n  <img src="${publicUrl}" alt="${alt}" />${captionHtml}\n</figure>\n`;
-                                const newText = articleContent.substring(0, start) + figureHtml + articleContent.substring(start);
-                                setArticleContent(newText);
+                                const alt = inlineImageAlt.trim() || createArticleImageAlt({ title: articleTitle, caption });
+                                articleEditorRef.current?.insertFigure({ src: publicUrl, alt, caption });
                                 setInlineImageAlt('');
                                 setInlineImageCaption('');
-                                setToast({ show: true, message: 'Визуал успешно вставлен в текст!', type: 'success' });
-                              } catch (err) {
-                                console.error('Inline image upload error:', err);
-                                setToast({ show: true, message: 'Ошибка при загрузке картинки: ' + err.message, type: 'error' });
+                                setToast({ show: true, message: 'Фото вставлено в статью', type: 'success' });
+                              } catch (error) {
+                                console.error('Inline image upload error:', error);
+                                setToast({ show: true, message: 'Ошибка загрузки: ' + error.message, type: 'error' });
+                              } finally {
+                                event.target.value = '';
                               }
                             }}
-                            className="hidden"
                           />
                         </label>
                       </div>
                     </div>
 
-                    <textarea
-                      id="article-content-textarea"
-                      required
-                      rows={14}
-                      placeholder="Вставьте весь текст статьи. Выделяйте нужные предложения мышкою и нажимайте кнопки на панели выше (H2, H3, P 14px, Жирный, Картинка...), чтобы применить стили к выделенному фрагменту!"
-                      value={articleContent}
-                      onChange={(e) => setArticleContent(e.target.value)}
-                      className="w-full px-3.5 py-3 text-xs font-mono bg-white border border-zinc-300 rounded-b-sm focus:border-black outline-none leading-relaxed"
-                    />
-                  </div>
-
-                  {/* Formatted Live Visual Preview Box right below textarea */}
-                  <div className="mt-4 p-4 border border-zinc-200 rounded-sm bg-zinc-50/50">
-                    <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-3">
-                      👁️ Живой вид форматированного текста (Как будет выглядеть статья):
+                    <details className="mt-3 text-xs text-zinc-500">
+                      <summary className="cursor-pointer">Исходный HTML (для точечной правки)</summary>
+                      <textarea
+                        value={articleContent}
+                        onChange={(event) => setArticleContent(event.target.value)}
+                        rows={8}
+                        aria-label="Исходный HTML статьи"
+                        className="mt-2 w-full p-3 font-mono text-xs bg-white border border-zinc-300 rounded-sm"
+                      />
+                    </details>
                     </div>
-                    <div
-                      className="article-content-body prose prose-zinc max-w-none bg-white p-4 sm:p-6 border border-zinc-200 rounded-sm
-                        prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900
-                        prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:pt-5 prose-h2:border-t prose-h2:border-zinc-200 prose-h2:font-bold prose-h2:text-zinc-900
-                        prose-h3:text-lg sm:prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:font-semibold prose-h3:text-zinc-900
-                        prose-p:text-zinc-700 prose-p:text-[14px] sm:prose-p:text-[15px] prose-p:leading-[1.75] prose-p:mb-6 prose-p:font-normal
-                        prose-ul:my-6 prose-ol:my-6 prose-li:text-zinc-700 prose-li:text-[14px] sm:prose-li:text-[15px] prose-li:my-2"
-                      dangerouslySetInnerHTML={{ __html: articlePreview.html || '<p class="text-zinc-400 italic">Начните вводить текст статьи...</p>' }}
-                    />
+                    <div className="border border-zinc-200 rounded-sm bg-white min-w-0 2xl:sticky 2xl:top-4">
+                      <div className="px-4 py-3 border-b border-zinc-200 bg-zinc-50 text-xs font-bold uppercase tracking-wider text-zinc-700">Как выглядит статья</div>
+                      <div className="article-edit-preview overflow-y-auto p-5 sm:p-7">
+                        <div className="text-2xl font-semibold tracking-tight text-zinc-900 mb-3">{articleTitle || 'Заголовок статьи'}</div>
+                        {articleExcerpt && <p className="text-sm text-zinc-500 mb-6 leading-relaxed">{articleExcerpt}</p>}
+                        <div className="article-content-body prose prose-zinc max-w-none" dangerouslySetInnerHTML={{ __html: articlePreview.html || '<p>Содержимое статьи...</p>' }} />
+                      </div>
+                    </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -3208,7 +3011,7 @@ export default function AdminWorkspace() {
                     <p className="text-xs text-zinc-500 leading-relaxed">Поля заполнены из названия, анонса, текста, H2 и обложки. Их можно отредактировать вручную.</p>
                     <button
                       type="button"
-                      onClick={fillArticleSeoFields}
+                      onClick={() => fillArticleSeoFields(true)}
                       className="shrink-0 px-3 py-2 border border-zinc-200 hover:border-zinc-400 bg-white text-xs font-semibold rounded-sm transition-colors cursor-pointer"
                     >
                       Обновить SEO
