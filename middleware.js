@@ -421,6 +421,7 @@ function renderHtmlDocument({
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
+  <meta name="yandex-verification" content="00d0674dbaef7443" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}" />
