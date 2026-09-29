@@ -446,11 +446,9 @@ function renderHtmlDocument({
   <meta name="twitter:image" content="${escapeHtml(ogImage)}" />
 
   <link rel="describedby" type="text/markdown" href="/llms.txt" />
-  <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="shortcut icon" href="/favicon.png" />
-  <link rel="apple-touch-icon" href="/favicon.png" />
+  <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="https://www.ksenweb.com/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" sizes="any" href="https://www.ksenweb.com/favicon.svg" />
+  <link rel="apple-touch-icon" href="https://www.ksenweb.com/favicon.png" />
 
   ${jsonLdString ? `<script type="application/ld+json">\n${jsonLdString}\n</script>` : ''}
   ${spaAssets}
