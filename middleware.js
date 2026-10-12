@@ -1,3 +1,12 @@
+import { safeArticleHtml } from './src/utils/safeArticleHtml.js';
+import { createHash } from 'node:crypto';
+
+export const config = { runtime: 'nodejs' };
+
+function fetchCms(url, options) {
+  return fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
+}
+
 const markdownContent = `# Ksenia Matveenko — UI/UX Designer, Frontend Developer & AI Prompt Engineer / Веб-дизайнер и разработчик интерфейсов
 
 Welcome to the LLM-friendly version of my portfolio. / Добро пожаловать в текстовую версию моего портфолио.
@@ -57,7 +66,7 @@ Welcome to the LLM-friendly version of my portfolio. / Добро пожалов
 const apiCatalogJson = `{
   "linkset": [
     {
-      "anchor": "https://www.ksenweb.com/api",
+      "anchor": "https://www.ksenweb.com/api/contact",
       "service-desc": [
         {
           "href": "https://www.ksenweb.com/api/openapi.yaml",
@@ -66,118 +75,12 @@ const apiCatalogJson = `{
       ],
       "service-doc": [
         {
-          "href": "https://www.ksenweb.com/docs/api",
+          "href": "https://www.ksenweb.com/brief",
           "type": "text/html"
         }
-      ],
-      "status": [
-        {
-          "href": "https://www.ksenweb.com/api/status",
-          "type": "application/json"
-        }
       ]
     }
   ]
-}`;
-
-const openidConfigurationJson = `{
-  "issuer": "https://www.ksenweb.com",
-  "authorization_endpoint": "https://www.ksenweb.com/oauth/authorize",
-  "token_endpoint": "https://www.ksenweb.com/oauth/token",
-  "jwks_uri": "https://www.ksenweb.com/oauth/jwks",
-  "grant_types_supported": [
-    "authorization_code",
-    "client_credentials"
-  ],
-  "response_types_supported": [
-    "code"
-  ],
-  "subject_types_supported": [
-    "public"
-  ],
-  "agent_auth": {
-    "skill": "https://www.ksenweb.com/auth.md",
-    "register_uri": "https://www.ksenweb.com/oauth/register",
-    "claim_uri": "https://www.ksenweb.com/oauth/claim",
-    "identity_types_supported": [
-      "anonymous"
-    ],
-    "anonymous": {
-      "credential_types_supported": [
-        "api_key"
-      ]
-    }
-  }
-}`;
-
-const oauthProtectedResourceJson = `{
-  "resource": "https://www.ksenweb.com/api",
-  "authorization_servers": [
-    "https://www.ksenweb.com"
-  ],
-  "scopes_supported": [
-    "read",
-    "write"
-  ],
-  "bearer_methods_supported": [
-    "header"
-  ]
-}`;
-
-const authMdContent = `# Portfolio auth.md
-
-This document explains how autonomous AI agents can register and authenticate with the portfolio's API.
-
-## Discovery
-The API and OAuth discovery documents are available at:
-- **API Catalog**: \`/.well-known/api-catalog\`
-- **Protected Resource Metadata**: \`/.well-known/oauth-protected-resource\`
-- **Authorization Server Metadata**: \`/.well-known/oauth-authorization-server\` (and \`/openid-configuration\`)
-
-## Agent Registration
-
-We support **Anonymous** agent registration. AI agents can request an API key dynamically without requiring pre-existing user accounts.
-
-### 1. Anonymous Registration Flow
-To register an agent, make a \`POST\` request to the registration URI:
-- **Endpoint**: \`https://www.ksenweb.com/oauth/register\`
-- **Method**: \`POST\`
-- **Content-Type**: \`application/json\`
-
-**Request Payload:**
-\`\`\`json
-{
-  "identity_type": "anonymous",
-  "agent_name": "MyAutonomousAgent/1.0"
-}
-\`\`\`
-
-**Response Payload:**
-\`\`\`json
-{
-  "api_key": "sec_agent_xxxxxx",
-  "expires_in": 31536000
-}
-\`\`\`
-
-## Credential Usage
-Include the obtained API key as a Bearer token in the \`Authorization\` header for all requests to protected API resources:
-\`\`\`http
-Authorization: Bearer sec_agent_xxxxxx
-\`\`\`
-`;
-
-const mcpServerCardJson = `{
-  "serverInfo": {
-    "name": "ksenweb-portfolio-mcp",
-    "version": "1.0.0"
-  },
-  "endpoint": "https://www.ksenweb.com/mcp",
-  "capabilities": {
-    "tools": {},
-    "resources": {},
-    "prompts": {}
-  }
 }`;
 
 const agentSkillsJson = `{
@@ -473,10 +376,24 @@ function renderHtmlDocument({
   });
 }
 
-export default async function middleware(request) {
+async function handleRequest(request) {
   const url = new URL(request.url);
   const pathname = url.pathname.length > 1 ? url.pathname.replace(/\/+$/, '') : '/';
   const accept = request.headers.get('accept') || '';
+  if (pathname === '/api/contact') return;
+  // Do not advertise authentication or MCP services that have no implementation.
+  if (new Set([
+    '/.well-known/openid-configuration', '/.well-known/oauth-authorization-server',
+    '/.well-known/oauth-protected-resource', '/.well-known/mcp/server-card.json', '/auth.md',
+  ]).has(pathname)) {
+    return new Response(JSON.stringify({ error: 'Not found' }), { status: 404, headers: {
+      'Content-Type': 'application/json; charset=utf-8', 'X-Robots-Tag': 'noindex, nofollow', 'Cache-Control': 'no-store',
+    } });
+  }
+  if (url.pathname !== pathname) {
+    url.pathname = pathname;
+    return Response.redirect(url, 308);
+  }
 
   // The article response loads the production Vite entry from this static file.
   if (pathname === '/index.html' && url.searchParams.has('__spa_shell')) return;
@@ -484,11 +401,14 @@ export default async function middleware(request) {
     '/google5262767274b3245d.html',
     '/yandex_762ce613be15bfd0.html'
   ]);
+  const virtualJsonPaths = new Set(['/.well-known/agent-skills/index.json']);
 
   // 1. Static asset bypass
   if (
     verificationFiles.has(pathname) ||
-    (pathname !== '/sitemap.xml' && pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|css|js|woff|woff2|ttf|json|txt|xml|map)$/i)) ||
+    pathname === '/pricing.md' ||
+    pathname === '/api/openapi.yaml' ||
+    (pathname !== '/sitemap.xml' && !virtualJsonPaths.has(pathname) && pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|css|js|woff|woff2|ttf|json|txt|xml|map)$/i)) ||
     pathname.startsWith('/assets/') ||
     pathname.startsWith('/fonts/') ||
     pathname.startsWith('/demos/') ||
@@ -507,7 +427,7 @@ export default async function middleware(request) {
       const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
       const anonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
 
-      const casesRes = await fetch(`${supabaseUrl}/rest/v1/cases?select=slug,id,updated_at`, {
+      const casesRes = await fetchCms(`${supabaseUrl}/rest/v1/cases?select=slug,id,updated_at`, {
         headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
       });
       if (casesRes.ok) {
@@ -527,9 +447,10 @@ export default async function middleware(request) {
         }
       }
 
-      const articlesRes = await fetch(`${supabaseUrl}/rest/v1/articles?select=slug,updated_at,canonical_override&status=eq.published&noindex=eq.false`, {
+      const articlesRes = await fetchCms(`${supabaseUrl}/rest/v1/articles?select=slug,updated_at,canonical_override&status=eq.published&noindex=eq.false`, {
         headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
       });
+      if (!casesRes.ok || !articlesRes.ok) throw new Error('CMS sitemap lookup unavailable');
       if (articlesRes.ok) {
         const fetchedArticles = await articlesRes.json();
         if (Array.isArray(fetchedArticles) && fetchedArticles.length > 0) {
@@ -545,6 +466,9 @@ export default async function middleware(request) {
       }
     } catch (err) {
       console.error('Sitemap dynamic fetch error:', err);
+      return new Response('Sitemap temporarily unavailable', { status: 503, headers: {
+        'Cache-Control': 'no-store', 'Retry-After': '60',
+      } });
     }
 
     const casesUrlsXml = cases.map(c => `
@@ -629,25 +553,14 @@ export default async function middleware(request) {
   if (pathname === '/.well-known/api-catalog') {
     return new Response(apiCatalogJson, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/linkset+json; charset=utf-8' } });
   }
-  if (pathname === '/.well-known/openid-configuration' || pathname === '/.well-known/oauth-authorization-server') {
-    return new Response(openidConfigurationJson, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/json; charset=utf-8' } });
-  }
-  if (pathname === '/.well-known/oauth-protected-resource') {
-    return new Response(oauthProtectedResourceJson, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/json; charset=utf-8' } });
-  }
-  if (pathname === '/.well-known/mcp/server-card.json') {
-    return new Response(mcpServerCardJson, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/json; charset=utf-8' } });
-  }
   if (pathname === '/.well-known/agent-skills/index.json') {
-    return new Response(agentSkillsJson, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/json; charset=utf-8' } });
+    const index = JSON.parse(agentSkillsJson);
+    index.skills[0].digest = `sha256:${createHash('sha256').update(skillMdContent).digest('hex')}`;
+    return new Response(JSON.stringify(index), { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/json; charset=utf-8' } });
   }
   if (pathname === '/skills/portfolio-query/SKILL.md') {
     return new Response(skillMdContent, { status: 200, headers: { ...publicMachineReadableHeaders, 'Content-Type': 'text/markdown; charset=utf-8' } });
   }
-  if (pathname === '/auth.md') {
-    return new Response(authMdContent, { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'text/markdown; charset=utf-8' } });
-  }
-
   // 4. LLM Markdown Content Negotiation
   const userAgent = (request.headers.get('user-agent') || '').toLowerCase();
   const isSearchCrawler = /googlebot|google-inspectiontool|google-extended|yandexbot|bingbot|duckduckbot|slurp|baiduspider|facebookexternalhit|twitterbot|telegrambot|linkedinbot|embedly|whatsapp|gptbot|chatgpt-user|perplexitybot|claudebot|anthropic-ai/i.test(userAgent);
@@ -695,7 +608,21 @@ export default async function middleware(request) {
     } });
   }
 
-  const renderPublicPage = options => renderHtmlDocument({ spaAssets: publicSpaAssets, ...options });
+  const renderPublicPage = options => {
+    const path = new URL(options.canonical).pathname;
+    if (options.jsonLd && (path.startsWith('/case/') || path.startsWith('/blog/'))) {
+      const parent = path.startsWith('/case/') ? ['Кейсы', '/cases'] : ['Блог', '/blog'];
+      options.jsonLd = { '@context': 'https://schema.org', '@graph': [
+        options.jsonLd,
+        { '@type': 'BreadcrumbList', itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Главная', item: 'https://www.ksenweb.com/' },
+          { '@type': 'ListItem', position: 2, name: parent[0], item: `https://www.ksenweb.com${parent[1]}` },
+          { '@type': 'ListItem', position: 3, name: options.title, item: options.canonical },
+        ] },
+      ] };
+    }
+    return renderHtmlDocument({ spaAssets: publicSpaAssets, ...options });
+  };
 
   // 5. SSR / Server-Rendered HTML generation for pages
 
@@ -708,7 +635,7 @@ export default async function middleware(request) {
       try {
         const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
         const anonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
-        const res = await fetch(`${supabaseUrl}/rest/v1/articles?slug=eq.${encodeURIComponent(slug)}&status=eq.published`, {
+        const res = await fetchCms(`${supabaseUrl}/rest/v1/articles?slug=eq.${encodeURIComponent(slug)}&status=eq.published`, {
           headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
         });
         if (res.ok) {
@@ -772,8 +699,8 @@ export default async function middleware(request) {
           "headline": article.title,
           "description": description,
           "image": [ogImage],
-          "datePublished": article.publishedAt || new Date().toISOString(),
-          "dateModified": article.updatedAt || article.publishedAt || new Date().toISOString(),
+          ...(article.publishedAt ? { datePublished: article.publishedAt } : {}),
+          ...(article.updatedAt || article.publishedAt ? { dateModified: article.updatedAt || article.publishedAt } : {}),
           "author": {
             "@type": "Person",
             "name": article.author || "Ксения Матвеенко",
@@ -820,7 +747,7 @@ export default async function middleware(request) {
     </div>` : ''}
 
     <div class="article-body article-content-body" style="font-size: 1.05rem; color: #27272a;">
-      ${ensureFormattedHtml(article.content)}
+      ${safeArticleHtml(ensureFormattedHtml(article.content))}
     </div>
 
     <footer style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #e4e4e7;">
@@ -894,7 +821,7 @@ export default async function middleware(request) {
     try {
       const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
       const anonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
-      const res = await fetch(`${supabaseUrl}/rest/v1/articles?status=eq.published&order=published_at.desc`, {
+      const res = await fetchCms(`${supabaseUrl}/rest/v1/articles?status=eq.published&order=published_at.desc`, {
         headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
       });
       if (res.ok) {
@@ -975,7 +902,7 @@ export default async function middleware(request) {
       try {
         const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
         const anonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
-        const res = await fetch(`${supabaseUrl}/rest/v1/cases?slug=eq.${encodeURIComponent(slug)}`, {
+        const res = await fetchCms(`${supabaseUrl}/rest/v1/cases?slug=eq.${encodeURIComponent(slug)}`, {
           headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
         });
         if (res.ok) {
@@ -1084,7 +1011,7 @@ export default async function middleware(request) {
     try {
       const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
       const anonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
-      const res = await fetch(`${supabaseUrl}/rest/v1/cases?select=*`, {
+      const res = await fetchCms(`${supabaseUrl}/rest/v1/cases?select=*`, {
         headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
       });
       if (res.ok) {
@@ -1141,4 +1068,18 @@ export default async function middleware(request) {
 
     return renderPublicPage({ title, description, canonical, robots: "noindex, follow", bodyHtml, statusCode: 404 });
   }
+}
+
+export default async function middleware(request) {
+  const response = await handleRequest(request);
+  if (!response) return;
+  const headers = new Headers(response.headers);
+  headers.set('X-Content-Type-Options', 'nosniff');
+  headers.set('X-Frame-Options', 'SAMEORIGIN');
+  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  headers.set('Content-Security-Policy', "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests");
+  if (typeof process !== 'undefined' && process.env.VERCEL_ENV === 'preview') {
+    headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  }
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }

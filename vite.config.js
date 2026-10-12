@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { contactApiPlugin } from './server/contact-dev.js'
 
 const markdownContent = `# Ksenia Matveenko — UI/UX Designer, Frontend Developer & AI Prompt Engineer / Веб-дизайнер и разработчик интерфейсов
 
@@ -288,7 +289,7 @@ function markdownNegotiationPlugin() {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), markdownNegotiationPlugin()],
+  plugins: [react(), contactApiPlugin(), markdownNegotiationPlugin()],
 
   server: {
     headers: {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import contentData from '../contentData';
@@ -6,6 +6,30 @@ import { avatarImg } from '../utils/imageUtils';
 
 export default function Sidebar({ activeSection }) {
   const [isOpen, setIsOpen] = useState(false);
+  const menuButtonRef = useRef(null);
+  const menuRef = useRef(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    menuRef.current?.querySelector('button, a')?.focus();
+    const close = event => {
+      if (event.key === 'Escape') setIsOpen(false);
+      if (event.key === 'Tab') {
+        const nodes = menuRef.current?.querySelectorAll('button, a[href]');
+        if (!nodes?.length) return;
+        const first = nodes[0], last = nodes[nodes.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener('keydown', close);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', close);
+      menuButtonRef.current?.focus();
+    };
+  }, [isOpen]);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -60,6 +84,9 @@ export default function Sidebar({ activeSection }) {
           {contentData.sidebar.profile.name}
         </Link>
         <button
+          ref={menuButtonRef}
+          aria-controls="mobile-navigation"
+          aria-expanded={isOpen}
           onClick={() => setIsOpen(true)}
           className="w-9 h-9 flex items-center justify-center border border-zinc-200/40 rounded-sm bg-white cursor-pointer hover:bg-zinc-50 transition-colors"
           aria-label="Открыть меню"
@@ -71,7 +98,7 @@ export default function Sidebar({ activeSection }) {
       </motion.header>
 
       {/* ===== MOBILE NAV OVERLAY ===== */}
-      <nav className={`lg:hidden fixed inset-0 bg-white z-[300] flex flex-col items-center justify-center gap-2 transition-all duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+      <nav id="mobile-navigation" ref={menuRef} aria-hidden={!isOpen} inert={isOpen ? undefined : ''} className={`lg:hidden fixed inset-0 bg-white z-[300] flex flex-col items-center justify-center gap-2 transition-all duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <button
           onClick={() => setIsOpen(false)}
           className="absolute top-4 right-6 w-10 h-10 border border-zinc-200/40 rounded-sm bg-white flex items-center justify-center cursor-pointer hover:bg-zinc-50 transition-colors shadow-sm"

@@ -28,25 +28,24 @@ export default function HomePage() {
   useEffect(() => {
     if (location.hash) {
       const id = location.hash.substring(1);
+      let done = false;
       const scrollToHash = () => {
         const el = document.getElementById(id);
-        if (el) {
+        if (el && !done) {
+          done = true;
           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       };
-      // Выполняем скролл после отрисовки макета
+      // Lazy sections may appear after the first render.
+      const observer = new MutationObserver(scrollToHash);
+      observer.observe(document.getElementById('root'), { childList: true, subtree: true });
       const timer = setTimeout(scrollToHash, 100);
-      return () => clearTimeout(timer);
+      const deadline = setTimeout(() => observer.disconnect(), 5000);
+      return () => { clearTimeout(timer); clearTimeout(deadline); observer.disconnect(); };
     }
   }, [location.hash]);
 
   useEffect(() => {
-    document.title = "Ксения Матвеенко — Дизайн & Разработка премиальных сайтов";
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'Создание высококлассных сайтов, интерфейсов и\u00a0UX/UI дизайна с\u00a0упором на\u00a0чистую эстетику и\u00a0техническое совершенство.');
-    }
-
     // ─── Оптимизация: кэшируем координаты секций и исключаем DOM-чтения из скролла ───
     let sectionPositions = [];
 

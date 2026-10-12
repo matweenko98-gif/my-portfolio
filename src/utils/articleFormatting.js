@@ -1,3 +1,5 @@
+import { safeArticleHtml } from './safeArticleHtml';
+
 function escapeHtml(value = '') {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -272,5 +274,5 @@ export function autoFormatArticleText(rawText) {
 
   normalizeRussianQuotesInElement(body);
 
-  return body.innerHTML;
+  return safeArticleHtml(body.innerHTML);
 }

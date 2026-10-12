@@ -113,6 +113,14 @@ export default function ArticlePage() {
   );
 
   useEffect(() => {
+    if (loading || article) return;
+    document.querySelector('meta[name="robots"]')?.setAttribute('content', 'noindex, follow');
+    document.getElementById('jsonld-route')?.remove();
+    document.getElementById('jsonld-blog-posting')?.remove();
+  }, [loading, article]);
+
+  useEffect(() => {
+    let active = true;
     window.scrollTo(0, 0);
 
     const fetchArticleData = async () => {
@@ -174,6 +182,7 @@ export default function ArticlePage() {
           }));
         }
 
+        if (!active) return;
         if (found) {
           setArticle(found);
           setActiveSectionId('');
@@ -185,13 +194,14 @@ export default function ArticlePage() {
         }
       } catch (err) {
         console.error('Error fetching article:', err);
-        setArticle(null);
+        if (active) setArticle(null);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
 
     fetchArticleData();
+    return () => { active = false; };
   }, [slug]);
 
   // SEO & Head tag Injection
@@ -201,7 +211,7 @@ export default function ArticlePage() {
     const pageCanonical = art.canonicalOverride
       ? art.canonicalOverride
       : `https://www.ksenweb.com/blog/${art.slug}`;
-    const pageOgImage = art.ogImage || art.coverImage;
+    const pageOgImage = art.ogImage || art.coverImage || 'https://www.ksenweb.com/og-image.png';
     const pageOgTitle = art.ogTitle || pageTitle;
     const pageOgDesc = art.ogDescription || art.metaDescription || art.excerpt;
 
@@ -232,7 +242,7 @@ export default function ArticlePage() {
       robots.name = 'robots';
       document.head.appendChild(robots);
     }
-    robots.content = art.noindex ? 'noindex, nofollow' : 'index, follow';
+    robots.content = art.noindex ? 'noindex, follow' : 'index, follow';
 
     // OpenGraph
     const setOgMeta = (property, value) => {
@@ -281,8 +291,8 @@ export default function ArticlePage() {
       "headline": art.title,
       "description": pageDesc,
       "image": pageOgImage ? [pageOgImage] : [],
-      "datePublished": art.publishedAt || new Date().toISOString(),
-      "dateModified": art.updatedAt || art.publishedAt || new Date().toISOString(),
+      ...(art.publishedAt ? { datePublished: art.publishedAt } : {}),
+      ...(art.updatedAt || art.publishedAt ? { dateModified: art.updatedAt || art.publishedAt } : {}),
       "author": {
         "@type": "Person",
         "name": art.author || "Ксения Матвеенко",

@@ -60,23 +60,7 @@ export default function LegalPage({ type }) {
   const mdContent = type === 'privacy' ? privacyPolicyMd : termsMd;
 
   // Scroll to top and set page metadata when component mounts or type changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    
-    if (type === 'privacy') {
-      document.title = "Политика конфиденциальности | Матвеенко Ксения Александровна";
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', 'Политика конфиденциальности персональных данных — Матвеенко Ксения Александровна.');
-      }
-    } else {
-      document.title = "Пользовательское соглашение | Правила использования сайта";
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', 'Пользовательское соглашение и\u00a0правила использования сайта.');
-      }
-    }
-  }, [type]);
+  useEffect(() => { window.scrollTo(0, 0); }, [type]);
 
   return (
     <div className="min-h-screen bg-white text-zinc-900 font-sans flex flex-col items-center py-12 px-6 md:px-12">

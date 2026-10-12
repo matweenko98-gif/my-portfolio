@@ -1,6 +1,23 @@
 {
   "redirects": [
     {
+      "source": "/index.html",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.ksenweb.com"
+        }
+      ],
+      "missing": [
+        {
+          "type": "query",
+          "key": "__spa_shell"
+        }
+      ],
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
@@ -152,46 +169,6 @@
       ]
     },
     {
-      "source": "/.well-known/openid-configuration",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/json; charset=utf-8"
-        }
-      ]
-    },
-    {
-      "source": "/.well-known/oauth-protected-resource",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/json; charset=utf-8"
-        }
-      ]
-    },
-    {
-      "source": "/.well-known/oauth-authorization-server",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/json; charset=utf-8"
-        }
-      ]
-    },
-    {
-      "source": "/auth.md",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/markdown; charset=utf-8"
-        },
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
-    },
-    {
       "source": "/llms.txt",
       "headers": [
         {
@@ -214,15 +191,6 @@
         {
           "key": "X-Robots-Tag",
           "value": "noindex, follow, noarchive"
-        }
-      ]
-    },
-    {
-      "source": "/.well-known/mcp/server-card.json",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/json; charset=utf-8"
         }
       ]
     },
@@ -256,11 +224,28 @@
           "value": "noindex, follow"
         }
       ]
+    },
+    {
+      "source": "/api/openapi.yaml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/yaml; charset=utf-8"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
     }
   ],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/contact",
+      "destination": "/api/contact"
+    },
+    {
+      "source": "/((?!api/|assets/|fonts/|_seo/|demos/|.*\\.[a-zA-Z0-9]+$).*)",
       "destination": "/index.html"
     }
   ]

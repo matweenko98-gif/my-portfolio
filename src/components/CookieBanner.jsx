@@ -30,6 +30,7 @@ export default function CookieBanner() {
     setAccepted(true);
     setVisible(false);
     window.ksEnableAnalytics?.();
+    window.dispatchEvent(new Event('ks:analytics-consent'));
   };
 
   if (!visible) return null;

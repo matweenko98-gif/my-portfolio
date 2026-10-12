@@ -1,23 +1,17 @@
 {
   "linkset": [
     {
-      "anchor": "https://design-matweenko.vercel.app/api",
+      "anchor": "https://www.ksenweb.com/api/contact",
       "service-desc": [
         {
-          "href": "https://design-matweenko.vercel.app/api/openapi.yaml",
+          "href": "https://www.ksenweb.com/api/openapi.yaml",
           "type": "application/yaml"
         }
       ],
       "service-doc": [
         {
-          "href": "https://design-matweenko.vercel.app/docs/api",
+          "href": "https://www.ksenweb.com/brief",
           "type": "text/html"
-        }
-      ],
-      "status": [
-        {
-          "href": "https://design-matweenko.vercel.app/api/status",
-          "type": "application/json"
         }
       ]
     }

@@ -12,45 +12,6 @@ const TILDA_CART_ICON_KEYS = {
   contentReady: 'fileText',
 };
 
-// Отправка сообщения в Telegram через переменные окружения Vite
-const sendTelegramMessage = async (messageText) => {
-  try {
-    const token = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
-    const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
-    if (!token || !chatId) {
-      console.warn('Telegram Bot token or chat id is not configured. Skipping send.');
-      return false;
-    }
-
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: messageText,
-        parse_mode: 'Markdown',
-      }),
-    });
-    const data = await response.json();
-    return response.ok && data?.ok;
-  } catch (e) {
-    console.error('Failed to send Telegram message:', e);
-    return false;
-  }
-};
-
-// Валидация контакта: телефон или Telegram-username
-const isValidContact = (val) => {
-  if (!val) return false;
-  const s = val.trim();
-  const phone = /^\+?[0-9\s\-()]{7,15}$/;
-  const tg = /^@?[A-Za-z0-9_]{5,32}$/;
-  return phone.test(s) || tg.test(s);
-};
-
 const Figma = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

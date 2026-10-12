@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: KSENWEB brief delivery
+  version: 1.0.0
+  description: Browser submission of an explicitly approved brief. Same-origin requests only. No public OAuth or MCP service is provided.
+servers:
+  - url: https://www.ksenweb.com
+paths:
+  /api/contact:
+    post:
+      summary: Submit a brief after the visitor has given consent
+      description: Requires an Origin matching the request host. The destination is configured on the server; the request cannot choose a recipient. No client-side credentials are used.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message, consent]
+              properties:
+                message:
+                  type: string
+                  minLength: 10
+                  maxLength: 16000
+                consent:
+                  type: boolean
+                  enum: [true]
+      responses:
+        '200':
+          description: Delivery confirmed
+        '400':
+          description: Invalid payload or missing consent
+        '403':
+          description: Disallowed origin
+        '405':
+          description: Unsupported method
+        '415':
+          description: JSON required
+        '429':
+          description: Request rate limit exceeded
+        '502':
+          description: Delivery provider unavailable or rejected the request
+        '503':
+          description: Server delivery configuration unavailable

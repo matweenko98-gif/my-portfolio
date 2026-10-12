@@ -180,12 +180,17 @@
           trackLinks: true,
           accurateTrackBounce: true,
           ecommerce: 'dataLayer',
+          defer: true,
         });
+        window.ksMetrikaReady = true;
+        window.dispatchEvent(new Event('ks:metrika-ready'));
       }
     }
 
     function loadMetrika() {
       if (document.querySelector('script[data-ym-loaded]')) return;
+      window.ym = window.ym || function () { (window.ym.a = window.ym.a || []).push(arguments); };
+      window.ym.l = Date.now();
       var script = document.createElement('script');
       script.src = 'https://mc.yandex.ru/metrika/tag.js';
       script.async = true;
@@ -196,6 +201,7 @@
 
     var previousEnableAnalytics = window.ksEnableAnalytics;
     window.ksEnableAnalytics = function () {
+      if (/^\/admin(?:-keis)?(?:\/|$)/.test(location.pathname)) return;
       if (previousEnableAnalytics) previousEnableAnalytics();
       if ('requestIdleCallback' in window) {
         requestIdleCallback(loadMetrika);
@@ -205,7 +211,7 @@
     };
 
     try {
-      if (localStorage.getItem('cookie_accepted') === 'true') {
+      if (localStorage.getItem('cookie_accepted') === 'true' && !/^\/admin(?:-keis)?(?:\/|$)/.test(location.pathname)) {
         window.ksEnableAnalytics();
       }
     } catch (e) {}

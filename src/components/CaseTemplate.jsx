@@ -364,6 +364,13 @@ export default function CaseTemplate() {
   const desktopScrollRef = useRef(null);
   const mobileScrollRef = useRef(null);
 
+  useEffect(() => {
+    if (loading || data) return;
+    document.querySelector('meta[name="robots"]')?.setAttribute('content', 'noindex, follow');
+    document.getElementById('jsonld-route')?.remove();
+    document.getElementById('jsonld-case')?.remove();
+  }, [loading, data]);
+
   // Fetch case detail from Supabase dynamically
   useEffect(() => {
     const fetchCaseData = async () => {

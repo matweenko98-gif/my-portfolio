@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useReducedMotion } from 'framer-motion';
 
 const FlickeringGrid = React.memo(({
   squareSize = 4,
@@ -14,6 +15,7 @@ const FlickeringGrid = React.memo(({
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [isInView, setIsInView] = useState(false);
+  const reducedMotion = useReducedMotion();
 
   const memoizedColor = useMemo(() => {
     const toRGBA = (colorStr) => {
@@ -144,7 +146,7 @@ const FlickeringGrid = React.memo(({
         }
       }
 
-      animationFrameId = requestAnimationFrame(animate);
+      if (!reducedMotion) animationFrameId = requestAnimationFrame(animate);
     };
 
     animationFrameId = requestAnimationFrame(animate);
@@ -154,7 +156,7 @@ const FlickeringGrid = React.memo(({
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [isInView, squareSize, gridGap, flickerChance, maxOpacity, memoizedColor]);
+  }, [isInView, squareSize, gridGap, flickerChance, maxOpacity, memoizedColor, reducedMotion]);
 
   return (
     <div

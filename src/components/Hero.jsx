@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
 import contentData from '../contentData';
 
 const CARDS_DATA = [
@@ -168,6 +168,11 @@ function MobileCard({ title, tag, icon, scrollTargetId }) {
 }
 
 export default function Hero() {
+  const reduceMotion = useReducedMotion();
+  const videoRef = useRef(null);
+  React.useEffect(() => {
+    if (reduceMotion) videoRef.current?.pause();
+  }, [reduceMotion]);
   const handleScrollTo = (e, id) => {
     e.preventDefault();
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -180,8 +185,9 @@ export default function Hero() {
     >
       {/* Фоновая анимация: отключённый звук обязателен для автозапуска в браузерах. */}
       <video
+        ref={videoRef}
         className="absolute inset-0 z-0 h-full w-full object-cover opacity-55"
-        autoPlay
+        autoPlay={!reduceMotion}
         loop
         muted
         playsInline

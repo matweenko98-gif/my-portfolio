@@ -134,28 +134,6 @@ export default function Cases() {
         if (data && data.length > 0) {
           setOtherProjects(data);
         } else {
-          // Empty DB, seed default entries
-          try {
-            await supabase
-              .from('other_projects')
-              .insert(FALLBACK_OTHER_PROJECTS.map((p, idx) => ({
-                num: p.num,
-                title: p.title,
-                description: p.description,
-                link_url: p.link_url || null,
-                sort_order: idx
-              })));
-            const { data: refetched } = await supabase
-              .from('other_projects')
-              .select('*')
-              .order('sort_order', { ascending: true });
-            if (refetched && refetched.length > 0) {
-              setOtherProjects(refetched);
-              return;
-            }
-          } catch (seedErr) {
-            console.error('Error seeding other projects on mount:', seedErr);
-          }
           setOtherProjects(FALLBACK_OTHER_PROJECTS);
         }
       } catch (err) {

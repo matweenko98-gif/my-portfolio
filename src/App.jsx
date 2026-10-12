@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { Analytics } from '@vercel/analytics/react';
+import AnalyticsTracker from './components/AnalyticsTracker';
 import CookieBanner from './components/CookieBanner';
 
 // ─── Lazy-loaded route chunks ─────────────────────────────────────────────────
@@ -194,6 +194,7 @@ function RouteSeo() {
     const isArticle = normalizedPath.startsWith('/blog/');
     const isCase = normalizedPath.startsWith('/case/');
     const isAdmin = normalizedPath === '/admin' || normalizedPath === '/admin-keis';
+    window['ga-disable-G-0Y505CTJ47'] = isAdmin;
     const isKnown = Boolean(STATIC_ROUTE_SEO[normalizedPath]) || isArticle || isCase || isAdmin;
     const seo = STATIC_ROUTE_SEO[normalizedPath];
     const canonicalUrl = `${SITE_ORIGIN}${normalizedPath === '/' ? '/' : normalizedPath}`;
@@ -303,7 +304,7 @@ export default function App() {
           <Route path="*"                  element={<NotFoundPage />} />
         </Routes>
       </Suspense>
-      <Analytics />
+      <AnalyticsTracker />
       <CookieBanner />
       <ScrollToTopButton />
     </>

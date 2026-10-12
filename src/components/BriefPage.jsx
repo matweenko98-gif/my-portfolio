@@ -20,48 +20,11 @@ import Sidebar from './Sidebar';
 import { FlickeringGrid } from './ui/FlickeringGrid';
 import contentData from '../contentData';
 
-// Функция отправки бриф-сообщения в Telegram-бот
-const sendTelegramBrief = async (formattedText) => {
-  const token = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
-  const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
-
-  if (!token || !chatId) {
-    console.warn('Telegram Bot token or chat id is not configured.');
-    return false;
-  }
-
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: formattedText,
-        parse_mode: 'HTML',
-      }),
-    });
-
-    return response.ok;
-  } catch (error) {
-    console.error('Failed to send brief to Telegram:', error);
-    return false;
-  }
-};
+import { submitBrief } from '../utils/submitBrief';
+import { trackConversion } from '../utils/analytics';
 
 export default function BriefPage() {
-  useEffect(() => {
-    document.title = 'Интерактивный бриф | Матвеенко Ксения';
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute(
-        'content',
-        'Быстрый пошаговый квиз-бриф на разработку сайта, UX/UI дизайна или веб-приложения.'
-      );
-    }
-    window.scrollTo(0, 0);
-  }, []);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   // Состояние текущего шага квиза (0...5)
   const [currentStep, setCurrentStep] = useState(0);
@@ -85,7 +48,7 @@ export default function BriefPage() {
     notes: '',
   });
 
-  const [agreedToPolicy, setAgreedToPolicy] = useState(true);
+  const [agreedToPolicy, setAgreedToPolicy] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -251,29 +214,29 @@ export default function BriefPage() {
     }
 
     return `
-📋 <b>НОВЫЙ КВИЗ-БРИФ С САЙТА</b>
+📋 НОВЫЙ КВИЗ-БРИФ С САЙТА
 ───────────────────────
-👤 <b>Имя:</b> ${formData.name || 'Не указано'}
-📱 <b>Контакт:</b> ${formData.contact}
-🌐 <b>Текущий сайт:</b> ${formData.currentSite || 'Нет'}
+👤 Имя: ${formData.name || 'Не указано'}
+📱 Контакт: ${formData.contact}
+🌐 Текущий сайт: ${formData.currentSite || 'Нет'}
 
-🛠 <b>Услуги:</b> ${selectedServices.length > 0 ? selectedServices.join(', ') : 'Не выбрано'}
-🎯 <b>Главная цель:</b> ${finalGoal || 'Не выбрано'}
+🛠 Услуги: ${selectedServices.length > 0 ? selectedServices.join(', ') : 'Не выбрано'}
+🎯 Главная цель: ${finalGoal || 'Не выбрано'}
 
-📝 <b>О продукте/услуге:</b>
+📝 О продукте/услуге:
 ${formData.productDesc || 'Не заполнено'}
 
-⚔️ <b>Конкуренты/Рефералы:</b>
+⚔️ Конкуренты/Рефералы:
 ${formData.competitors || 'Не заполнено'}
 
-📦 <b>Имеющиеся материалы:</b> ${formData.materials.length > 0 ? formData.materials.join(', ') : 'Не выбрано'}
-🎨 <b>Пожелания по стилю:</b>
+📦 Имеющиеся материалы: ${formData.materials.length > 0 ? formData.materials.join(', ') : 'Не выбрано'}
+🎨 Пожелания по стилю:
 ${formData.style || 'Не заполнено'}
 
-💰 <b>Бюджет:</b> ${formData.budget || 'Не указан'}
-⏳ <b>Сроки:</b> ${formData.timeline || 'Не указаны'}
+💰 Бюджет: ${formData.budget || 'Не указан'}
+⏳ Сроки: ${formData.timeline || 'Не указаны'}
 
-💬 <b>Комментарии:</b>
+💬 Комментарии:
 ${formData.notes || 'Нет'}
 `.trim();
   };
@@ -281,18 +244,21 @@ ${formData.notes || 'Нет'}
   // Обработчик финальной отправки
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setSubmitError('');
 
     if (!validateFinalStep()) {
+      requestAnimationFrame(() => document.getElementById(!formData.name.trim() ? "brief-name" : "brief-contact")?.focus());
       return;
     }
 
     setIsSubmitting(true);
     const messageText = buildBriefTelegramMessage();
-    const success = await sendTelegramBrief(messageText);
+    const success = await submitBrief(messageText, agreedToPolicy);
     setIsSubmitting(false);
 
     if (success) {
+      trackConversion('lead_submitted', { form_type: 'brief' });
       setIsSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
@@ -634,10 +600,10 @@ ${formData.notes || 'Нет'}
                         {currentStep === 2 && (
                           <div className="space-y-4">
                             <div>
-                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                              <label htmlFor="brief-productDesc" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
                                 Опишите продукт или сферу деятельности
                               </label>
-                              <textarea
+                              <textarea id="brief-productDesc"
                                 rows={3}
                                 value={formData.productDesc}
                                 onChange={(e) =>
@@ -649,10 +615,10 @@ ${formData.notes || 'Нет'}
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                              <label htmlFor="brief-currentSite" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
                                 Ссылка на текущий сайт (если есть)
                               </label>
-                              <input
+                              <input id="brief-currentSite"
                                 type="text"
                                 value={formData.currentSite}
                                 onChange={(e) =>
@@ -664,10 +630,10 @@ ${formData.notes || 'Нет'}
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                              <label htmlFor="brief-competitors" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
                                 Конкуренты или сайты-ориентиры
                               </label>
-                              <input
+                              <input id="brief-competitors"
                                 type="text"
                                 value={formData.competitors}
                                 onChange={(e) =>
@@ -730,10 +696,10 @@ ${formData.notes || 'Нет'}
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                              <label htmlFor="brief-style" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
                                 Пожелания по стилистике и настроению
                               </label>
-                              <textarea
+                              <textarea id="brief-style"
                                 rows={3}
                                 value={formData.style}
                                 onChange={(e) =>
@@ -847,10 +813,15 @@ ${formData.notes || 'Нет'}
                         {currentStep === 5 && (
                           <div className="space-y-4">
                             <div>
-                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                              <label htmlFor="brief-name" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
                                 Ваше имя <span className="text-[#FF5B23]">*</span>
                               </label>
                               <input
+                                id="brief-name"
+                                autoComplete="name"
+                                maxLength={100}
+                                aria-invalid={Boolean(errors.name)}
+                                aria-describedby={errors.name ? "brief-name-error" : undefined}
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) =>
@@ -864,17 +835,21 @@ ${formData.notes || 'Нет'}
                                 }`}
                               />
                               {errors.name && (
-                                <p className="text-[11px] text-red-500 mt-1 font-medium">
+                                <p id="brief-name-error" role="alert" className="text-[11px] text-red-500 mt-1 font-medium">
                                   {errors.name}
                                 </p>
                               )}
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                              <label htmlFor="brief-contact" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
                                 Telegram / Телефон / WhatsApp <span className="text-[#FF5B23]">*</span>
                               </label>
                               <input
+                                id="brief-contact"
+                                maxLength={100}
+                                aria-invalid={Boolean(errors.contact)}
+                                aria-describedby={errors.contact ? "brief-contact-error" : undefined}
                                 type="text"
                                 value={formData.contact}
                                 onChange={(e) =>
@@ -888,17 +863,17 @@ ${formData.notes || 'Нет'}
                                 }`}
                               />
                               {errors.contact && (
-                                <p className="text-[11px] text-red-500 mt-1 font-medium">
+                                <p id="brief-contact-error" role="alert" className="text-[11px] text-red-500 mt-1 font-medium">
                                   {errors.contact}
                                 </p>
                               )}
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
+                              <label htmlFor="brief-notes" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
                                 Комментарий или дополнительные вопросы
                               </label>
-                              <textarea
+                              <textarea id="brief-notes"
                                 rows={2}
                                 value={formData.notes}
                                 onChange={(e) =>
