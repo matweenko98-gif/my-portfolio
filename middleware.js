@@ -1,7 +1,7 @@
-import { safeArticleHtml } from './src/utils/safeArticleHtml.js';
-import { createHash } from 'node:crypto';
-
-export const config = { runtime: 'nodejs' };
+async function sanitizeServerContent(content) {
+  const { safeArticleHtml } = await import('./src/utils/safeArticleHtml.js');
+  return safeArticleHtml(content);
+}
 
 function fetchCms(url, options) {
   return fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
@@ -555,7 +555,8 @@ async function handleRequest(request) {
   }
   if (pathname === '/.well-known/agent-skills/index.json') {
     const index = JSON.parse(agentSkillsJson);
-    index.skills[0].digest = `sha256:${createHash('sha256').update(skillMdContent).digest('hex')}`;
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(skillMdContent));
+    index.skills[0].digest = `sha256:${Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('')}`;
     return new Response(JSON.stringify(index), { status: 200, headers: { ...privateDiscoveryHeaders, 'Content-Type': 'application/json; charset=utf-8' } });
   }
   if (pathname === '/skills/portfolio-query/SKILL.md') {
@@ -747,7 +748,7 @@ async function handleRequest(request) {
     </div>` : ''}
 
     <div class="article-body article-content-body" style="font-size: 1.05rem; color: #27272a;">
-      ${safeArticleHtml(ensureFormattedHtml(article.content))}
+      ${await sanitizeServerContent(ensureFormattedHtml(article.content))}
     </div>
 
     <footer style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #e4e4e7;">
