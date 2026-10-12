@@ -6,7 +6,9 @@ import CookieBanner from './components/CookieBanner';
 // ─── Lazy-loaded route chunks ─────────────────────────────────────────────────
 // Каждый маршрут вынесен в отдельный чанк через dynamic import.
 // Они НЕ входят в главный bundle и подгружаются только при переходе на маршрут.
-const HomePage        = lazy(() => import('./components/HomePage'));
+// The homepage is already rendered in HTML; don't replace it with a loading
+// skeleton while waiting for an additional route chunk on first load.
+import HomePage from './components/HomePage';
 const AllCases        = lazy(() => import('./components/AllCases'));
 const CaseTemplate    = lazy(() => import('./components/CaseTemplate'));
 const AdminWorkspace  = lazy(() => import('./components/AdminWorkspace'));

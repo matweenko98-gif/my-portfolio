@@ -15,6 +15,7 @@ test('public routes serve HTML and real errors regardless of user agent', async 
     }
     if (url.pathname === '/index.html') return new Response(await readFile('dist/index.html', 'utf8'));
     if (url.pathname === '/rest/v1/cases') {
+      assert.doesNotMatch(url.searchParams.get('select') || '', /updated_at/);
       if (failCases) return new Response('', { status: 503 });
       return new Response(JSON.stringify(url.searchParams.has('slug') ? [] : [
         { slug: 'elison-stroi', title: 'ELISON', updated_at: '2026-09-22T10:00:00Z' },

@@ -443,7 +443,7 @@ async function handleRequest(request) {
       const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
       const anonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
 
-      const casesRes = await fetchCms(`${supabaseUrl}/rest/v1/cases?select=slug,id,updated_at`, {
+      const casesRes = await fetchCms(`${supabaseUrl}/rest/v1/cases?select=slug,id`, {
         headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
       });
       if (casesRes.ok) {
