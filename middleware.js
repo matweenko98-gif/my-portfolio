@@ -1,7 +1,4 @@
-async function sanitizeServerContent(content) {
-  const { safeArticleHtml } = await import('./src/utils/safeArticleHtml.js');
-  return safeArticleHtml(content);
-}
+import { safeArticleHtml as sanitizeServerContent } from './server/vendor/safeArticleHtml.js';
 
 function fetchCms(url, options) {
   return fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
