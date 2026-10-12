@@ -783,7 +783,7 @@ export default function Services() {
       </div>
     </motion.section>
 
-    {createPortal(
+      {typeof document !== 'undefined' && createPortal(
       <div
         className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 backdrop-blur-md bg-black/40 transition-all duration-300 ease-in-out ${
           isSuccessModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'

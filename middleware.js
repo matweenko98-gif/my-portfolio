@@ -377,8 +377,10 @@ async function getSpaAssets(request) {
         if (!response.ok) throw new Error(`SPA shell returned ${response.status}`);
         const shell = await response.text();
         const assetTags = [
-          ...shell.matchAll(/<link\b[^>]*\brel=["'](?:stylesheet|modulepreload)["'][^>]*>/gi),
-          ...shell.matchAll(/<script\b[^>]*\btype=["']module["'][^>]*\bsrc=["'][^"']+["'][^>]*><\/script>/gi)
+          ...shell.matchAll(/<link\b[^>]*\brel=["'](?:stylesheet|modulepreload|preload)["'][^>]*>/gi),
+          ...shell.matchAll(/<script\b[^>]*\btype=["']module["'][^>]*\bsrc=["'][^"']+["'][^>]*><\/script>/gi),
+          // Preserve the consent-aware analytics loaders from the SPA shell.
+          ...shell.matchAll(/<script>\s*[\s\S]*?<\/script>/gi)
         ].map(match => match[0]);
 
         if (!assetTags.some(tag => /<script\b/i.test(tag) && /\/assets\//i.test(tag))) {
@@ -450,7 +452,7 @@ function renderHtmlDocument({
   <link rel="icon" type="image/svg+xml" sizes="any" href="https://www.ksenweb.com/favicon.svg" />
   <link rel="apple-touch-icon" href="https://www.ksenweb.com/favicon.png" />
 
-  ${jsonLdString ? `<script type="application/ld+json">\n${jsonLdString}\n</script>` : ''}
+  ${jsonLdString ? `<script id="jsonld-server" type="application/ld+json">\n${jsonLdString}\n</script>` : ''}
   ${spaAssets}
 </head>
 <body class="bg-white text-zinc-900 antialiased font-sans m-0 p-0">
@@ -465,15 +467,15 @@ function renderHtmlDocument({
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': statusCode >= 500 ? 'no-store' : 'public, max-age=0, s-maxage=300, stale-while-revalidate=60',
-      'Vary': 'User-Agent, Accept',
-      ...(statusCode >= 400 ? { 'X-Robots-Tag': 'noindex, follow' } : {})
+      'Vary': 'Accept',
+      ...(statusCode >= 400 || robots.startsWith('noindex') ? { 'X-Robots-Tag': robots } : {})
     }
   });
 }
 
 export default async function middleware(request) {
   const url = new URL(request.url);
-  const pathname = url.pathname;
+  const pathname = url.pathname.length > 1 ? url.pathname.replace(/\/+$/, '') : '/';
   const accept = request.headers.get('accept') || '';
 
   // The article response loads the production Vite entry from this static file.
@@ -489,15 +491,16 @@ export default async function middleware(request) {
     (pathname !== '/sitemap.xml' && pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico|css|js|woff|woff2|ttf|json|txt|xml|map)$/i)) ||
     pathname.startsWith('/assets/') ||
     pathname.startsWith('/fonts/') ||
-    pathname.startsWith('/demos/')
+    pathname.startsWith('/demos/') ||
+    pathname.startsWith('/_seo/') ||
+    /\.(mp4|webm|avif|pdf)$/i.test(pathname)
   ) {
     return;
   }
 
   // 2. Dynamic sitemap.xml
   if (pathname === '/sitemap.xml') {
-    const today = new Date().toISOString().split('T')[0];
-    let cases = fallbackSitemapCaseSlugs.map(slug => ({ slug, date: today }));
+    let cases = fallbackSitemapCaseSlugs.map(slug => ({ slug }));
     let articles = [];
 
     try {
@@ -512,27 +515,29 @@ export default async function middleware(request) {
         if (Array.isArray(fetchedCases) && fetchedCases.length > 0) {
           fetchedCases.forEach(c => {
             const slug = c.slug || c.id;
-            if (slug && !cases.some(item => item.slug === String(slug))) {
+            const existing = cases.find(item => item.slug === String(slug));
+            if (existing && c.updated_at) existing.date = c.updated_at.split('T')[0];
+            if (slug && !existing) {
               cases.push({
                 slug: String(slug),
-                date: c.updated_at ? c.updated_at.split('T')[0] : today
+                date: c.updated_at ? c.updated_at.split('T')[0] : null
               });
             }
           });
         }
       }
 
-      const articlesRes = await fetch(`${supabaseUrl}/rest/v1/articles?select=slug,updated_at&status=eq.published`, {
+      const articlesRes = await fetch(`${supabaseUrl}/rest/v1/articles?select=slug,updated_at,canonical_override&status=eq.published&noindex=eq.false`, {
         headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
       });
       if (articlesRes.ok) {
         const fetchedArticles = await articlesRes.json();
         if (Array.isArray(fetchedArticles) && fetchedArticles.length > 0) {
           fetchedArticles.forEach(a => {
-            if (a.slug && !articles.some(item => item.slug === a.slug)) {
+            if (a.slug && (!a.canonical_override || a.canonical_override === 'https://www.ksenweb.com/blog/' + a.slug) && !articles.some(item => item.slug === a.slug)) {
               articles.push({
                 slug: a.slug,
-                date: a.updated_at ? a.updated_at.split('T')[0] : today
+                date: a.updated_at ? a.updated_at.split('T')[0] : null
               });
             }
           });
@@ -544,16 +549,16 @@ export default async function middleware(request) {
 
     const casesUrlsXml = cases.map(c => `
   <url>
-    <loc>https://www.ksenweb.com/case/${c.slug}</loc>
-    <lastmod>${c.date}</lastmod>
+    <loc>https://www.ksenweb.com/case/${escapeHtml(encodeURIComponent(c.slug))}</loc>
+    ${c.date ? '<lastmod>' + escapeHtml(c.date) + '</lastmod>' : ''}
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>`).join('');
 
     const articleUrlsXml = articles.map(a => `
   <url>
-    <loc>https://www.ksenweb.com/blog/${a.slug}</loc>
-    <lastmod>${a.date}</lastmod>
+    <loc>https://www.ksenweb.com/blog/${escapeHtml(encodeURIComponent(a.slug))}</loc>
+    ${a.date ? '<lastmod>' + escapeHtml(a.date) + '</lastmod>' : ''}
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`).join('');
@@ -563,7 +568,7 @@ export default async function middleware(request) {
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://www.ksenweb.com/</loc>
-    <lastmod>${today}</lastmod>
+
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -573,31 +578,31 @@ export default async function middleware(request) {
   </url>
   <url>
     <loc>https://www.ksenweb.com/cases</loc>
-    <lastmod>${today}</lastmod>
+
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>${casesUrlsXml}
   <url>
     <loc>https://www.ksenweb.com/blog</loc>
-    <lastmod>${today}</lastmod>
+
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>${articleUrlsXml}
   <url>
     <loc>https://www.ksenweb.com/brief</loc>
-    <lastmod>${today}</lastmod>
+
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ksenweb.com/privacy-policy</loc>
-    <lastmod>${today}</lastmod>
+
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.ksenweb.com/terms</loc>
-    <lastmod>${today}</lastmod>
+
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -660,11 +665,37 @@ export default async function middleware(request) {
     });
   }
 
-  // Other routes still use the crawler rendering layer. Blog routes below
-  // return the same article HTML to every visitor and load the built SPA.
-  if (!isSearchCrawler && pathname !== '/blog' && !pathname.startsWith('/blog/')) {
-    return;
+  // Return the same HTML to people, audit tools, and crawlers.
+  // Static pages are rendered from the actual React components during build.
+  const prerenderedPages = {
+    '/': 'home', '/index.html': 'home', '/brief': 'brief',
+    '/privacy-policy': 'privacy-policy', '/terms': 'terms',
+  };
+  if (prerenderedPages[pathname]) {
+    const response = await fetch(new URL(`/_seo/${prerenderedPages[pathname]}.html`, request.url));
+    if (!response.ok) {
+      return new Response('Temporarily unavailable', { status: 503, headers: {
+        'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, follow',
+      } });
+    }
+    return new Response(await response.text(), { headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=60',
+    } });
   }
+
+  if (pathname === '/admin' || pathname === '/admin-keis') return;
+
+  let publicSpaAssets;
+  try {
+    publicSpaAssets = await getSpaAssets(request);
+  } catch {
+    return new Response('Temporarily unavailable', { status: 503, headers: {
+      'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, follow',
+    } });
+  }
+
+  const renderPublicPage = options => renderHtmlDocument({ spaAssets: publicSpaAssets, ...options });
 
   // 5. SSR / Server-Rendered HTML generation for pages
 
@@ -800,7 +831,7 @@ export default async function middleware(request) {
   </article>
 </div>`;
 
-        return renderHtmlDocument({
+        return renderPublicPage({
           title,
           description,
           canonical,
@@ -833,7 +864,7 @@ export default async function middleware(request) {
   </a>
 </div>`;
 
-        return renderHtmlDocument({
+        return renderPublicPage({
           title,
           description,
           canonical,
@@ -931,7 +962,7 @@ export default async function middleware(request) {
   </div>
 </div>`;
 
-    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml, spaAssets });
+    return renderPublicPage({ title, description, canonical, jsonLd, bodyHtml, spaAssets });
   }
 
   // ─── Route C: Cases Index (/cases) & Case Page (/case/:id) ──────────────────
@@ -939,6 +970,7 @@ export default async function middleware(request) {
     const slug = pathname.replace('/case/', '').trim();
     if (slug) {
       let caseItem = fallbackCases.find(c => c.slug === slug);
+      let lookupFailed = false;
 
       try {
         const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
@@ -952,14 +984,20 @@ export default async function middleware(request) {
             const dbC = list[0];
             caseItem = {
               slug: dbC.slug,
-              title: dbC.title || dbC.name,
+              title: dbC.title || dbC.card_title || dbC.name,
               description: getAboutText(dbC.about) || dbC.subtitle || dbC.description || dbC.card_title,
               image: dbC.card_image || dbC.imageMain,
               tags: dbC.tags || []
             };
           }
-        }
-      } catch (e) {}
+        } else { lookupFailed = true; }
+      } catch (e) { lookupFailed = true; }
+
+      if (!caseItem && lookupFailed) {
+        return renderPublicPage({ title: 'KSENWEB', description: '',
+          canonical: `https://www.ksenweb.com/case/${encodeURIComponent(slug)}`,
+          robots: 'noindex, follow', bodyHtml: '', statusCode: 503 });
+      }
 
       if (caseItem) {
         const title = `${caseItem.title} | Ксения Матвеенко`;
@@ -996,7 +1034,7 @@ export default async function middleware(request) {
   </article>
 </div>`;
 
-        return renderHtmlDocument({ title, description, canonical, ogImage, jsonLd, bodyHtml });
+        return renderPublicPage({ title, description, canonical, ogImage, jsonLd, bodyHtml });
       } else {
         const title = "404 — Проект не найден | KSENWEB";
         const description = "Запрошенный проект не найден.";
@@ -1011,7 +1049,7 @@ export default async function middleware(request) {
   </a>
 </div>`;
 
-        return renderHtmlDocument({ title, description, canonical, robots: "noindex, follow", bodyHtml, statusCode: 404 });
+        return renderPublicPage({ title, description, canonical, robots: "noindex, follow", bodyHtml, statusCode: 404 });
       }
     }
   }
@@ -1083,183 +1121,11 @@ export default async function middleware(request) {
   ${casesListHtml}
 </div>`;
 
-    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml });
-  }
-
-  // ─── Route D: Brief (/brief) ────────────────────────────────────────────────
-  if (pathname === '/brief') {
-    const title = "Бриф на разработку сайта или веб-приложения | KSENWEB";
-    const description = "Заполните онлайн-бриф для расчета стоимости и сроков вашего проекта по разработке сайта на Tilda или веб-приложения.";
-    const canonical = "https://www.ksenweb.com/brief";
-    const jsonLd = {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "@id": `${canonical}#webpage`,
-      "name": title,
-      "description": description,
-      "url": canonical,
-      "inLanguage": "ru",
-      "isPartOf": { "@id": "https://www.ksenweb.com/#website" }
-    };
-
-    const bodyHtml = `
-<div style="padding: 32px; font-family: system-ui, -apple-system, sans-serif; color: #18181b; max-width: 800px; margin: 0 auto; line-height: 1.6;">
-  <h1 style="font-size: 2.25rem; font-weight: 700; margin-bottom: 16px;">Бриф на разработку проекта</h1>
-  <p style="font-size: 1.1rem; color: #52525b; margin-bottom: 24px;">Ответьте на ключевые вопросы о вашем бизнесе, задачах и сроках, чтобы получить точный расчет стоимости и концепцию решения.</p>
-  <div style="background: #fafafa; border: 1px solid #e4e4e7; border-radius: 6px; padding: 24px;">
-    <p style="margin: 0; color: #71717a;">Форма интерактивного брифа подгружается в браузере...</p>
-  </div>
-</div>`;
-
-    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml });
-  }
-
-  // ─── Route E: Legal pages (/privacy-policy, /terms) ─────────────────────────
-  if (pathname === '/privacy-policy') {
-    const title = "Политика конфиденциальности | KSENWEB";
-    const description = "Политика обработки персональных данных ИП Матвеенко К.А. (УНП ЕЕ7594998).";
-    const canonical = "https://www.ksenweb.com/privacy-policy";
-    const jsonLd = {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "@id": `${canonical}#webpage`,
-      "name": title,
-      "description": description,
-      "url": canonical,
-      "inLanguage": "ru"
-    };
-
-    const bodyHtml = `
-<div style="padding: 32px; font-family: system-ui, -apple-system, sans-serif; color: #18181b; max-width: 800px; margin: 0 auto; line-height: 1.6;">
-  <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 16px;">Политика конфиденциальности</h1>
-  <p style="color: #52525b; margin-bottom: 16px;">Настоящая политика конфиденциальности определяет порядок обработки и защиты информации о физических лицах, пользующихся сервисами сайта ksenweb.com.</p>
-  <p style="color: #71717a;">Оператор: Матвеенко Ксения Александровна (УНП ЕЕ7594998). Email: matweenko98@gmail.com</p>
-</div>`;
-
-    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml });
-  }
-
-  if (pathname === '/terms') {
-    const title = "Условия использования и публичная оферта | KSENWEB";
-    const description = "Условия оказания услуг по разработке сайтов и веб-приложений (УНП ЕЕ7594998).";
-    const canonical = "https://www.ksenweb.com/terms";
-    const jsonLd = {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "@id": `${canonical}#webpage`,
-      "name": title,
-      "description": description,
-      "url": canonical,
-      "inLanguage": "ru"
-    };
-
-    const bodyHtml = `
-<div style="padding: 32px; font-family: system-ui, -apple-system, sans-serif; color: #18181b; max-width: 800px; margin: 0 auto; line-height: 1.6;">
-  <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 16px;">Условия использования</h1>
-  <p style="color: #52525b; margin-bottom: 16px;">Правила и регламент оказания услуг по дизайну, проектированию и разработке веб-сайтов и приложений.</p>
-  <p style="color: #71717a;">Матвеенко Ксения Александровна (Плательщик НПД, УНП ЕЕ7594998).</p>
-</div>`;
-
-    return renderHtmlDocument({ title, description, canonical, jsonLd, bodyHtml });
-  }
-
-  // ─── Route F: Homepage (/) ──────────────────────────────────────────────────
-  if (pathname === '/' || pathname === '/index.html') {
-    const title = "Ксения Матвеенко — Разработка сайтов и веб-приложений";
-    const description = "Создание сайтов на Tilda под ключ и веб-приложений/интерфейсов под задачи бизнеса.";
-    const canonical = "https://www.ksenweb.com/";
-    const ogTitle = "Ксения Матвеенко — Разработка сайтов и веб-приложений";
-    const ogDescription = "Создание сайтов на Tilda под ключ и веб-приложений/интерфейсов под задачи бизнеса.";
-
-    const jsonLd = {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "WebSite",
-          "@id": "https://www.ksenweb.com/#website",
-          "url": "https://www.ksenweb.com/",
-          "name": "KSENWEB — Ксения Матвеенко",
-          "inLanguage": "ru",
-          "publisher": { "@id": "https://www.ksenweb.com/#person" }
-        },
-        {
-          "@type": "WebPage",
-          "@id": "https://www.ksenweb.com/#webpage",
-          "url": "https://www.ksenweb.com/",
-          "name": title,
-          "description": description,
-          "inLanguage": "ru",
-          "isPartOf": { "@id": "https://www.ksenweb.com/#website" },
-          "about": { "@id": "https://www.ksenweb.com/#person" }
-        },
-        {
-          "@type": "Person",
-          "@id": "https://www.ksenweb.com/#person",
-          "name": "Ксения Матвеенко",
-          "alternateName": "Ксения Александровна Матвеенко",
-          "jobTitle": "Веб-дизайнер и разработчик веб-приложений",
-          "url": "https://www.ksenweb.com",
-          "image": "https://www.ksenweb.com/og-image.png",
-          "sameAs": ["https://t.me/ksen_web"],
-          "knowsAbout": [
-            "Web Design", "UI/UX Design", "Tilda Development",
-            "React Web Applications", "Supabase Integration", "AI Prompt Engineering"
-          ]
-        },
-        {
-          "@type": "ProfessionalService",
-          "@id": "https://www.ksenweb.com/#service",
-          "name": "Ксения Матвеенко — Разработка сайтов и веб-приложений",
-          "url": "https://www.ksenweb.com",
-          "provider": { "@id": "https://www.ksenweb.com/#person" },
-          "description": description,
-          "address": {
-            "@type": "PostalAddress",
-            "addressCountry": "BY",
-            "addressRegion": "Минская область",
-            "addressLocality": "Минск"
-          },
-          "areaServed": [
-            { "@type": "Country", "name": "Беларусь", "alternateName": "РБ" },
-            { "@type": "Country", "name": "Россия", "alternateName": "РФ" },
-            { "@type": "Place", "name": "СНГ" }
-          ],
-          "telephone": "+375259140959",
-          "email": "matweenko98@gmail.com",
-          "contactPoint": {
-            "@type": "ContactPoint",
-            "contactType": "customer service",
-            "telephone": "+375259140959",
-            "email": "matweenko98@gmail.com",
-            "availableLanguage": ["ru"]
-          },
-          "priceRange": "$$$"
-        }
-      ]
-    };
-
-    const bodyHtml = `
-<div style="padding: 32px; font-family: system-ui, -apple-system, sans-serif; color: #18181b; max-width: 1000px; margin: 0 auto; line-height: 1.6;">
-  <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">Ксения Матвеенко — Дизайн и разработка сайтов и веб-приложений под ключ</h1>
-  <p style="font-size: 1.1rem; color: #3f3f46; margin-bottom: 1.5rem;">Веб-дизайнер и разработчик интерфейсов. Создание продающих сайтов на Tilda и кастомных веб-приложений на React / Supabase для бизнеса в Беларуси (РБ), России (РФ) и удаленно по всему миру.</p>
-  
-  <h2 style="font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem;">Ключевые направления работы</h2>
-  <ul style="list-style-type: disc; padding-left: 1.25rem; margin-bottom: 1.5rem;">
-    <li style="margin-bottom: 0.5rem;"><strong>1. Создание сайтов «под ключ» на Tilda:</strong> Лендинги, многостраничные корпоративные сайты и каталоги услуг с кастомным дизайном в Zero Block и базовой SEO-оптимизацией для старта рекламы.</li>
-    <li style="margin-bottom: 0.5rem;"><strong>2. Разработка веб-приложений и MVP (React & Supabase):</strong> Кастомные веб-сервисы, личные кабинеты пользователей, интерактивные панели и интеграция нейросетей (AI).</li>
-    <li style="margin-bottom: 0.5rem;"><strong>3. Проектирование UI/UX в Figma:</strong> Интерактивные прототипы, аналитика пользовательского поведения и дизайн-системы.</li>
-  </ul>
-
-  <h2 style="font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem;">География работы и контакты</h2>
-  <p style="margin-bottom: 1rem;">Официальное сотрудничество по договору (Налог на профессиональный доход, УНП ЕЕ7594998). Работа с клиентами по всей Беларуси, России и СНГ удаленно.</p>
-  <p>Telegram: <a href="https://t.me/ksen_web" style="color: #ff5b23; font-weight: 500;">@ksen_web</a> | Телефон: +375 (25) 914-09-59 | Email: matweenko98@gmail.com</p>
-</div>`;
-
-    return renderHtmlDocument({ title, description, canonical, ogTitle, ogDescription, jsonLd, bodyHtml });
+    return renderPublicPage({ title, description, canonical, jsonLd, bodyHtml });
   }
 
   // ─── Route G: Unknown routes -> 404 HTML Response ───────────────────────────
-  if (!pathname.startsWith('/admin')) {
+  {
     const title = "404 — Страница не найдена | KSENWEB";
     const description = "Запрошенная страница не существует на сайте ksenweb.com.";
     const canonical = `https://www.ksenweb.com${pathname}`;
@@ -1273,6 +1139,6 @@ export default async function middleware(request) {
   </a>
 </div>`;
 
-    return renderHtmlDocument({ title, description, canonical, robots: "noindex, follow", bodyHtml, statusCode: 404 });
+    return renderPublicPage({ title, description, canonical, robots: "noindex, follow", bodyHtml, statusCode: 404 });
   }
 }

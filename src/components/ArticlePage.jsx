@@ -519,6 +519,8 @@ export default function ArticlePage() {
                         <img
                           src={rel.coverImage}
                           alt={rel.coverAlt || rel.title}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                       </div>

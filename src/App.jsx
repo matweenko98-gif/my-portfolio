@@ -189,6 +189,7 @@ function RouteSeo() {
   const { pathname } = useLocation();
 
   React.useEffect(() => {
+    document.getElementById('jsonld-server')?.remove();
     const normalizedPath = pathname !== '/' ? pathname.replace(/\/$/, '') : '/';
     const isArticle = normalizedPath.startsWith('/blog/');
     const isCase = normalizedPath.startsWith('/case/');
@@ -219,6 +220,12 @@ function RouteSeo() {
       : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
     setMeta('meta[name="robots"]', 'content', robots);
     setMeta('meta[property="og:url"]', 'content', canonicalUrl);
+    if (!isArticle && !isCase) {
+      setMeta('meta[property="og:type"]', 'content', 'website');
+      setMeta('meta[property="og:image"]', 'content', `${SITE_ORIGIN}/og-image.png`);
+      setMeta('meta[name="twitter:image"]', 'content', `${SITE_ORIGIN}/og-image.png`);
+      document.querySelectorAll('meta[property^="article:"]').forEach(node => node.remove());
+    }
 
     if (isKnown && !isAdmin) {
       setRouteSchema(normalizedPath, canonicalUrl, seo, isArticle, isCase);

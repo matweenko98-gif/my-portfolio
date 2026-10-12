@@ -2,18 +2,49 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "design-matweenko.vercel.app" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "design-matweenko.vercel.app"
+        }
+      ],
       "destination": "https://www.ksenweb.com/:path*",
       "permanent": true
     },
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "ksenweb.com" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "ksenweb.com"
+        }
+      ],
       "destination": "https://www.ksenweb.com/:path*",
       "permanent": true
     }
   ],
   "headers": [
+    {
+      "source": "/:path*",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; upgrade-insecure-requests"
+        }
+      ]
+    },
     {
       "source": "/admin",
       "headers": [
@@ -30,8 +61,14 @@
     {
       "source": "/admin/:path*",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
-        { "key": "Cache-Control", "value": "private, no-store" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
+        }
       ]
     },
     {
@@ -50,26 +87,41 @@
     {
       "source": "/admin-keis/:path*",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
-        { "key": "Cache-Control", "value": "private, no-store" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
+        }
       ]
     },
     {
       "source": "/demos/:path*",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
       ]
     },
     {
       "source": "/google5262767274b3245d.html",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
       ]
     },
     {
       "source": "/yandex_762ce613be15bfd0.html",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
       ]
     },
     {
@@ -142,8 +194,14 @@
     {
       "source": "/llms.txt",
       "headers": [
-        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
-        { "key": "X-Robots-Tag", "value": "noindex, follow, noarchive" }
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow, noarchive"
+        }
       ]
     },
     {
@@ -189,9 +247,21 @@
           "value": "noindex, follow, noarchive"
         }
       ]
+    },
+    {
+      "source": "/_seo/:path*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
     }
   ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
