@@ -8,6 +8,7 @@ import KineticMarquee from './ui/KineticMarquee';
 import { supabase } from '../lib/supabaseClient';
 import { caseHeroImg, panoramaImg, featureImg, mobileFeatureImg, outroImg, customBlockImg, avatarImg } from '../utils/imageUtils';
 import ConceptToolbarModal from './ConceptToolbarModal';
+import { normalizeCaseRecord } from '../utils/caseRecord';
 
 // ── Framer Motion shared animation preset ──
 const sectionReveal = {
@@ -404,7 +405,7 @@ export default function CaseTemplate() {
           console.warn('Supabase fetch error or offline:', dbErr);
         }
 
-        const finalData = dbMatch ? { ...(localMatch || {}), ...dbMatch } : localMatch;
+        const finalData = dbMatch ? { ...(localMatch || {}), ...normalizeCaseRecord(dbMatch) } : localMatch;
 
         if (finalData) {
           setData(finalData);

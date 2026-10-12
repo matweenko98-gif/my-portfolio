@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { supabase } from '../lib/supabaseClient';
 import contentData from '../contentData';
+import { normalizeCaseRecord } from '../utils/caseRecord';
 import { caseCardImg } from '../utils/imageUtils';
 import { FlickeringGrid } from "./ui/FlickeringGrid";
 
@@ -49,15 +50,18 @@ export default function AllCases() {
     // Fetch cases from Supabase
     const fetchCases = async () => {
       try {
-        const { data: dbCases, error } = await supabase
+        const { data: rawDbCases, error } = await supabase
           .from('cases')
           .select('*')
           .order('sort_order', { ascending: true });
         
         if (error) throw error;
         
+        const dbCases = (rawDbCases || []).map(normalizeCaseRecord);
         const allLocalItems = (contentData?.cases?.items || []);
-        const localAiConcepts = allLocalItems.filter(item => item.is_ai_concept || item.isAiConcept);
+        const dbAiConcepts = dbCases.filter(item => item.is_ai_concept || item.isAiConcept);
+        const localAiConcepts = [...dbAiConcepts, ...allLocalItems.filter(item =>
+          (item.is_ai_concept || item.isAiConcept) && !dbCases.some(row => row.slug === item.slug))];
         
         let realCases = [];
         if (dbCases && dbCases.length > 0) {

@@ -1,4 +1,5 @@
 import { safeArticleHtml as sanitizeServerContent } from './server/vendor/safeArticleHtml.js';
+import { normalizeCaseRecord } from './src/utils/caseRecord.js';
 
 function fetchCms(url, options) {
   return fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
@@ -944,7 +945,7 @@ async function handleRequest(request) {
         if (res.ok) {
           const list = await res.json();
           if (Array.isArray(list) && list.length > 0) {
-            const dbC = list[0];
+            const dbC = normalizeCaseRecord(list[0]);
             caseItem = {
               ...dbC,
               slug: dbC.slug,

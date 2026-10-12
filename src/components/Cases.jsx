@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import contentData from '../contentData';
+import { normalizeCaseRecord } from '../utils/caseRecord';
 import { supabase } from '../lib/supabaseClient';
 import { caseCardImg } from '../utils/imageUtils';
 import ConceptToolbarModal from './ConceptToolbarModal';
@@ -83,14 +84,17 @@ export default function Cases() {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const { data: dbCases, error } = await supabase
+        const { data: rawDbCases, error } = await supabase
           .from('cases')
           .select('*')
           .order('sort_order', { ascending: true });
         if (error) throw error;
         
+        const dbCases = (rawDbCases || []).map(normalizeCaseRecord);
         const allLocalItems = (contentData?.cases?.items || []);
-        const localAiConcepts = allLocalItems.filter(item => item.is_ai_concept || item.isAiConcept);
+        const dbAiConcepts = dbCases.filter(item => item.is_ai_concept || item.isAiConcept);
+        const localAiConcepts = [...dbAiConcepts, ...allLocalItems.filter(item =>
+          (item.is_ai_concept || item.isAiConcept) && !dbCases.some(row => row.slug === item.slug))];
         
         let realCases = [];
         if (dbCases && dbCases.length > 0) {

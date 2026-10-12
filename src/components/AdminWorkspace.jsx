@@ -6,6 +6,7 @@ import contentData from '../contentData';
 import { avatarImg } from '../utils/imageUtils';
 import { autoFormatArticleText as formatArticleContent } from '../utils/articleFormatting';
 import ArticleRichEditor from './ArticleRichEditor';
+import { normalizeCaseRecord, serializeCaseRecord } from '../utils/caseRecord';
 
 const SEO_BRAND_SUFFIX = 'Ксения Матвеенко — разработка сайтов/приложений';
 
@@ -528,11 +529,11 @@ export default function AdminWorkspace() {
     try {
       const { data, error } = await supabase
         .from('cases')
-        .select('id, slug, title, card_title, sort_order')
+        .select('id, slug, title, card_title, sort_order, meta')
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      setCasesList(data || []);
+      setCasesList((data || []).map(normalizeCaseRecord));
     } catch (err) {
       console.error('Error fetching cases:', err);
     } finally {
@@ -898,6 +899,8 @@ export default function AdminWorkspace() {
         .eq('id', item.id)
         .single();
 
+      if (error) throw error;
+      Object.assign(data, normalizeCaseRecord(data));
       const isAi = !!data.is_ai_concept || !!data.isAiConcept;
       if (isAi) {
         setActiveTab('ai');
@@ -1333,6 +1336,8 @@ export default function AdminWorkspace() {
           custom_blocks: customBlocks
         };
       }
+
+      payload = serializeCaseRecord(payload, casesList.find(item => item.id === editingId)?.meta);
 
       if (editingId) {
         // Edit mode: Update record
