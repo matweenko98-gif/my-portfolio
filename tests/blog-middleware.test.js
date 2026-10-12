@@ -59,10 +59,41 @@ test('article HTML is available to ordinary visitors and crawlers before JavaScr
     assert.equal(missing.headers.get('x-robots-tag'), 'noindex, follow');
 
     articleStatus = 503;
+    const unavailableBlog = await middleware(new Request('https://www.ksenweb.com/blog'));
+    assert.equal(unavailableBlog.status, 503);
+    assert.equal(unavailableBlog.headers.get('cache-control'), 'no-store');
     const unavailable = await middleware(new Request('https://www.ksenweb.com/blog/unavailable'));
     assert.equal(unavailable.status, 503);
     assert.equal(unavailable.headers.get('cache-control'), 'no-store');
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test('case HTML exposes existing sections, respects visibility and escapes CMS text', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async input => {
+    const url = new URL(input);
+    if (url.pathname === '/index.html') return new Response('<script type="module" src="/assets/index-case.js"></script>');
+    if (url.pathname === '/rest/v1/cases') return Response.json([{
+      slug: 'complete', title: 'Проект', about: { text: 'Описание проекта' },
+      process: [{ title: 'Исследование', desc: 'Изучили аудиторию' }],
+      challenge: { task: 'Упростить заказ', solution: 'Сократили шаги' },
+      features: [{ title: 'Каталог', text: 'Закрытый раздел' }], visibility: { desktop: false },
+      custom_blocks: [{ type: 'text', content: '<script>unsafe()</script>' }],
+    }]);
+    throw new Error(`Unexpected fetch: ${url}`);
+  };
+  try {
+    for (const agent of ['Mozilla/5.0', 'OAI-SearchBot', 'PerplexityBot', 'UnknownAudit']) {
+      const response = await middleware(new Request('https://www.ksenweb.com/case/complete', { headers: { 'user-agent': agent } }));
+      const html = await response.text();
+      assert.equal(response.status, 200);
+      for (const text of ['Описание проекта', 'Изучили аудиторию', 'Упростить заказ', 'Сократили шаги']) assert.ok(html.includes(text));
+      assert.doesNotMatch(html, /Закрытый раздел|<script>unsafe/);
+      const graph = JSON.parse(html.match(/<script id="jsonld-server"[^>]*>([\s\S]*?)<\/script>/)[1])['@graph'];
+      assert.ok(graph.some(item => item['@id'] === 'https://www.ksenweb.com/#person'));
+      assert.ok(graph.some(item => item['@type'] === 'CreativeWork'));
+    }
+  } finally { globalThis.fetch = originalFetch; }
 });

@@ -234,6 +234,25 @@ function getAboutText(about) {
   return typeof about?.text === 'string' ? about.text.trim() : '';
 }
 
+// Expose the existing visible case sections without requiring JavaScript.
+function renderCaseSections(data) {
+  const paragraph = text => text ? `<p style="white-space:pre-line">${escapeHtml(text)}</p>` : '';
+  const section = (title, body) => body ? `<section><h2>${escapeHtml(title)}</h2>${body}</section>` : '';
+  const items = (value, render) => Array.isArray(value) ? value.map(render).join('') : '';
+  return [
+    data.visibility?.process !== false && section('Этапы реализации', items(data.process, step =>
+      `<h3>${escapeHtml(step.title)}</h3>${paragraph(step.duration ? `Срок: ${step.duration}` : '')}${paragraph(step.desc || step.text)}`)),
+    data.visibility?.challenge !== false && section('Задача & Решение',
+      section('Задача', paragraph(data.challenge?.task)) + section('Решение', paragraph(data.challenge?.solution))),
+    data.visibility?.desktop !== false && section('Решения в деталях', items(data.features, item =>
+      `<h3>${escapeHtml(item.title)}</h3>${paragraph(item.text)}`)),
+    data.visibility?.mobile !== false && section('Мобильные', items(data.mobile_features || data.mobileFeatures, item =>
+      `<h3>${escapeHtml(item.title)}</h3>${paragraph(item.text)}`)),
+    data.visibility?.custom !== false && items(data.custom_blocks || data.customBlocks, item =>
+      item.type === 'text' ? paragraph(item.content) : ''),
+  ].filter(Boolean).join('\n');
+}
+
 function ensureFormattedHtml(rawContent) {
   if (!rawContent) return '';
   let content = rawContent.trim();
@@ -424,7 +443,7 @@ async function handleRequest(request) {
       const supabaseUrl = 'https://slyroiqjmgykgimxeytv.supabase.co';
       const anonKey = 'sb_publishable_dXbGCveDFU_j2biRt6qHJg_jKPwybdS';
 
-      const casesRes = await fetchCms(`${supabaseUrl}/rest/v1/cases?select=slug,id`, {
+      const casesRes = await fetchCms(`${supabaseUrl}/rest/v1/cases?select=slug,id,updated_at`, {
         headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
       });
       if (casesRes.ok) {
@@ -433,10 +452,11 @@ async function handleRequest(request) {
           fetchedCases.forEach(c => {
             const slug = c.slug || c.id;
             const existing = cases.find(item => item.slug === String(slug));
+            if (existing && c.updated_at) existing.date = c.updated_at.split('T')[0];
             if (slug && !existing) {
               cases.push({
                 slug: String(slug),
-                date: null
+                date: c.updated_at ? c.updated_at.split('T')[0] : null
               });
             }
           });
@@ -618,6 +638,17 @@ async function handleRequest(request) {
         ] },
       ] };
     }
+    if (options.jsonLd) {
+      const graph = options.jsonLd['@graph'] || [options.jsonLd];
+      options.jsonLd = { '@context': 'https://schema.org', '@graph': [
+        { '@type': 'Person', '@id': 'https://www.ksenweb.com/#person',
+          name: 'Ксения Матвеенко', url: 'https://www.ksenweb.com/', sameAs: ['https://t.me/ksen_web'] },
+        { '@type': 'WebSite', '@id': 'https://www.ksenweb.com/#website',
+          url: 'https://www.ksenweb.com/', name: 'KSENWEB — Ксения Матвеенко',
+          inLanguage: 'ru', publisher: { '@id': 'https://www.ksenweb.com/#person' } },
+        ...graph,
+      ] };
+    }
     return renderHtmlDocument({ spaAssets: publicSpaAssets, ...options });
   };
 
@@ -693,6 +724,9 @@ async function handleRequest(request) {
         const jsonLd = {
           "@context": "https://schema.org",
           "@type": "BlogPosting",
+          "@id": `${canonical}#article`,
+          "url": canonical,
+          "inLanguage": "ru",
           "headline": article.title,
           "description": description,
           "image": [ogImage],
@@ -704,6 +738,7 @@ async function handleRequest(request) {
             "url": "https://www.ksenweb.com"
           },
           "publisher": {
+            "@id": "https://www.ksenweb.com/#person",
             "@type": "Person",
             "name": "Ксения Матвеенко",
             "url": "https://www.ksenweb.com"
@@ -821,6 +856,7 @@ async function handleRequest(request) {
       const res = await fetchCms(`${supabaseUrl}/rest/v1/articles?status=eq.published&order=published_at.desc`, {
         headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` }
       });
+      if (!res.ok) throw new Error('Blog lookup unavailable');
       if (res.ok) {
         const fetched = await res.json();
         if (Array.isArray(fetched) && fetched.length > 0) {
@@ -838,7 +874,10 @@ async function handleRequest(request) {
           });
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      return renderPublicPage({ title, description, canonical, robots: 'noindex, follow',
+        bodyHtml: '<h1>Блог временно недоступен</h1>', statusCode: 503 });
+    }
 
     const jsonLd = {
       "@context": "https://schema.org",
@@ -907,9 +946,10 @@ async function handleRequest(request) {
           if (Array.isArray(list) && list.length > 0) {
             const dbC = list[0];
             caseItem = {
+              ...dbC,
               slug: dbC.slug,
               title: dbC.title || dbC.card_title || dbC.name,
-              description: getAboutText(dbC.about) || dbC.subtitle || dbC.description || dbC.card_title,
+              description: getAboutText(dbC.about) || dbC.about_text || dbC.description || dbC.subtitle || dbC.card_title,
               image: dbC.card_image || dbC.imageMain,
               tags: dbC.tags || []
             };
@@ -932,11 +972,14 @@ async function handleRequest(request) {
         const jsonLd = {
           "@context": "https://schema.org",
           "@type": "CreativeWork",
+          "@id": `${canonical}#creativework`,
+          "inLanguage": "ru",
           "name": caseItem.title,
           "description": description,
           "image": ogImage,
           "url": canonical,
           "creator": {
+            "@id": "https://www.ksenweb.com/#person",
             "@type": "Person",
             "name": "Ксения Матвеенко",
             "url": "https://www.ksenweb.com"
@@ -953,6 +996,7 @@ async function handleRequest(request) {
   <article>
     <h1 style="font-size: 2.25rem; font-weight: 700; margin-bottom: 16px;">${escapeHtml(caseItem.title)}</h1>
     <p style="font-size: 1.1rem; color: #52525b; margin-bottom: 24px;">${escapeHtml(caseItem.description)}</p>
+    ${renderCaseSections(caseItem)}
     ${caseItem.image ? `<img src="${escapeHtml(caseItem.image)}" alt="${escapeHtml(caseItem.title)}" style="width:100%; height:auto; border-radius:4px; margin-bottom:32px;" />` : ''}
     <p><a href="/cases" style="color: #FF5B23; text-decoration: none; font-weight: 500;">← Вернуться к списку проектов</a></p>
   </article>
