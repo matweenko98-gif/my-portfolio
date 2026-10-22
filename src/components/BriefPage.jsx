@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Clock,
@@ -24,6 +24,7 @@ import { submitBrief } from '../utils/submitBrief';
 import { trackConversion } from '../utils/analytics';
 
 export default function BriefPage() {
+  const [searchParams] = useSearchParams();
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   // Состояние текущего шага квиза (0...5)
@@ -35,7 +36,7 @@ export default function BriefPage() {
     name: '',
     contact: '',
     currentSite: '',
-    services: [],
+    services: ['redesign','web-apps','ui-ux-design'].includes(searchParams.get('service')) ? [{redesign:'Редизайн сайта','web-apps':'Веб-приложение/сервис/MVP','ui-ux-design':'Дизайн в Фигме'}[searchParams.get('service')]] : searchParams.get('service') === 'multipage' ? ['Многостраничный сайт'] : searchParams.get('service') === 'landing' ? ['Одностраничный сайт'] : searchParams.get('service') === 'online-store' ? ['Интернет-магазин'] : [],
     customService: '',
     goal: '',
     customGoal: '',

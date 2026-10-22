@@ -101,5 +101,37 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  <url>
+    <loc>https://www.ksenweb.com/services/websites</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/services/tilda</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/services/landing</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/services/multipage</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/services/online-store</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/services/redesign</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/services/web-apps</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
+  <url>
+    <loc>https://www.ksenweb.com/services/ui-ux-design</loc>
+    <lastmod>2026-10-22</lastmod>
+  </url>
 </urlset>
 

@@ -61,7 +61,11 @@ test('public routes serve HTML and real errors regardless of user agent', async 
     assert.match(xml, /\/blog\/indexable/);
     assert.doesNotMatch(xml, /syndicated/);
     assert.match(xml, /\/case\/elison-stroi<\/loc>\s*<lastmod>2026-09-22<\/lastmod>/);
-    assert.doesNotMatch(xml, new RegExp(`<lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>`));
+    // CMS records without a modification date must not acquire the crawl date.
+    const cmsEntries = [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(match=>match[1]).filter(entry=>/\/case\/|\/blog\//.test(entry));
+    for (const entry of cmsEntries) {
+      if (!entry.includes('/case/elison-stroi') && !entry.includes('/blog/indexable')) assert.doesNotMatch(entry, /<lastmod>/);
+    }
     failArticles = true;
     const brokenSitemap = await middleware(new Request('https://www.ksenweb.com/sitemap.xml'));
     assert.equal(brokenSitemap.status, 503);

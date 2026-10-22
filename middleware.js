@@ -1,5 +1,11 @@
+import { servicePages, servicesUpdatedAt } from './src/content/serviceSeo.js';
 import { safeArticleHtml as sanitizeServerContent } from './server/vendor/safeArticleHtml.js';
 import { normalizeCaseRecord } from './src/utils/caseRecord.js';
+import { MULTIPAGE_PATH, multipageService } from './src/content/multipageService.js';
+import { LANDING_PATH, landingService } from './src/content/landingService.js';
+import { ONLINE_STORE_PATH, onlineStoreService } from './src/content/onlineStoreService.js';
+
+import { additionalServices, serviceRedirects } from './src/content/additionalServices.js';
 
 function fetchCms(url, options) {
   return fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
@@ -43,6 +49,9 @@ Welcome to the LLM-friendly version of my portfolio. / Добро пожалов
    - Полное визуальное обновление, устранение критических ошибок юзабилити и улучшение конверсии текущего веб-ресурса.
 
 ---
+
+## Service pages / Страницы услуг
+${Object.entries(servicePages).map(([path,page])=>`- [${page.name}](https://www.ksenweb.com${path}): ${page.description}`).join('\n')}
 
 ## Work Process / Процесс работы
 1. **Бриф и обсуждение (Brief & Discussion)**
@@ -397,6 +406,7 @@ async function handleRequest(request) {
   const url = new URL(request.url);
   const pathname = url.pathname.length > 1 ? url.pathname.replace(/\/+$/, '') : '/';
   const accept = request.headers.get('accept') || '';
+  if (serviceRedirects[pathname]) return Response.redirect(new URL(serviceRedirects[pathname] + url.search, request.url), 301);
   if (pathname === '/api/contact') return;
   // Do not advertise authentication or MCP services that have no implementation.
   if (new Set([
@@ -522,7 +532,8 @@ async function handleRequest(request) {
 
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-  </url>${casesUrlsXml}
+  </url>${Object.entries(servicePages).filter(([,page])=>!page.noindex).map(([path])=>`
+  <url><loc>https://www.ksenweb.com${path}</loc><lastmod>${servicesUpdatedAt}</lastmod></url>`).join('')}${casesUrlsXml}
   <url>
     <loc>https://www.ksenweb.com/blog</loc>
 
@@ -599,6 +610,10 @@ async function handleRequest(request) {
   // Return the same HTML to people, audit tools, and crawlers.
   // Static pages are rendered from the actual React components during build.
   const prerenderedPages = {
+    ...Object.fromEntries(Object.entries(additionalServices).map(([path,page])=>[path,`service-${page.slug}`])),
+    [ONLINE_STORE_PATH]: 'service-online-store',
+    [LANDING_PATH]: 'service-landing',
+    [MULTIPAGE_PATH]: 'service-multipage',
     '/': 'home', '/index.html': 'home', '/brief': 'brief',
     '/privacy-policy': 'privacy-policy', '/terms': 'terms',
   };
@@ -612,6 +627,7 @@ async function handleRequest(request) {
     return new Response(await response.text(), { headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=60',
+      ...(additionalServices[pathname]?.noindex || (pathname === MULTIPAGE_PATH && multipageService.noindex) || (pathname === LANDING_PATH && landingService.noindex) || (pathname === ONLINE_STORE_PATH && onlineStoreService.noindex) ? { 'X-Robots-Tag': 'noindex, follow' } : {}),
     } });
   }
 

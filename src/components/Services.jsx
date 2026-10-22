@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Layers, Code, RefreshCw, Send, X, Layout, Files, FileText } from 'lucide-react';
@@ -217,7 +218,7 @@ function RedesignTariffs({ service }) {
   return (
     <div className="bg-[#1E1E1E] border border-neutral-850 rounded-sm p-5 sm:p-6 flex flex-col gap-6 w-full">
       <div id="tariffs-heading-02" className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
-        <span>Тарифы на редизайн и оптимизацию</span>
+        <span>Тарифы на редизайн с реализацией на Tilda</span>
         <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-sm">
           Сроки: от 5 рабочих дней
         </span>
@@ -247,7 +248,7 @@ function RedesignTariffs({ service }) {
 
       <div className="pt-4 border-t border-neutral-850 flex flex-col items-center gap-3">
         <p className="text-xs text-neutral-450 font-medium text-center">
-          Редизайн позволяет повысить конверсию и освежить внешний вид без потери накопленных результатов.
+          Объем обновления и план переноса согласуем после разбора текущего сайта.
         </p>
         <a
           href={contentData.contacts.messengers.telegram.url}
@@ -531,6 +532,7 @@ function ServiceGraphic({ number }) {
 
 function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
   const IconComponent = ICON_MAP[service.number] || Layers;
+  const direction = { '01':'websites', '02':'redesign', '03':'web-apps', '04':'ui-ux-design' }[service.number];
 
   return (
     <div id={`service-card-${service.number}`} className="group relative border border-neutral-800 rounded-md p-6 sm:p-8 hover:border-neutral-600 hover:scale-[1.015] hover:shadow-2xl transition-all bg-[#1A1A1A] duration-300">
@@ -553,7 +555,8 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
               </div>
             </div>
             
-            <p className="text-[14px] text-neutral-400 leading-relaxed max-w-[640px] mb-6">{service.brief}</p>
+            <p className="text-[14px] text-neutral-400 leading-[1.45] max-w-[640px] mb-6">{service.brief}</p>
+            {service.number === '01' && <div className="flex flex-wrap gap-4 text-sm text-[#E0FB4A] mb-5">{[['landing','Лендинги'],['multipage','Многостраничные сайты'],['online-store','Интернет-магазины'],['tilda','Сайты на Tilda']].map(([slug,label])=><Link key={slug} to={`/services/${slug}`} className="underline underline-offset-4">{label}</Link>)}</div>}
             
             {/* Mobile-only parameters (displayed statically, vertical stream) */}
             <div className="block md:hidden space-y-4 border-t border-neutral-800 pt-5 mt-5">
@@ -574,12 +577,13 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
 
           {/* Action Buttons (always visible at bottom of left column) */}
           <div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-neutral-800">
+            <Link to={`/services/${direction}`} className="text-xs font-semibold py-2.5 px-5 rounded-sm bg-[#FF5B23] text-white">Подробнее об услуге ↗</Link>
             <button
               onClick={onToggleCalc}
               className={`text-xs font-semibold py-2.5 px-5 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer ${
                 isCalcOpen
                   ? 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
-                  : 'bg-[#FF5B23] text-white hover:bg-[#e04f1e]'
+                  : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
               }`}
             >
               {isCalcOpen ? 'Скрыть подробности' : 'Посмотреть тарифы'}

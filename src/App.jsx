@@ -1,8 +1,14 @@
+import { servicePages, servicePageSchema } from './content/serviceSeo';
 import React, { Suspense, lazy } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import RouteScroll from './components/RouteScroll';
 import AnalyticsTracker from './components/AnalyticsTracker';
 import CookieBanner from './components/CookieBanner';
+import { MULTIPAGE_PATH, multipageService } from './content/multipageService';
+import { LANDING_PATH, landingService } from './content/landingService';
+import { ONLINE_STORE_PATH, onlineStoreService } from './content/onlineStoreService';
 
+import { additionalServices, serviceRedirects } from './content/additionalServices';
 // ─── Lazy-loaded route chunks ─────────────────────────────────────────────────
 // Каждый маршрут вынесен в отдельный чанк через dynamic import.
 // Они НЕ входят в главный bundle и подгружаются только при переходе на маршрут.
@@ -17,6 +23,10 @@ const BriefPage       = lazy(() => import('./components/BriefPage'));
 const BlogPage        = lazy(() => import('./components/BlogPage'));
 const ArticlePage     = lazy(() => import('./components/ArticlePage'));
 const NotFoundPage    = lazy(() => import('./components/NotFoundPage'));
+const MultipageServicePage = lazy(() => import('./components/MultipageServicePage'));
+const LandingServicePage = lazy(() => import('./components/LandingServicePage'));
+const AdditionalServicePage = lazy(() => import('./components/AdditionalServicePage'));
+const OnlineStoreServicePage = lazy(() => import('./components/OnlineStoreServicePage'));
 
 // ─── Fallback-заглушка при загрузке чанка ────────────────────────────────────
 function PageSkeleton() {
@@ -62,9 +72,13 @@ function normalizeContactEmail(email) {
 }
 
 const STATIC_ROUTE_SEO = {
+  ...additionalServices,
+  [ONLINE_STORE_PATH]: onlineStoreService,
+  [LANDING_PATH]: landingService,
+  [MULTIPAGE_PATH]: multipageService,
   '/': {
     title: 'Ксения Матвеенко — Разработка сайтов и веб-приложений',
-    description: 'Создание сайтов на Tilda под ключ и веб-приложений/интерфейсов под задачи бизнеса.',
+    description: 'KSENWEB — Ксения Матвеенко. Дизайн и создание сайтов на Tilda или коде, редизайн, интерфейсы и веб-приложения под задачи бизнеса.',
   },
   '/cases': {
     title: 'Все кейсы — Ксения Матвеенко',
@@ -126,6 +140,11 @@ function setRouteSchema(pathname, canonicalUrl, seo, isArticle, isCase) {
     script.id = 'jsonld-route';
     script.type = 'application/ld+json';
     document.head.appendChild(script);
+  }
+
+  if (servicePages[pathname]) {
+    script.textContent = JSON.stringify(servicePageSchema(pathname));
+    return;
   }
 
   const graph = [];
@@ -218,7 +237,7 @@ function RouteSeo() {
     }
     canonical.href = canonicalUrl;
 
-    const robots = isAdmin || !isKnown
+    const robots = seo?.noindex ? 'noindex, follow' : isAdmin || !isKnown
       ? 'noindex, nofollow'
       : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
     setMeta('meta[name="robots"]', 'content', robots);
@@ -292,8 +311,14 @@ export default function App() {
     <>
       <RouteSeo />
       <Suspense fallback={<PageSkeleton />}>
+        <RouteScroll />
         <Routes>
           <Route path="/"                  element={<HomePage />} />
+          {Object.entries(additionalServices).map(([path,service]) => <Route key={path} path={path} element={<AdditionalServicePage service={service}/>}/>)}
+          {Object.entries(serviceRedirects).map(([from,to]) => <Route key={from} path={from} element={<Navigate to={to + window.location.search + window.location.hash} replace/>}/>)}
+          <Route path={MULTIPAGE_PATH} element={<MultipageServicePage />} />
+          <Route path={LANDING_PATH} element={<LandingServicePage />} />
+          <Route path={ONLINE_STORE_PATH} element={<OnlineStoreServicePage />} />
           <Route path="/cases"             element={<AllCases />} />
           <Route path="/case/:id"          element={<CaseTemplate />} />
           <Route path="/brief"              element={<BriefPage />} />

@@ -35,6 +35,13 @@ export default function Sidebar({ activeSection }) {
 
   const menuItems = contentData.sidebar.navigation;
 
+  const menuHref = (id) => {
+    if (id === 'cases') return '/cases';
+    if (id === 'brief') return '/brief';
+    if (id === 'blog' && location.pathname !== '/' && !location.pathname.startsWith('/blog')) return '/blog';
+    return location.pathname === '/' ? `#${id}` : `/#${id}`;
+  };
+
   const handleLinkClick = (e, id) => {
     e.preventDefault();
     setIsOpen(false);
@@ -115,7 +122,7 @@ export default function Sidebar({ activeSection }) {
             return (
               <a
                 key={item.id}
-                href={item.id === 'cases' ? '/cases' : item.id === 'brief' ? '/brief' : `#${item.id}`}
+                href={menuHref(item.id)}
                 onClick={(e) => handleLinkClick(e, item.id)}
                 className="group flex items-center gap-3 py-2.5 w-full"
               >
@@ -206,7 +213,7 @@ export default function Sidebar({ activeSection }) {
                     }`}
                   />
                   <a
-                    href={item.id === 'cases' ? '/cases' : item.id === 'brief' ? '/brief' : `#${item.id}`}
+                    href={menuHref(item.id)}
                     onClick={(e) => handleLinkClick(e, item.id)}
                     className={`block pl-4 py-2 xl:py-2.5 text-[13px] xl:text-[14px] transition-colors duration-200 no-underline ${
                       isActive

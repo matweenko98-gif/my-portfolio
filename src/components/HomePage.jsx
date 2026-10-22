@@ -1,6 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Hero from './Hero';
 import Services from './Services';
@@ -22,28 +21,6 @@ function SectionFallback() {
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState('hero');
-  const location = useLocation();
-
-  // Scroll to hash element if present in url (e.g. /#blog, /#faq)
-  useEffect(() => {
-    if (location.hash) {
-      const id = location.hash.substring(1);
-      let done = false;
-      const scrollToHash = () => {
-        const el = document.getElementById(id);
-        if (el && !done) {
-          done = true;
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      };
-      // Lazy sections may appear after the first render.
-      const observer = new MutationObserver(scrollToHash);
-      observer.observe(document.getElementById('root'), { childList: true, subtree: true });
-      const timer = setTimeout(scrollToHash, 100);
-      const deadline = setTimeout(() => observer.disconnect(), 5000);
-      return () => { clearTimeout(timer); clearTimeout(deadline); observer.disconnect(); };
-    }
-  }, [location.hash]);
 
   useEffect(() => {
     // ─── Оптимизация: кэшируем координаты секций и исключаем DOM-чтения из скролла ───

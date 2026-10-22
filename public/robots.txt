@@ -43,3 +43,9 @@ Disallow: /images/otziv.png
 
 User-agent: YandexImages
 Disallow: /images/otziv.png
+
+# OpenAI search crawler; distinct from training and user-triggered retrieval.
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin
+Disallow: /admin-keis
