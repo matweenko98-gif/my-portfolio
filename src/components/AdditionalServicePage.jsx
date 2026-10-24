@@ -1,3 +1,4 @@
+import { usePricing } from './CurrencyProvider';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Plus } from 'lucide-react';
@@ -6,7 +7,9 @@ import WebsiteServicePage from './WebsiteServicePage';
 import TildaServicePage from './TildaServicePage';
 import './MultipageServicePage.css';
 
-export default function AdditionalServicePage({ service: s }) {
+export default function AdditionalServicePage({ service: originalService }) {
+  const { text } = usePricing();
+  const s = text(originalService);
   if (s.slug === 'tilda') return <TildaServicePage service={s}/>;
   if (s.slug === 'websites') return <WebsiteServicePage service={s}/>;
   const brief = `/brief?service=${s.brief}&source=${s.slug}-service`;

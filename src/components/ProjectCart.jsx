@@ -1,3 +1,4 @@
+import { usePricing } from './CurrencyProvider';
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, Clock } from 'lucide-react';
 
@@ -27,6 +28,7 @@ export default function ProjectCart({
   hintText = 'Выберите параметры слева — они появятся в\u00a0корзине',
   isLight = false,
 }) {
+  const { money } = usePricing();
   const [showArrowHint, setShowArrowHint] = useState(true);
   const [priceBump, setPriceBump] = useState(false);
 
@@ -137,7 +139,7 @@ export default function ProjectCart({
         >
           <span className={`text-[12px] font-medium ${isLight ? 'text-neutral-600' : 'text-neutral-450'}`}>Итого</span>
           <span className={`text-base font-bold ${isLight ? 'text-[#111111]' : 'text-[#E0FB4A]'} tracking-tight`}>
-            {isComplete ? `от ${formatPrice(price)} ₽` : '—'}
+            {isComplete ? `от ${money(price)}` : '—'}
           </span>
         </div>
       </div>

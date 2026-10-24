@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import contentData from '../contentData';
+import originalContentData from '../contentData';
+import { usePricing } from './CurrencyProvider';
 
 const EASE = [0.215, 0.610, 0.355, 1.000];
 
@@ -56,6 +57,8 @@ function AccordionItem({ faq, isOpen, onToggle }) {
 }
 
 export default function FAQ() {
+  const { text } = usePricing();
+  const contentData = text(originalContentData);
   const [openId, setOpenId] = useState(null);
   const faqData = contentData.faq;
 

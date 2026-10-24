@@ -1,12 +1,15 @@
+import currency from '../api/currency.js';
 import { loadEnv } from 'vite';
 import contact from '../api/contact.js';
 
 export function contactApiPlugin() {
   function install(server) {
     server.middlewares.use(async (req, res, next) => {
-      if (req.url?.split('?')[0] !== '/api/contact') return next();
+      const pathname = req.url?.split('?')[0];
+      if (!['/api/contact', '/api/currency'].includes(pathname)) return next();
       res.status = code => { res.statusCode = code; return res; };
       res.json = value => { res.end(JSON.stringify(value)); return res; };
+      if (pathname === '/api/currency') return currency(req, res);
       try {
         let body = '';
         for await (const chunk of req) {

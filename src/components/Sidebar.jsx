@@ -1,3 +1,4 @@
+import { CurrencySwitcher } from './CurrencyProvider';
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -45,7 +46,7 @@ export default function Sidebar({ activeSection }) {
   const handleLinkClick = (e, id) => {
     e.preventDefault();
     setIsOpen(false);
-    
+
     if (id === 'brief') {
       navigate('/brief');
       window.scrollTo(0, 0);
@@ -76,6 +77,7 @@ export default function Sidebar({ activeSection }) {
 
   return (
     <>
+      <div className="hidden lg:block fixed top-4 right-6 z-[210] rounded-sm bg-white/95 px-3 py-2 border border-zinc-200"><CurrencySwitcher /></div>
       {/* ===== MOBILE HEADER ===== */}
       <motion.header
         initial={{ opacity: 0, filter: "blur(8px)" }}
@@ -90,6 +92,7 @@ export default function Sidebar({ activeSection }) {
         >
           {contentData.sidebar.profile.name}
         </Link>
+        <CurrencySwitcher />
         <button
           ref={menuButtonRef}
           aria-controls="mobile-navigation"
@@ -115,7 +118,7 @@ export default function Sidebar({ activeSection }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        
+
         <div className="flex flex-col items-start gap-1 w-full px-8 my-auto">
           {menuItems.map((item, idx) => {
             const num = String(idx + 1).padStart(2, '0');
@@ -183,6 +186,7 @@ export default function Sidebar({ activeSection }) {
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
         className="sidebar-desktop hidden lg:flex fixed top-0 left-0 w-[260px] h-screen max-h-screen overflow-hidden flex-col border-r border-zinc-200 bg-white z-100 p-5 xl:p-6"
       >
+
         {/* Profile */}
         <div className="shrink-0 mb-6 xl:mb-8 sidebar-profile">
           <Link to="/" className="block w-fit no-underline group" aria-label="На главную страницу">

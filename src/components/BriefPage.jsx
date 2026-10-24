@@ -1,3 +1,4 @@
+import { usePricing } from './CurrencyProvider';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -24,6 +25,7 @@ import { submitBrief } from '../utils/submitBrief';
 import { trackConversion } from '../utils/analytics';
 
 export default function BriefPage() {
+  const { money } = usePricing();
   const [searchParams] = useSearchParams();
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -84,10 +86,10 @@ export default function BriefPage() {
   ];
 
   const budgetOptions = [
-    'До $500 (~45 000 ₽)',
-    '$500 – $1 000 (~45 000 – 90 000 ₽)',
-    '$1 000 – $2 500 (~90 000 – 225 000 ₽)',
-    'От $2 500 (от ~225 000 ₽)',
+    `До ${money(30000)}`,
+    `${money(30000)} — ${money(45000)}`,
+    `${money(45000)} — ${money(55000)}`,
+    `От ${money(55000)}`,
     'Обсудим индивидуально',
   ];
 

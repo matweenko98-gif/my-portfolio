@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Layers, Code, RefreshCw, Send, X, Layout, Files, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
-import contentData from '../contentData';
+import originalContentData from '../contentData';
+import { usePricing } from './CurrencyProvider';
 import ProjectCart from './ProjectCart';
 import { flyChipToCart } from '../utils/flyToCart';
 
@@ -93,6 +94,7 @@ function getOptionButtonClass(isSelected, isFirstHint) {
 }
 
 function TildaTariffs({ service }) {
+  const { text } = usePricing();
   const products = [
     {
       title: 'Лендинг',
@@ -144,7 +146,7 @@ function TildaTariffs({ service }) {
             <div>
               <h4 className="text-base sm:text-lg font-bold text-white mb-1.5">{p.title}</h4>
               <span className="inline-block text-xs sm:text-sm font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-sm px-2.5 py-1 mb-3.5">
-                {p.price}
+                {text(p.price)}
               </span>
               <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-5">{p.desc}</p>
             </div>
@@ -165,7 +167,7 @@ function TildaTariffs({ service }) {
           Подберем оптимальный формат и рассчитаем точные сроки под вашу задачу.
         </p>
         <a
-          href={contentData.contacts.messengers.telegram.url}
+          href={originalContentData.contacts.messengers.telegram.url}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
@@ -179,6 +181,7 @@ function TildaTariffs({ service }) {
 }
 
 function RedesignTariffs({ service }) {
+  const { text } = usePricing();
   const products = [
     {
       title: 'Визуальный редизайн',
@@ -230,7 +233,7 @@ function RedesignTariffs({ service }) {
             <div>
               <h4 className="text-base sm:text-lg font-bold text-white mb-1.5">{p.title}</h4>
               <span className="inline-block text-xs sm:text-sm font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-sm px-2.5 py-1 mb-3.5">
-                {p.price}
+                {text(p.price)}
               </span>
               <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-5">{p.desc}</p>
             </div>
@@ -251,7 +254,7 @@ function RedesignTariffs({ service }) {
           Объем обновления и план переноса согласуем после разбора текущего сайта.
         </p>
         <a
-          href={contentData.contacts.messengers.telegram.url}
+          href={originalContentData.contacts.messengers.telegram.url}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
@@ -265,6 +268,7 @@ function RedesignTariffs({ service }) {
 }
 
 function AICalculator({ service }) {
+  const { text } = usePricing();
   const products = [
     {
       title: 'Веб-приложение / Сервис',
@@ -301,7 +305,7 @@ function AICalculator({ service }) {
             <div>
               <h4 className="text-base sm:text-lg font-bold text-white mb-1.5">{p.title}</h4>
               <span className="inline-block text-xs sm:text-sm font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-sm px-2.5 py-1 mb-3.5">
-                {p.price}
+                {text(p.price)}
               </span>
               <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-5">{p.desc}</p>
             </div>
@@ -322,7 +326,7 @@ function AICalculator({ service }) {
           Разработка сложных цифровых продуктов требует детального обсуждения технического задания и архитектуры.
         </p>
         <a
-          href={contentData.contacts.messengers.telegram.url}
+          href={originalContentData.contacts.messengers.telegram.url}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
@@ -336,6 +340,7 @@ function AICalculator({ service }) {
 }
 
 function FigmaTariffs({ service }) {
+  const { text } = usePricing();
   const products = [
     {
       title: 'Дизайн сайтов и интерфейсов',
@@ -365,7 +370,7 @@ function FigmaTariffs({ service }) {
             <div>
               <h4 className="text-base sm:text-lg font-bold text-white mb-1.5">{p.title}</h4>
               <span className="inline-block text-xs sm:text-sm font-extrabold text-[#E0FB4A] bg-neutral-900 border border-neutral-800 rounded-sm px-2.5 py-1 mb-3.5">
-                {p.price}
+                {text(p.price)}
               </span>
               <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed mb-5">{p.desc}</p>
             </div>
@@ -386,7 +391,7 @@ function FigmaTariffs({ service }) {
           Разработка макетов в Figma с подготовкой всех состояний и компонентов к верстке.
         </p>
         <a
-          href={contentData.contacts.messengers.telegram.url}
+          href={originalContentData.contacts.messengers.telegram.url}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FF5B23] text-white hover:bg-[#e04f1e] text-xs font-semibold py-3 px-8 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer"
@@ -639,6 +644,8 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
 }
 
 export default function Services() {
+  const { text } = usePricing();
+  const contentData = text(originalContentData);
   const [activeCalculator, setActiveCalculator] = useState(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successModalContent, setSuccessModalContent] = useState(null);

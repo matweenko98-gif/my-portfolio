@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Send, MessageCircle, Check, Copy, Clock, Shield } from 'lucide-react';
-import contentData from '../contentData';
+import originalContentData from '../contentData';
+import { usePricing } from './CurrencyProvider';
 
 function buildMessage(topic) {
   return `Здравствуйте! Меня интересует ${topic}. Хочу обсудить проект.`;
@@ -20,6 +21,8 @@ function buildMaxHref(baseUrl, message) {
 }
 
 export default function Contacts() {
+  const { text } = usePricing();
+  const contentData = text(originalContentData);
   const { contacts } = contentData;
   const [activeIntentId, setActiveIntentId] = useState(contacts.intents[0].id);
   const [copied, setCopied] = useState(false);
