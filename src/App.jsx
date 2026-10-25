@@ -1,3 +1,4 @@
+import SiteFooter from './components/SiteFooter';
 import { servicePages, servicePageSchema } from './content/serviceSeo';
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
@@ -263,6 +264,7 @@ function RouteSeo() {
 }
 
 export default function App() {
+  const location = useLocation();
   React.useEffect(() => {
     // Sync contact settings from local cache
     const cached = localStorage.getItem('site_contacts_settings');
@@ -321,7 +323,7 @@ export default function App() {
           <Route path={ONLINE_STORE_PATH} element={<OnlineStoreServicePage />} />
           <Route path="/cases"             element={<AllCases />} />
           <Route path="/case/:id"          element={<CaseTemplate />} />
-          <Route path="/brief"              element={<BriefPage />} />
+          <Route path="/brief"              element={<BriefPage key={location.search} />} />
           <Route path="/blog"               element={<BlogPage />} />
           <Route path="/blog/:slug"         element={<ArticlePage />} />
           <Route path="/admin"             element={<AdminWorkspace />} />
@@ -331,6 +333,7 @@ export default function App() {
           <Route path="*"                  element={<NotFoundPage />} />
         </Routes>
       </Suspense>
+      <SiteFooter />
       <AnalyticsTracker />
       <CookieBanner />
       <ScrollToTopButton />

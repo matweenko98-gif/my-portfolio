@@ -12,13 +12,8 @@ import { trackConversion } from '../utils/analytics';
 import './MultipageServicePage.css';
 
 
-function ContactLink({ children = 'Обсудить сайт компании', className = '', placement }) {
-  const message = 'Здравствуйте! Меня интересует многостраничный сайт. Хочу обсудить структуру, сроки и стоимость проекта.';
-  const href = `${contentData.contacts.messengers.telegram.url.replace(/\/$/, '')}?text=${encodeURIComponent(message)}`;
-  return <a href={href} target="_blank" rel="noopener noreferrer" className={`mp-button ${className}`}
-    onClick={() => trackConversion('contact_clicked', { contact_method: 'telegram', service: 'multipage', placement })}>
-    {children}<ArrowUpRight size={17} aria-hidden="true" />
-  </a>;
+function ContactLink({ children = 'Получить оценку проекта', className = '' }) {
+  return <a href="#mp-contact" className={`mp-button ${className}`}>{children}<ArrowUpRight size={17} aria-hidden="true"/></a>;
 }
 
 function SectionHeading({ number, label, children, dark = false }) {
@@ -47,7 +42,7 @@ export default function MultipageServicePage() {
     <main className="mp-main">
       <section className="mp-hero" aria-labelledby="mp-title">
         <div className="mp-topline">
-          <nav aria-label="Хлебные крошки"><Link to="/">Главная</Link><span>/</span><span aria-current="page">Многостраничный сайт</span></nav>
+          <nav aria-label="Хлебные крошки"><Link to="/">Главная</Link><span>/</span><Link to="/#services">Услуги</Link><span>/</span><span aria-current="page">Многостраничный сайт</span></nav>
           <span className="mp-edition">KSENWEB / УСЛУГИ</span>
         </div>
         <div className="mp-hero-intro"><p className="mp-eyebrow"><span>[ WEB DEVELOPMENT ]</span></p><p>Ксения Матвеенко<br />Дизайн и разработка</p></div>
@@ -55,7 +50,7 @@ export default function MultipageServicePage() {
         <div className="mp-hero-bottom"><div>
           <p className="mp-lead">Сайт компании с отдельными страницами услуг, проектов и контактов</p>
           <p className="mp-hero-copy">Разработаю структуру и дизайн в Figma, разработаю сайт и настрою формы заявок. Tilda или индивидуальную разработку с админкой выберем по нужным функциям.</p>
-        </div><div className="mp-hero-facts"><span>РАЗРАБОТКА ПОД КЛЮЧ</span><strong>{service.price}</strong><p>Для реализации на Tilda<br/>Разработка на коде — по оценке</p><p>Структура · Figma · Tilda<br />Адаптив · Формы · SEO-основа</p><a href="#mp-price">Что входит в стоимость <span aria-hidden="true">↗</span></a></div></div>
+        <div className="mp-actions"><ContactLink/><a className="mp-text-link" href="#mp-scope">Что входит в разработку ↘</a></div></div><div className="mp-hero-facts"><span>РАЗРАБОТКА ПОД КЛЮЧ</span><strong>{service.price}</strong><p>Для реализации на Tilda<br/>Точный состав и срок — после обсуждения</p><p>Структура · Figma · Tilda<br />Адаптив · Формы · SEO-основа</p><a href="#mp-price">Что входит в стоимость <span aria-hidden="true">↗</span></a></div></div>
       </section>
 
       <section className="mp-fit mp-section" id="mp-format">
@@ -82,7 +77,7 @@ export default function MultipageServicePage() {
 
       <section className="mp-price mp-section" id="mp-price">
         <SectionHeading number="05" label="ТАРИФ И УСЛОВИЯ" dark>Стоимость<br /><span>многостраничного сайта</span></SectionHeading>
-        <div className="mp-price-layout"><div className="mp-price-offer"><p className="mp-eyebrow">МНОГОСТРАНИЧНЫЙ САЙТ НА TILDA</p><div className="mp-price-value">от <strong>{money(45000)}</strong></div><p>Ориентир для сайта компании. Точную стоимость и срок определим после обсуждения структуры и материалов.</p><ContactLink placement="price">Обсудить состав и стоимость</ContactLink></div><div className="mp-price-details"><h3>Основа проекта</h3><ul>{['Структура страниц и индивидуальный дизайн', 'Верстка на Tilda и мобильная адаптация', 'Формы и согласованные подключения', 'Базовая SEO-подготовка и передача проекта'].map(text => <li key={text}><Check size={16} aria-hidden="true" />{text}</li>)}</ul><div className="mp-price-factors"><h3>Что влияет на оценку</h3><p>Количество страниц и уникальных макетов, готовность контента, сложность анимации и внешних интеграций.</p></div><p className="mp-small-note">Тариф Tilda, домен и платные внешние сервисы оплачиваются отдельно. Дополнительные работы согласуем до их выполнения.</p></div></div>
+        <div className="mp-price-layout"><div className="mp-price-offer"><p className="mp-eyebrow">МНОГОСТРАНИЧНЫЙ САЙТ НА TILDA</p><div className="mp-price-value">от <strong>{money(45000)}</strong></div><p>Ориентир для сайта компании. Точную стоимость и срок определим после обсуждения структуры и материалов.</p><ContactLink placement="price">Получить оценку проекта</ContactLink></div><div className="mp-price-details"><h3>Основа проекта</h3><ul>{['Структура страниц и индивидуальный дизайн', 'Верстка на Tilda и мобильная адаптация', 'Формы и согласованные подключения', 'Базовая SEO-подготовка и передача проекта'].map(text => <li key={text}><Check size={16} aria-hidden="true" />{text}</li>)}</ul><div className="mp-price-factors"><h3>Что влияет на оценку</h3><p>Количество страниц и уникальных макетов, готовность контента, сложность анимации и внешних интеграций.</p></div><p className="mp-small-note">Тариф Tilda, домен и платные внешние сервисы оплачиваются отдельно. Дополнительные работы согласуем до их выполнения.</p></div></div>
       </section>
 
       <div className="lp-reviews-marker"><p className="mp-eyebrow"><span>[ 06 ]</span> ОТЗЫВЫ</p></div>
@@ -106,7 +101,6 @@ export default function MultipageServicePage() {
       <section className="mp-contact mp-section" id="mp-contact">
         <div className="mp-contact-bottom lp-contact-layout"><div className="lp-contact-intro"><p className="mp-eyebrow"><span>[ ОБСУДИТЬ ПРОЕКТ ]</span></p><h2>Обсудим сайт<br /><span>вашей компании</span></h2><p>Расскажите о бизнесе — определим разделы, материалы и первый этап разработки. Подготовлю предварительную оценку стоимости и сроков.</p><a className="mp-text-link lp-telegram-link" href={contentData.contacts.messengers.telegram.url} target="_blank" rel="noopener noreferrer" onClick={() => trackConversion('contact_clicked', {contact_method:'telegram',service:'multipage',placement:'footer'})}>Или напишите мне в Telegram<ArrowUpRight size={16}/></a></div><LandingLeadForm service="multipage"/></div>
       </section>
-      <footer className="mp-footer"><Link to="/">KSENWEB / Ксения Матвеенко</Link><div><Link to="/privacy-policy">Конфиденциальность</Link><Link to="/terms">Условия использования</Link></div></footer>
     </main>
   </div>;
 }

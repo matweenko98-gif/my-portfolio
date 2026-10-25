@@ -110,11 +110,11 @@ export default function BlogPage() {
             <div className="mb-8">
               <button
                 type="button"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/')}
                 className="inline-flex items-center gap-2 text-xs font-medium text-zinc-600 hover:text-black transition-colors py-2 px-3.5 rounded-[2px] border border-zinc-200 bg-white shadow-sm cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Назад</span>
+                <span>На главную</span>
               </button>
             </div>
 

@@ -56,7 +56,8 @@ export default function KineticMarquee() {
               {contentData.footer.disclaimer}
             </p>
           </div>
-          <div className="flex gap-6 shrink-0">
+          <div className="flex flex-wrap gap-6 shrink-0">
+            <Link to="/brief" className="hover:text-white hover:underline transition-colors duration-200">Подробный бриф</Link>
             <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline transition-colors duration-200">
               Политика конфиденциальности
             </Link>

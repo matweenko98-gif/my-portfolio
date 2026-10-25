@@ -5,10 +5,11 @@
   <link rel="preload" href="/fonts/InterTight-Medium.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/fonts/InterTight-Bold.woff2" as="font" type="font/woff2" crossorigin />
   <meta charset="UTF-8" />
+  <meta name="yandex-verification" content="00d0674dbaef7443" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ксения Матвеенко — Разработка сайтов и веб-приложений</title>
   <meta name="description"
-    content="Создание сайтов на Tilda под ключ и веб-приложений/интерфейсов под задачи бизнеса.">
+    content="KSENWEB — Ксения Матвеенко. Дизайн и создание сайтов на Tilda или коде, редизайн, интерфейсы и веб-приложения под задачи бизнеса.">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="https://www.ksenweb.com/" />
 
@@ -18,22 +19,20 @@
   <meta property="og:locale" content="ru_RU" />
   <meta property="og:title" content="Ксения Матвеенко — Разработка сайтов и веб-приложений" />
   <meta property="og:description"
-    content="Создание сайтов на Tilda под ключ и веб-приложений/интерфейсов под задачи бизнеса." />
+    content="KSENWEB — Ксения Матвеенко. Дизайн и создание сайтов на Tilda или коде, редизайн, интерфейсы и веб-приложения под задачи бизнеса." />
   <meta property="og:url" content="https://www.ksenweb.com/" />
   <meta property="og:image" content="https://www.ksenweb.com/og-image.png" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Ксения Матвеенко — Разработка сайтов и веб-приложений" />
-  <meta name="twitter:description" content="Создание сайтов на Tilda под ключ и веб-приложений/интерфейсов под задачи бизнеса." />
+  <meta name="twitter:description" content="KSENWEB — Ксения Матвеенко. Дизайн и создание сайтов на Tilda или коде, редизайн, интерфейсы и веб-приложения под задачи бизнеса." />
   <meta name="twitter:image" content="https://www.ksenweb.com/og-image.png" />
 
   <link rel="describedby" type="text/markdown" href="/llms.txt" />
-  <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="shortcut icon" href="/favicon.png" />
-  <link rel="apple-touch-icon" href="/favicon.png" />
+  <link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="https://www.ksenweb.com/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" sizes="any" href="https://www.ksenweb.com/favicon.svg" />
+  <link rel="apple-touch-icon" href="https://www.ksenweb.com/favicon.png" />
 
 
   <!-- Schema.org JSON-LD Structured Data (РБ + РФ + СНГ) -->
@@ -54,7 +53,7 @@
         "@id": "https://www.ksenweb.com/#webpage",
         "url": "https://www.ksenweb.com/",
         "name": "Ксения Матвеенко — Разработка сайтов и веб-приложений",
-        "description": "Создание сайтов на Tilda под ключ и веб-приложений/интерфейсов под задачи бизнеса.",
+        "description": "KSENWEB — Ксения Матвеенко. Дизайн и создание сайтов на Tilda или коде, редизайн, интерфейсы и веб-приложения под задачи бизнеса.",
         "inLanguage": "ru",
         "isPartOf": { "@id": "https://www.ksenweb.com/#website" },
         "about": { "@id": "https://www.ksenweb.com/#person" }
@@ -84,6 +83,7 @@
         "@id": "https://www.ksenweb.com/#service",
         "name": "Ксения Матвеенко — Разработка сайтов и веб-приложений",
         "url": "https://www.ksenweb.com",
+        "sameAs": ["https://t.me/ksen_web"],
         "provider": {
           "@id": "https://www.ksenweb.com/#person"
         },
@@ -180,12 +180,17 @@
           trackLinks: true,
           accurateTrackBounce: true,
           ecommerce: 'dataLayer',
+          defer: true,
         });
+        window.ksMetrikaReady = true;
+        window.dispatchEvent(new Event('ks:metrika-ready'));
       }
     }
 
     function loadMetrika() {
       if (document.querySelector('script[data-ym-loaded]')) return;
+      window.ym = window.ym || function () { (window.ym.a = window.ym.a || []).push(arguments); };
+      window.ym.l = Date.now();
       var script = document.createElement('script');
       script.src = 'https://mc.yandex.ru/metrika/tag.js';
       script.async = true;
@@ -196,6 +201,7 @@
 
     var previousEnableAnalytics = window.ksEnableAnalytics;
     window.ksEnableAnalytics = function () {
+      if (/^\/admin(?:-keis)?(?:\/|$)/.test(location.pathname)) return;
       if (previousEnableAnalytics) previousEnableAnalytics();
       if ('requestIdleCallback' in window) {
         requestIdleCallback(loadMetrika);
@@ -205,22 +211,25 @@
     };
 
     try {
-      if (localStorage.getItem('cookie_accepted') === 'true') {
+      if (localStorage.getItem('cookie_accepted') === 'true' && !/^\/admin(?:-keis)?(?:\/|$)/.test(location.pathname)) {
         window.ksEnableAnalytics();
       }
     } catch (e) {}
   </script>
-  <script type="module" crossorigin src="/assets/index-BVtl4QkQ.js"></script>
+  <script type="module" crossorigin src="/assets/index-CqIPBVc_.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-Cyuzqnbw.js">
-  <link rel="modulepreload" crossorigin href="/assets/vendor-framer-B4_J9g5e.js">
-  <link rel="modulepreload" crossorigin href="/assets/vendor-react-CGAOf7HK.js">
-  <link rel="modulepreload" crossorigin href="/assets/vendor-misc-COsz33Uk.js">
-  <link rel="modulepreload" crossorigin href="/assets/vendor-lucide-ChwWOHiN.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-BrdS80G4.css">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-framer-eynrtXHl.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-react-CNuPF9vY.js">
+  <link rel="modulepreload" crossorigin href="/assets/contentData-CKx-C5Md.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-lucide-CKvs-Fkj.js">
+  <link rel="modulepreload" crossorigin href="/assets/imageUtils-Cuvb-yNi.js">
+  <link rel="modulepreload" crossorigin href="/assets/Sidebar-NiKqiCfT.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-knkQd1Q-.css">
 </head>
 
 <body class="bg-white text-zinc-900 antialiased font-sans m-0 p-0">
   <div id="root"></div>
+
 </body>
 
 </html>

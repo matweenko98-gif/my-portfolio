@@ -376,7 +376,7 @@ export default function ArticlePage() {
                 className="inline-flex items-center gap-2 text-xs font-medium text-zinc-600 hover:text-black transition-colors py-2 px-3.5 rounded-[2px] border border-zinc-200 bg-white shadow-sm cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Назад</span>
+                <span>Все статьи</span>
               </button>
             </div>
 
@@ -484,6 +484,7 @@ export default function ArticlePage() {
 
             </article>
 
+            <section className="mp-section article-services" aria-label="Услуги по теме статьи"><h2>От статьи к вашему проекту</h2><div className="mp-reading-list">{(article.slug === 'landing-or-multipage-website' ? [['landing','Лендинг','Одна страница для вашего предложения'],['multipage','Сайт компании','Разделы услуг, проектов и информации о бизнесе']] : [['redesign','Редизайн сайта','Обновить структуру и оформление существующего сайта'],['ui-ux-design','Дизайн интерфейса','Получить макеты для дальнейшей разработки']]).map(([key,title,description]) => <Link key={key} to={`/services/${key}`}><h3>{title}</h3><p>{description}</p><span>Что входит в услугу ↗</span></Link>)}</div></section>
             {/* Back to Blog & Share Row */}
             <div className="mt-16 pt-8 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-4">
               <button
@@ -492,7 +493,7 @@ export default function ArticlePage() {
                 className="inline-flex items-center gap-2 px-6 py-3 bg-black hover:bg-neutral-800 text-white text-xs font-medium uppercase tracking-wider rounded-[2px] transition-colors shadow-sm cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>Назад</span>
+                <span>Все статьи</span>
               </button>
 
               <button

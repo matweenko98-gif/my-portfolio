@@ -33,19 +33,37 @@ export default function Sidebar({ activeSection }) {
   }, [isOpen]);
   const location = useLocation();
   const navigate = useNavigate();
+  const [showCurrency, setShowCurrency] = useState(location.pathname !== '/');
+  useEffect(() => {
+    if (location.pathname !== '/') { setShowCurrency(true); return; }
+    const update = () => {
+      const hero = document.getElementById('hero');
+      setShowCurrency(Boolean(hero && hero.getBoundingClientRect().bottom <= 80));
+    };
+    update();
+    window.addEventListener('scroll', update, { passive:true });
+    window.addEventListener('resize', update);
+    return () => { window.removeEventListener('scroll',update); window.removeEventListener('resize',update); };
+  }, [location.pathname]);
 
   const menuItems = contentData.sidebar.navigation;
 
   const menuHref = (id) => {
+    if (id === 'contacts') return location.pathname.startsWith('/services/') ? '#mp-contact' : '#contacts';
     if (id === 'cases') return '/cases';
     if (id === 'brief') return '/brief';
-    if (id === 'blog' && location.pathname !== '/' && !location.pathname.startsWith('/blog')) return '/blog';
+    if (id === 'blog') return '/blog';
     return location.pathname === '/' ? `#${id}` : `/#${id}`;
   };
 
   const handleLinkClick = (e, id) => {
     e.preventDefault();
     setIsOpen(false);
+
+    if (id === 'contacts' && (document.getElementById('mp-contact') || document.getElementById('contacts'))) {
+      (document.getElementById('mp-contact') || document.getElementById('contacts')).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
 
     if (id === 'brief') {
       navigate('/brief');
@@ -59,7 +77,7 @@ export default function Sidebar({ activeSection }) {
       return;
     }
 
-    if (id === 'blog' && location.pathname !== '/' && !location.pathname.startsWith('/blog')) {
+    if (id === 'blog') {
       navigate('/blog');
       window.scrollTo(0, 0);
       return;
@@ -77,7 +95,7 @@ export default function Sidebar({ activeSection }) {
 
   return (
     <>
-      <div className="hidden lg:block fixed top-4 right-6 z-[210] rounded-sm bg-white/95 px-3 py-2 border border-zinc-200"><CurrencySwitcher /></div>
+      {showCurrency && <div className="hidden lg:block fixed top-4 right-6 z-[210] rounded-sm bg-white/95 px-3 py-2 border border-zinc-200"><CurrencySwitcher /></div>}
       {/* ===== MOBILE HEADER ===== */}
       <motion.header
         initial={{ opacity: 0, filter: "blur(8px)" }}
@@ -92,7 +110,7 @@ export default function Sidebar({ activeSection }) {
         >
           {contentData.sidebar.profile.name}
         </Link>
-        <CurrencySwitcher />
+        {showCurrency && <CurrencySwitcher />}
         <button
           ref={menuButtonRef}
           aria-controls="mobile-navigation"
@@ -144,25 +162,12 @@ export default function Sidebar({ activeSection }) {
         <div className="mt-auto mb-8 pt-6 border-t border-zinc-100 w-3/4 flex flex-col items-center gap-3 justify-center">
           <button
             type="button"
-            onClick={(e) => handleLinkClick(e, 'brief')}
+            onClick={(e) => handleLinkClick(e, 'contacts')}
             className="w-full flex items-center justify-center gap-2 bg-[#FF5B23] hover:bg-[#e04e1c] text-white font-medium text-sm py-3 px-4 rounded-sm transition-all duration-200 shadow-sm cursor-pointer border-none"
           >
-            <span>Заполнить бриф</span>
+            <span>Обсудить проект</span>
             <span className="text-white text-xs">→</span>
           </button>
-          <a
-            href={contentData.sidebar.socialLinks.max}
-            className="inline-flex items-center gap-1.5 group cursor-pointer text-[14px] font-normal text-zinc-900 whitespace-nowrap"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="border-b border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
-              Связь в MAX
-            </span>
-            <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              ↗
-            </span>
-          </a>
           <a
             href={contentData.sidebar.socialLinks.telegram}
             className="inline-flex items-center gap-1.5 group cursor-pointer text-[14px] font-normal text-zinc-900 whitespace-nowrap"
@@ -237,26 +242,13 @@ export default function Sidebar({ activeSection }) {
         <div className="shrink-0 mt-auto border-t border-neutral-100/60 pt-4 sidebar-footer">
           <button
             type="button"
-            onClick={(e) => handleLinkClick(e, 'brief')}
+            onClick={(e) => handleLinkClick(e, 'contacts')}
             className="w-full mb-3 flex items-center justify-center gap-2 bg-[#FF5B23] hover:bg-[#e04e1c] text-white font-medium text-[13px] py-2.5 px-3 rounded-sm transition-all duration-200 shadow-sm hover:shadow cursor-pointer border-none"
           >
-            <span>Заполнить бриф</span>
+            <span>Обсудить проект</span>
             <span className="text-white text-xs">→</span>
           </button>
           <div className="flex flex-col gap-2.5">
-            <a
-              href={contentData.sidebar.socialLinks.max}
-              className="inline-flex items-center gap-1.5 group cursor-pointer text-[13px] font-normal text-[#111111] whitespace-nowrap"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="border-b border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors duration-300">
-                Связь в MAX
-              </span>
-              <span className="text-[#FF5B23] font-medium transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                ↗
-              </span>
-            </a>
             <a
               href={contentData.sidebar.socialLinks.telegram}
               className="inline-flex items-center gap-1.5 group cursor-pointer text-[13px] font-normal text-[#111111] whitespace-nowrap"

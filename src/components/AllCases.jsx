@@ -33,7 +33,7 @@ const getCaseImage = (project) => {
 export default function AllCases() {
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'sites', 'apps', 'ai'
+  const [activeTab, setActiveTab] = useState(() => { try { return ['all','sites','apps','ai'].includes(sessionStorage.getItem('case-filter')) ? sessionStorage.getItem('case-filter') : 'all'; } catch { return 'all'; } }); // 'all', 'sites', 'apps', 'ai'
   const [showInfoPopover, setShowInfoPopover] = useState(false);
   const [selectedConcept, setSelectedConcept] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -246,7 +246,7 @@ export default function AllCases() {
               ].map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  aria-pressed={activeTab === tab.id} onClick={() => { setActiveTab(tab.id); try { sessionStorage.setItem('case-filter',tab.id); } catch {} }}
                   className={`relative py-2 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap bg-transparent border-none ${
                     activeTab === tab.id ? 'text-black' : 'text-zinc-400 hover:text-zinc-600'
                   }`}
@@ -435,7 +435,7 @@ export default function AllCases() {
                             {cardContent}
                           </div>
                         ) : (
-                          <Link to={`/case/${slug}`} className="no-underline block h-full">
+                          <Link aria-label={`Смотреть кейс: ${title}`} to={`/case/${slug}`} className="no-underline block h-full">
                             {cardContent}
                           </Link>
                         )}

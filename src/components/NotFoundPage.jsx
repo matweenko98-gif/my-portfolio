@@ -101,9 +101,6 @@ export default function NotFoundPage() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full max-w-7xl mx-auto px-6 py-6 text-center text-xs text-zinc-400 border-t border-zinc-100 z-10">
-        © {new Date().getFullYear()} Ксения Матвеенко. All rights reserved.
-      </footer>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { renderToPipeableStream } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { PassThrough } from 'node:stream';
 import HomePage from './components/HomePage';
+import SiteFooter from './components/SiteFooter';
 import LegalPage from './components/LegalPage';
 import BriefPage from './components/BriefPage';
 import MultipageServicePage from './components/MultipageServicePage';
@@ -25,7 +26,7 @@ export async function render(path) {
     output.on('end', () => resolve(html));
     output.on('error', reject);
     const stream = renderToPipeableStream(
-      <MemoryRouter initialEntries={[path]}>{page}</MemoryRouter>,
+      <MemoryRouter initialEntries={[path]}>{page}<SiteFooter/></MemoryRouter>,
       { onAllReady() { stream.pipe(output); }, onError: reject },
     );
   });

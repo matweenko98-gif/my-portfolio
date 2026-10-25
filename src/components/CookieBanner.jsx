@@ -37,7 +37,7 @@ export default function CookieBanner() {
 
   return (
     <div className={`fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md transition-transform duration-300 ${visible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-      <div className="bg-white/95 border border-neutral-200 rounded-lg p-3.5 shadow-md backdrop-blur-sm text-sm text-neutral-900">
+      <div className="bg-white/95 border border-neutral-200 rounded-md p-3 shadow-md backdrop-blur-sm text-sm text-neutral-900">
         <div className="flex items-start gap-3">
           <div className="flex-1">
             <div className="font-medium mb-1">{cookieText.title}</div>

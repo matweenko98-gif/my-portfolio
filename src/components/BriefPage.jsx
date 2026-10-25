@@ -1,5 +1,5 @@
 import { usePricing } from './CurrencyProvider';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
@@ -32,9 +32,17 @@ export default function BriefPage() {
   // Состояние текущего шага квиза (0...5)
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(1); // 1 = next, -1 = prev
+  const previousStep = useRef(0);
+  useEffect(() => {
+    if (previousStep.current !== currentStep) {
+      document.getElementById('brief-question')?.scrollIntoView({ behavior:'smooth', block:'start' });
+      previousStep.current = currentStep;
+    }
+  }, [currentStep]);
 
   // Состояние формы
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => {
+    const initial = {
     name: '',
     contact: '',
     currentSite: '',
@@ -49,6 +57,17 @@ export default function BriefPage() {
     budget: '',
     timeline: '',
     notes: '',
+    };
+    try {
+      const draft = JSON.parse(sessionStorage.getItem(`brief-draft:${searchParams.get('service') || 'general'}`) || 'null');
+      if (draft && typeof draft === 'object') {
+        for (const key of Object.keys(initial)) {
+          if (Array.isArray(initial[key]) && Array.isArray(draft[key])) initial[key] = draft[key].filter(value => typeof value === 'string');
+          else if (typeof initial[key] === 'string' && typeof draft[key] === 'string') initial[key] = draft[key];
+        }
+      }
+    } catch {}
+    return initial;
   });
 
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
@@ -56,6 +75,13 @@ export default function BriefPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  useEffect(() => {
+    const key = `brief-draft:${searchParams.get('service') || 'general'}`;
+    try {
+      if (isSubmitted) sessionStorage.removeItem(key);
+      else sessionStorage.setItem(key, JSON.stringify(formData));
+    } catch {}
+  }, [formData, isSubmitted, searchParams]);
 
   // Список вариантов
   const serviceOptions = [
@@ -65,6 +91,7 @@ export default function BriefPage() {
     'Редизайн сайта',
     'Веб-приложение/сервис/MVP',
     'Дизайн в Фигме',
+    'Помогите выбрать решение',
     'Другое',
   ];
 
@@ -107,7 +134,7 @@ export default function BriefPage() {
     {
       stepNum: '01',
       title: 'Какая задача или веб-продукт вам требуется?',
-      subtitle: 'Выберите одну или несколько категорий услуг (можно выбрать несколько):',
+      subtitle: 'Выберите основную задачу — перейдём к следующему вопросу автоматически:',
       fieldKey: 'services',
       icon: LayoutGrid,
     },
@@ -150,6 +177,11 @@ export default function BriefPage() {
 
   // Переключение чекбоксов (множественный выбор)
   const toggleCheckbox = (field, value) => {
+    if (field === 'services') {
+      setFormData(previous => ({ ...previous, services:[value] }));
+      if (value !== 'Другое') advanceAfterChoice(currentStep);
+      return;
+    }
     setFormData((prev) => {
       const currentArr = prev[field];
       if (currentArr.includes(value)) {
@@ -160,13 +192,25 @@ export default function BriefPage() {
     });
   };
 
+  const advanceTimer = useRef(null);
+  useEffect(() => () => clearTimeout(advanceTimer.current), []);
+  const advanceAfterChoice = (step) => {
+    clearTimeout(advanceTimer.current);
+    advanceTimer.current = setTimeout(() => {
+      setDirection(1);
+      setCurrentStep(previous => previous === step ? Math.min(step + 1, totalSteps - 1) : previous);
+    }, 280);
+  };
   // Одиночный выбор
   const setSingleOption = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field === 'goal' && value !== 'Другое') advanceAfterChoice(currentStep);
+    if (field === 'budget' && formData.timeline || field === 'timeline' && formData.budget) advanceAfterChoice(currentStep);
   };
 
   // Переход к следующему шагу
   const handleNext = () => {
+    clearTimeout(advanceTimer.current);
     if (currentStep < totalSteps - 1) {
       setDirection(1);
       setCurrentStep((prev) => prev + 1);
@@ -175,6 +219,7 @@ export default function BriefPage() {
 
   // Переход к предыдущему шагу
   const handlePrev = () => {
+    clearTimeout(advanceTimer.current);
     if (currentStep > 0) {
       setDirection(-1);
       setCurrentStep((prev) => prev - 1);
@@ -183,6 +228,7 @@ export default function BriefPage() {
 
   // Прямой переход по табу
   const goToStep = (stepIdx) => {
+    clearTimeout(advanceTimer.current);
     setDirection(stepIdx > currentStep ? 1 : -1);
     setCurrentStep(stepIdx);
   };
@@ -194,7 +240,7 @@ export default function BriefPage() {
       newErrors.name = 'Укажите ваше имя';
     }
     if (!formData.contact.trim()) {
-      newErrors.contact = 'Укажите Telegram, телефон или WhatsApp для связи';
+      newErrors.contact = 'Укажите Telegram, телефон или email для связи';
     }
     if (!agreedToPolicy) {
       newErrors.policy = 'Подтвердите согласие с политикой конфиденциальности';
@@ -223,6 +269,8 @@ export default function BriefPage() {
 📱 Контакт: ${formData.contact}
 🌐 Текущий сайт: ${formData.currentSite || 'Нет'}
 
+📍 Источник: ${searchParams.get('source') || 'Бриф'}
+Направление: ${searchParams.get('service') === 'tilda' ? 'Сайт на Tilda' : searchParams.get('service') === 'websites' ? 'Создание сайта — формат подберем' : searchParams.get('service') || 'Не выбрано'}
 🛠 Услуги: ${selectedServices.length > 0 ? selectedServices.join(', ') : 'Не выбрано'}
 🎯 Главная цель: ${finalGoal || 'Не выбрано'}
 
@@ -339,13 +387,15 @@ ${formData.notes || 'Нет'}
               </div>
 
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] xl:text-[46px] font-light tracking-tight text-black mb-2 leading-tight whitespace-normal xl:whitespace-nowrap overflow-hidden text-ellipsis">
-                Расчёт стоимости и сроков проекта
+                Подробный бриф на ваш проект
               </h1>
               <p className="text-xs md:text-sm text-zinc-500 font-normal leading-relaxed max-w-4xl">
-                Ответьте на несколько вопросов, чтобы получить индивидуальное коммерческое предложение, предварительную смету и варианты решения задачи.
+                Расскажите о проекте, чтобы я подготовила предварительную оценку. Неизвестные ответы можно пропустить. Черновик сохраняется в этой вкладке до её закрытия.
               </p>
             </div>
 
+            {searchParams.get('service') && <p className="text-sm text-zinc-600 mb-5">{searchParams.get('service') === 'tilda' ? 'Вы пришли со страницы сайтов на Tilda. Уточним подходящий формат.' : 'Сохраню выбранное направление при оценке проекта.'}</p>}
+            <p className="text-sm text-zinc-600 mb-5">Для первого разговора достаточно <Link to="/#contacts" className="underline underline-offset-4">короткой заявки</Link>. Подробный бриф — по желанию.</p>
             {/* If Submitted: Premium Success State */}
             {isSubmitted ? (
               <motion.div
@@ -361,7 +411,7 @@ ${formData.notes || 'Нет'}
                     Бриф успешно отправлен!
                   </h2>
                   <p className="text-sm text-zinc-400 max-w-md mx-auto leading-relaxed">
-                    Спасибо за подробную информацию. Я ознакомлюсь с вашими ответами и свяжусь с вами по указанным контактам в течение 2–4 часов.
+                    Спасибо за подробную информацию. Я ознакомлюсь с вашими ответами и свяжусь с вами по указанным контактам в течение 1 рабочего дня.
                   </p>
                 </div>
 
@@ -440,7 +490,7 @@ ${formData.notes || 'Нет'}
                   </div>
 
                   {/* Step Content Box */}
-                  <div className="p-5 sm:p-8 min-h-[400px] flex flex-col justify-between">
+                  <div id="brief-question" className="p-5 sm:p-8 min-h-[400px] flex flex-col justify-between scroll-mt-24">
                     <AnimatePresence mode="wait" custom={direction}>
                       <motion.div
                         key={currentStep}
@@ -478,6 +528,7 @@ ${formData.notes || 'Нет'}
                                   <button
                                     key={service}
                                     type="button"
+                                    aria-pressed={isChecked}
                                     onClick={() => toggleCheckbox('services', service)}
                                     className={`flex items-center justify-between p-3.5 text-left border rounded-sm transition-all duration-200 cursor-pointer select-none group ${
                                       isChecked
@@ -544,6 +595,7 @@ ${formData.notes || 'Нет'}
                                   <button
                                     key={goal}
                                     type="button"
+                                    aria-pressed={isSelected}
                                     onClick={() => setSingleOption('goal', goal)}
                                     className={`flex items-center justify-between p-3.5 text-left border rounded-sm transition-all duration-200 cursor-pointer select-none group ${
                                       isSelected
@@ -664,6 +716,7 @@ ${formData.notes || 'Нет'}
                                     <button
                                       key={mat}
                                       type="button"
+                                      aria-pressed={isChecked}
                                       onClick={() => toggleCheckbox('materials', mat)}
                                       className={`flex items-center justify-between p-3.5 text-left border rounded-sm transition-all duration-200 cursor-pointer select-none group ${
                                         isChecked
@@ -730,6 +783,7 @@ ${formData.notes || 'Нет'}
                                     <button
                                       key={bud}
                                       type="button"
+                                      aria-pressed={isSelected}
                                       onClick={() => setSingleOption('budget', bud)}
                                       className={`flex items-center justify-between p-3.5 text-left border rounded-sm transition-all duration-200 cursor-pointer select-none group ${
                                         isSelected
@@ -776,6 +830,7 @@ ${formData.notes || 'Нет'}
                                     <button
                                       key={time}
                                       type="button"
+                                      aria-pressed={isSelected}
                                       onClick={() => setSingleOption('timeline', time)}
                                       className={`flex items-center justify-between p-3.5 text-left border rounded-sm transition-all duration-200 cursor-pointer select-none group ${
                                         isSelected
@@ -846,7 +901,7 @@ ${formData.notes || 'Нет'}
 
                             <div>
                               <label htmlFor="brief-contact" className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">
-                                Telegram / Телефон / WhatsApp <span className="text-[#FF5B23]">*</span>
+                                Telegram / Телефон / Email <span className="text-[#FF5B23]">*</span>
                               </label>
                               <input
                                 id="brief-contact"
@@ -858,7 +913,7 @@ ${formData.notes || 'Нет'}
                                 onChange={(e) =>
                                   setFormData({ ...formData, contact: e.target.value })
                                 }
-                                placeholder="@username или +7 (999) 000-00-00"
+                                placeholder="@username, телефон или email"
                                 className={`w-full px-4 py-3 text-xs md:text-sm bg-white border rounded-sm focus:outline-none focus:ring-1 text-zinc-900 font-normal placeholder:text-zinc-400 placeholder:text-[11px] sm:placeholder:text-xs placeholder:font-normal transition-colors ${
                                   errors.contact
                                     ? 'border-red-500 bg-red-50/30'
@@ -898,8 +953,7 @@ ${formData.notes || 'Нет'}
                                 <span className="text-xs text-zinc-500 leading-snug">
                                   Нажимая кнопку «Отправить бриф», я даю согласие на обработку персональных данных в соответствии с{' '}
                                   <Link
-                                    to="/privacy-policy"
-                                    target="_blank"
+                                    to="/privacy-policy" target="_blank" rel="noopener noreferrer"
                                     className="text-zinc-900 underline hover:text-[#FF5B23] transition-colors"
                                   >
                                     Политикой конфиденциальности

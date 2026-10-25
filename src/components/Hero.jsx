@@ -6,7 +6,7 @@ const CARDS_DATA = [
   {
     id: 'sites',
     title: 'САЙТЫ',
-    tag: 'Tilda',
+    tag: 'Под ключ',
     scrollTargetId: 'service-card-01',
     // top-left, верхняя позиция
     desktopStyle: { left: '0%', top: '10%', width: '220px', height: '120px' },
@@ -21,7 +21,7 @@ const CARDS_DATA = [
   {
     id: 'webapps',
     title: 'ВЕБ-ПРИЛОЖЕНИЯ\nИ MVP',
-    tag: 'AI-development',
+    tag: 'Разработка',
     scrollTargetId: 'service-card-03',
     // центр, ступенька вниз
     desktopStyle: { left: '30%', top: '40%', width: '220px', height: '120px' },
@@ -34,10 +34,10 @@ const CARDS_DATA = [
     ),
   },
   {
-    id: 'platforms',
-    title: 'ПЛАТФОРМЫ/\nСЕРВИСЫ',
-    tag: 'AI-development',
-    scrollTargetId: 'service-card-03',
+    id: 'design',
+    title: 'ДИЗАЙН\nИНТЕРФЕЙСОВ',
+    tag: 'Figma',
+    scrollTargetId: 'service-card-04',
     // справа, top:20% гарантирует чёткий зазор ниже строки статуса
     desktopStyle: { right: '5%', top: '20%', width: '220px', height: '120px' },
     icon: (

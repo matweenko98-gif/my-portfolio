@@ -12,13 +12,8 @@ import { trackConversion } from '../utils/analytics';
 import './MultipageServicePage.css';
 
 
-function ContactLink({ children = 'Обсудить лендинг', className = '', placement }) {
-  const message = 'Здравствуйте! Меня интересует лендинг. Хочу обсудить предложение, сроки и стоимость разработки.';
-  const href = `${contentData.contacts.messengers.telegram.url.replace(/\/$/, '')}?text=${encodeURIComponent(message)}`;
-  return <a href={href} target="_blank" rel="noopener noreferrer" className={`mp-button ${className}`}
-    onClick={() => trackConversion('contact_clicked', { contact_method: 'telegram', service: 'landing', placement })}>
-    {children}<ArrowUpRight size={17} aria-hidden="true" />
-  </a>;
+function ContactLink({ children = 'Получить оценку проекта', className = '' }) {
+  return <a href="#mp-contact" className={`mp-button ${className}`}>{children}<ArrowUpRight size={17} aria-hidden="true"/></a>;
 }
 
 const keepWords = value => value.replace(/(^|\s)([вксоуаи]|на|из|от|до|по|об|без|для|или)\s+(?=\S)/gi, '$1$2\u00a0');
@@ -46,7 +41,7 @@ export default function LandingServicePage() {
     <main className="mp-main">
       <section className="mp-hero" aria-labelledby="mp-title">
         <div className="mp-topline">
-          <nav aria-label="Хлебные крошки"><Link to="/">Главная</Link><span>/</span><span aria-current="page">Лендинг</span></nav>
+          <nav aria-label="Хлебные крошки"><Link to="/">Главная</Link><span>/</span><Link to="/#services">Услуги</Link><span>/</span><span aria-current="page">Лендинг</span></nav>
           <span className="mp-edition">KSENWEB / УСЛУГИ</span>
         </div>
         <div className="mp-hero-intro"><p className="mp-eyebrow"><span>[ WEB DEVELOPMENT ]</span></p><p>Ксения Матвеенко<br />Дизайн и разработка</p></div>
@@ -54,7 +49,7 @@ export default function LandingServicePage() {
         <div className="mp-hero-bottom"><div>
           <p className="mp-lead">Сайт для вашей услуги или продукта — от структуры до запуска</p>
           <p className="mp-hero-copy">Разработаю структуру, индивидуальный дизайн и мобильную версию. Подключу форму обращений и передам сайт, который вы сможете редактировать самостоятельно.</p>
-        </div><div className="mp-hero-facts"><span>РАЗРАБОТКА ПОД КЛЮЧ</span><strong>{service.price}</strong><p>На Tilda · от 7 рабочих дней<br/>Точный срок — после обсуждения задачи</p><p>Структура · Figma · Tilda<br />Адаптив · Формы · SEO-основа</p><a href="#mp-price">Что входит в стоимость <span aria-hidden="true">↗</span></a></div></div>
+        <div className="mp-actions"><ContactLink/><a className="mp-text-link" href="#mp-scope">Что входит в разработку ↘</a></div></div><div className="mp-hero-facts"><span>РАЗРАБОТКА ПОД КЛЮЧ</span><strong>{service.price}</strong><p>На Tilda · от 7 рабочих дней<br/>Точный срок — после обсуждения задачи</p><p>Структура · Figma · Tilda<br />Адаптив · Формы · SEO-основа</p><a href="#mp-price">Что входит в стоимость <span aria-hidden="true">↗</span></a></div></div>
       </section>
 
       <section className="mp-projects mp-section" id="mp-projects">
@@ -93,7 +88,7 @@ export default function LandingServicePage() {
 
       <section className="mp-price mp-section" id="mp-price">
         <SectionHeading number="05" label="ТАРИФ И УСЛОВИЯ" dark>Стоимость<br /><span>разработки лендинга</span></SectionHeading>
-        <div className="mp-price-layout"><div className="mp-price-offer"><p className="mp-eyebrow">ЛЕНДИНГ НА TILDA ПОД КЛЮЧ</p><div className="mp-price-value">от <strong>{money(30000)}</strong></div><p>Базовый ориентир для лендинга с индивидуальным дизайном. Точную стоимость и срок согласуем после обсуждения блоков, материалов и подключений.</p><ContactLink placement="price">Обсудить состав и стоимость</ContactLink></div><div className="mp-price-details"><h3>Основа проекта</h3><ul>{['Структура блоков и дизайн в Figma', 'Верстка в Zero Block и мобильная адаптация', 'Формы и согласованные подключения', 'Базовая SEO-подготовка и передача проекта'].map(text => <li key={text}><Check size={16} aria-hidden="true" />{text}</li>)}</ul><div className="mp-price-factors"><h3>Что влияет на оценку</h3><p>Количество и сложность блоков, готовность текстов и фотографий, анимация и внешние интеграции.</p></div><p className="mp-small-note">Тариф Tilda, домен и платные внешние сервисы оплачиваются отдельно. Дополнительные работы согласуем до их выполнения.</p></div></div>
+        <div className="mp-price-layout"><div className="mp-price-offer"><p className="mp-eyebrow">ЛЕНДИНГ НА TILDA ПОД КЛЮЧ</p><div className="mp-price-value">от <strong>{money(30000)}</strong></div><p>Базовый ориентир для лендинга с индивидуальным дизайном. Точную стоимость и срок согласуем после обсуждения блоков, материалов и подключений.</p><ContactLink placement="price">Получить оценку проекта</ContactLink></div><div className="mp-price-details"><h3>Основа проекта</h3><ul>{['Структура блоков и дизайн в Figma', 'Верстка в Zero Block и мобильная адаптация', 'Формы и согласованные подключения', 'Базовая SEO-подготовка и передача проекта'].map(text => <li key={text}><Check size={16} aria-hidden="true" />{text}</li>)}</ul><div className="mp-price-factors"><h3>Что влияет на оценку</h3><p>Количество и сложность блоков, готовность текстов и фотографий, анимация и внешние интеграции.</p></div><p className="mp-small-note">Тариф Tilda, домен и платные внешние сервисы оплачиваются отдельно. Дополнительные работы согласуем до их выполнения.</p></div></div>
       </section>
 
       <div className="lp-reviews-marker"><p className="mp-eyebrow"><span>[ 06 ]</span> ОТЗЫВЫ</p></div>
@@ -117,7 +112,6 @@ export default function LandingServicePage() {
       <section className="mp-contact mp-section" id="mp-contact">
         <div className="mp-contact-bottom lp-contact-layout"><div className="lp-contact-intro"><p className="mp-eyebrow"><span>[ ОБСУДИТЬ ПРОЕКТ ]</span></p><h2>Обсудим лендинг<br /><span>для вашей задачи</span></h2><p>Расскажите о задаче — уточню детали и подготовлю предварительную оценку. До начала работы согласуем состав, стоимость и сроки; дизайн утвердим перед сборкой сайта.</p><a className="mp-text-link lp-telegram-link" href={contentData.contacts.messengers.telegram.url} target="_blank" rel="noopener noreferrer" onClick={() => trackConversion('contact_clicked', { contact_method: 'telegram', service: 'landing', placement: 'footer' })}>Или напишите мне в Telegram<ArrowUpRight size={16}/></a></div><LandingLeadForm /></div>
       </section>
-      <footer className="mp-footer"><Link to="/">KSENWEB / Ксения Матвеенко</Link><div><Link to="/privacy-policy">Конфиденциальность</Link><Link to="/terms">Условия использования</Link></div></footer>
     </main>
   </div>;
 }

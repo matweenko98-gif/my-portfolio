@@ -12,13 +12,8 @@ import { trackConversion } from '../utils/analytics';
 import './MultipageServicePage.css';
 
 
-function ContactLink({ children = 'Обсудить интернет-магазин', className = '', placement }) {
-  const message = 'Здравствуйте! Меня интересует интернет-магазин. Хочу обсудить каталог, оплату, доставку и стоимость разработки.';
-  const href = `${contentData.contacts.messengers.telegram.url.replace(/\/$/, '')}?text=${encodeURIComponent(message)}`;
-  return <a href={href} target="_blank" rel="noopener noreferrer" className={`mp-button ${className}`}
-    onClick={() => trackConversion('contact_clicked', { contact_method: 'telegram', service: 'online-store', placement })}>
-    {children}<ArrowUpRight size={17} aria-hidden="true" />
-  </a>;
+function ContactLink({ children = 'Получить оценку проекта', className = '' }) {
+  return <a href="#mp-contact" className={`mp-button ${className}`}>{children}<ArrowUpRight size={17} aria-hidden="true"/></a>;
 }
 
 function SectionHeading({ number, label, children, dark = false }) {
@@ -44,7 +39,7 @@ export default function OnlineStoreServicePage() {
     <main className="mp-main">
       <section className="mp-hero" aria-labelledby="mp-title">
         <div className="mp-topline">
-          <nav aria-label="Хлебные крошки"><Link to="/">Главная</Link><span>/</span><span aria-current="page">Интернет-магазин</span></nav>
+          <nav aria-label="Хлебные крошки"><Link to="/">Главная</Link><span>/</span><Link to="/#services">Услуги</Link><span>/</span><span aria-current="page">Интернет-магазин</span></nav>
           <span className="mp-edition">KSENWEB / УСЛУГИ</span>
         </div>
         <div className="mp-hero-intro"><p className="mp-eyebrow"><span>[ WEB DEVELOPMENT ]</span></p><p>Ксения Матвеенко<br />Дизайн и разработка</p></div>
@@ -52,7 +47,7 @@ export default function OnlineStoreServicePage() {
         <div className="mp-hero-bottom"><div>
           <p className="mp-lead">Магазин с каталогом товаров, корзиной и оформлением заказа</p>
           <p className="mp-hero-copy">Спроектирую каталог и карточки товаров, создам дизайн и разработаю магазин на подходящей платформе. Настрою согласованные способы оплаты, доставки и уведомления о заказах.</p>
-        </div><div className="mp-hero-facts"><span>РАЗРАБОТКА ПОД КЛЮЧ</span><strong>{service.price}</strong><p>Для реализации на Tilda<br/>Разработка на коде — по оценке</p><p>Каталог · Карточки · Корзина<br />Оплата · Доставка · Адаптив</p><a href="#mp-price">Что входит в стоимость <span aria-hidden="true">↗</span></a></div></div>
+        <div className="mp-actions"><ContactLink/><a className="mp-text-link" href="#mp-scope">Что входит в разработку ↘</a></div></div><div className="mp-hero-facts"><span>РАЗРАБОТКА ПОД КЛЮЧ</span><strong>{service.price}</strong><p>Для реализации на Tilda<br/>Точный состав и срок — после обсуждения</p><p>Каталог · Карточки · Корзина<br />Оплата · Доставка · Адаптив</p><a href="#mp-price">Что входит в стоимость <span aria-hidden="true">↗</span></a></div></div>
       </section>
 
       <section className="mp-fit mp-section" id="mp-format">
@@ -80,7 +75,7 @@ export default function OnlineStoreServicePage() {
 
       <section className="mp-price mp-section" id="mp-price">
         <SectionHeading number="05" label="ТАРИФ И УСЛОВИЯ" dark>Стоимость<br /><span>интернет-магазина</span></SectionHeading>
-        <div className="mp-price-layout"><div className="mp-price-offer"><p className="mp-eyebrow">ИНТЕРНЕТ-МАГАЗИН НА TILDA</p><div className="mp-price-value">от <strong>{money(45000)}</strong></div><p>Ориентир для магазина с согласованным каталогом и сценарием заказа. Точную стоимость и срок определим после оценки ассортимента и интеграций.</p><ContactLink placement="price">Обсудить состав и стоимость</ContactLink></div><div className="mp-price-details"><h3>Основа проекта</h3><ul>{['Структура каталога и дизайн в Figma', 'Каталог, карточки, корзина и адаптив', 'Согласованные оплата, доставка и уведомления', 'Базовая SEO-подготовка и обучение работе с каталогом'].map(text => <li key={text}><Check size={16} aria-hidden="true" />{text}</li>)}</ul><div className="mp-price-factors"><h3>Что влияет на оценку</h3><p>Категории, варианты и количество товаров для наполнения, готовность фотографий и описаний, способы оплаты и доставки, внешние интеграции.</p></div><p className="mp-small-note">Отдельно оплачиваются тариф Tilda, домен и платные сервисы. Комиссии платежного провайдера зависят от его условий. Дополнительное наполнение, поддержка и новые интеграции согласуются отдельно.</p></div></div>
+        <div className="mp-price-layout"><div className="mp-price-offer"><p className="mp-eyebrow">ИНТЕРНЕТ-МАГАЗИН НА TILDA</p><div className="mp-price-value">от <strong>{money(45000)}</strong></div><p>Ориентир для магазина с согласованным каталогом и сценарием заказа. Точную стоимость и срок определим после оценки ассортимента и интеграций.</p><ContactLink placement="price">Получить оценку проекта</ContactLink></div><div className="mp-price-details"><h3>Основа проекта</h3><ul>{['Структура каталога и дизайн в Figma', 'Каталог, карточки, корзина и адаптив', 'Согласованные оплата, доставка и уведомления', 'Базовая SEO-подготовка и обучение работе с каталогом'].map(text => <li key={text}><Check size={16} aria-hidden="true" />{text}</li>)}</ul><div className="mp-price-factors"><h3>Что влияет на оценку</h3><p>Категории, варианты и количество товаров для наполнения, готовность фотографий и описаний, способы оплаты и доставки, внешние интеграции.</p></div><p className="mp-small-note">Отдельно оплачиваются тариф Tilda, домен и платные сервисы. Комиссии платежного провайдера зависят от его условий. Дополнительное наполнение, поддержка и новые интеграции согласуются отдельно.</p></div></div>
       </section>
 
       <div className="lp-reviews-marker"><p className="mp-eyebrow"><span>[ 06 ]</span> ОТЗЫВЫ</p></div>
@@ -105,7 +100,6 @@ export default function OnlineStoreServicePage() {
       <section className="mp-contact mp-section" id="mp-contact">
         <div className="mp-contact-bottom lp-contact-layout"><div className="lp-contact-intro"><p className="mp-eyebrow"><span>[ ОБСУДИТЬ ПРОЕКТ ]</span></p><h2>Обсудим магазин<br /><span>для ваших товаров</span></h2><p>Расскажите об ассортименте — обсудим каталог, оформление заказа, оплату и доставку. Подготовлю предварительную оценку проекта.</p><a className="mp-text-link lp-telegram-link" href={contentData.contacts.messengers.telegram.url} target="_blank" rel="noopener noreferrer" onClick={() => trackConversion('contact_clicked', {contact_method:'telegram',service:'online-store',placement:'footer'})}>Или напишите мне в Telegram<ArrowUpRight size={16}/></a></div><LandingLeadForm service="online-store"/></div>
       </section>
-      <footer className="mp-footer"><Link to="/">KSENWEB / Ксения Матвеенко</Link><div><Link to="/privacy-policy">Конфиденциальность</Link><Link to="/terms">Условия использования</Link></div></footer>
     </main>
   </div>;
 }

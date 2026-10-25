@@ -1,3 +1,4 @@
+import { serviceCatalog } from '../content/serviceCatalog';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Plus, Trash2, Upload, Loader2, ArrowLeft, Pencil, Calendar, Clock } from 'lucide-react';
@@ -335,6 +336,7 @@ export default function AdminWorkspace() {
   // Metadata state
   const [sphere, setSphere] = useState('');
   const [type, setType] = useState('');
+  const [linkedServices, setLinkedServices] = useState(null);
   const [stack, setStack] = useState('');
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [shortBio, setShortBio] = useState('');
@@ -927,6 +929,7 @@ export default function AdminWorkspace() {
       // Metadata
       setSphere(data.meta?.sphere || '');
       setType(data.meta?.type || '');
+      setLinkedServices(Array.isArray(data.meta?.services) ? data.meta.services : null);
       setStack(data.meta?.stack || '');
       setYear(data.meta?.year || '');
       setShortBio(getAboutText(data.about, data.about_text || data.subtitle));
@@ -1240,6 +1243,7 @@ export default function AdminWorkspace() {
     setCardTags('');
     setSphere('');
     setType('');
+    setLinkedServices(null);
     setStack('');
     setYear(new Date().getFullYear().toString());
     setShortBio('');
@@ -1310,6 +1314,7 @@ export default function AdminWorkspace() {
           card_image: cardImage,
           card_tags: formattedCardTags,
           meta: {
+            services: linkedServices,
             sphere,
             type,
             stack,
@@ -1986,6 +1991,12 @@ export default function AdminWorkspace() {
                     </span>
                   </div>
 
+                  <fieldset className="col-span-full border border-zinc-200 p-4 rounded-sm">
+                    <legend className="text-sm font-semibold">Какие услуги связаны с кейсом</legend>
+                    <p className="text-xs text-zinc-500 mb-3">Автоматически — по типу проекта и тегам. Для точного выбора отметьте услуги: ссылки на них появятся внутри кейса. На страницах услуг показываются три последних выполненных проекта независимо от тематики.</p>
+                    <label className="flex gap-2 text-sm mb-3"><input type="checkbox" checked={linkedServices === null} onChange={e => setLinkedServices(e.target.checked ? null : [])}/>Подбирать автоматически</label>
+                    <div className="flex flex-wrap gap-4">{Object.entries(serviceCatalog).map(([key, service]) => <label key={key} className="flex gap-2 text-sm"><input type="checkbox" disabled={linkedServices === null} checked={linkedServices?.includes(key) || false} onChange={e => setLinkedServices(previous => e.target.checked ? [...(previous || []), key] : previous.filter(value => value !== key))}/>{service.name}</label>)}</div>
+                  </fieldset>
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-1">
                       Стек

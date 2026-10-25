@@ -1,18 +1,9 @@
 import { Link } from 'react-router-dom';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { Layers, Code, RefreshCw, Send, X, Layout, Files, FileText } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Layers, Code, RefreshCw, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 import originalContentData from '../contentData';
 import { usePricing } from './CurrencyProvider';
-import ProjectCart from './ProjectCart';
-import { flyChipToCart } from '../utils/flyToCart';
-
-const TILDA_CART_ICON_KEYS = {
-  siteType: 'layout',
-  pagesCount: 'files',
-  contentReady: 'fileText',
-};
 
 const Figma = (props) => (
   <svg
@@ -39,59 +30,6 @@ const ICON_MAP = {
   '03': Code,
   '04': Figma,
 };
-
-const getDaysWord = (n) => {
-  const rem10 = n % 10;
-  const rem100 = n % 100;
-  if (rem100 >= 11 && rem100 <= 19) {
-    return 'рабочих дней';
-  }
-  if (rem10 === 1) {
-    return 'рабочий день';
-  }
-  if (rem10 >= 2 && rem10 <= 4) {
-    return 'рабочих дня';
-  }
-  return 'рабочих дней';
-};
-
-const formatPrice = (price) => {
-  return price.toLocaleString('ru-RU');
-};
-
-
-const SegmentedControl = ({ label, options, val, setVal }) => (
-  <div className="flex flex-col gap-2">
-    <span className="text-white text-[10px] font-medium tracking-wider uppercase">{label}</span>
-    <div
-      className="grid gap-1.5 p-1 bg-neutral-900/50 rounded-sm border border-neutral-850"
-      style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
-    >
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => setVal(opt.value)}
-          className={`text-center py-2 px-1 sm:px-3 rounded-sm text-[11px] sm:text-xs font-semibold transition-all ${
-            val === opt.value
-              ? 'bg-white text-black shadow-sm'
-              : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
-          }`}
-          style={{ borderWidth: '0.4px', borderColor: val === opt.value ? '#FF5B23' : 'transparent', borderStyle: 'solid' }}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  </div>
-);
-
-function getOptionButtonClass(isSelected, isFirstHint) {
-  if (isSelected) {
-    return 'bg-white text-black shadow-sm border border-transparent';
-  }
-  return 'text-neutral-400 border border-neutral-850 bg-transparent hover:border-neutral-750 hover:bg-neutral-800 hover:text-white';
-}
 
 function TildaTariffs({ service }) {
   const { text } = usePricing();
@@ -213,7 +151,7 @@ function RedesignTariffs({ service }) {
         'Проработка структуры всех страниц',
         'Новая визуальная концепция и\u00a0UI-кит',
         'Верстка на\u00a0Tilda и\u00a0перенос товаров',
-        'Сохранение SEO-позиций и\u00a0ссылок'
+        'Карта адресов и\u00a0редиректы при переносе'
       ]
     }
   ];
@@ -360,7 +298,7 @@ function FigmaTariffs({ service }) {
       <div id="tariffs-heading-04" className="text-sm font-semibold text-white border-b border-neutral-850 pb-3 flex justify-between items-center flex-wrap gap-2 scroll-mt-24">
         <span>Стоимость дизайна в Figma</span>
         <span className="text-[11px] font-semibold text-neutral-400 bg-neutral-900 border border-neutral-850 px-2.5 py-1 rounded-sm">
-          Сроки: от 5 рабочих дней
+          Сроки: от 10 рабочих дней
         </span>
       </div>
 
@@ -535,7 +473,7 @@ function ServiceGraphic({ number }) {
   return null;
 }
 
-function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
+function ServiceCard({ service, isCalcOpen, onToggleCalc }) {
   const IconComponent = ICON_MAP[service.number] || Layers;
   const direction = { '01':'websites', '02':'redesign', '03':'web-apps', '04':'ui-ux-design' }[service.number];
 
@@ -561,7 +499,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
             </div>
             
             <p className="text-[14px] text-neutral-400 leading-[1.45] max-w-[640px] mb-6">{service.brief}</p>
-            {service.number === '01' && <div className="flex flex-wrap gap-4 text-sm text-[#E0FB4A] mb-5">{[['landing','Лендинги'],['multipage','Многостраничные сайты'],['online-store','Интернет-магазины'],['tilda','Сайты на Tilda']].map(([slug,label])=><Link key={slug} to={`/services/${slug}`} className="underline underline-offset-4">{label}</Link>)}</div>}
+            {service.number === '01' && <div className="flex flex-wrap gap-4 text-sm text-[#E0FB4A] mb-5">{[['landing','Лендинги'],['multipage','Сайты компаний'],['online-store','Интернет-магазины'],['tilda','Сайты на Tilda']].map(([slug,label])=><Link key={slug} to={`/services/${slug}`} className="underline underline-offset-4">{label}</Link>)}</div>}
             
             {/* Mobile-only parameters (displayed statically, vertical stream) */}
             <div className="block md:hidden space-y-4 border-t border-neutral-800 pt-5 mt-5">
@@ -582,8 +520,9 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
 
           {/* Action Buttons (always visible at bottom of left column) */}
           <div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-neutral-800">
-            <Link to={`/services/${direction}`} className="text-xs font-semibold py-2.5 px-5 rounded-sm bg-[#FF5B23] text-white">Подробнее об услуге ↗</Link>
+            <Link to={`/services/${direction}`} className="text-xs font-semibold py-2.5 px-5 rounded-sm bg-[#FF5B23] text-white">Что входит в услугу ↗</Link>
             <button
+              aria-expanded={isCalcOpen}
               onClick={onToggleCalc}
               className={`text-xs font-semibold py-2.5 px-5 rounded-sm transition-all duration-200 hover:-translate-y-[0.5px] cursor-pointer ${
                 isCalcOpen
@@ -591,13 +530,7 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
                   : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
               }`}
             >
-              {isCalcOpen ? 'Скрыть подробности' : 'Посмотреть тарифы'}
-            </button>
-            <button
-              onClick={() => window.open('https://t.me/ksen_web', '_blank')}
-              className="border border-[#FF5B23]/30 text-white bg-transparent transition-all duration-300 hover:border-[#FF5B23] hover:text-white hover:bg-[#FF5B23]/5 text-xs font-semibold py-2.5 px-5 rounded-sm hover:-translate-y-[0.5px] cursor-pointer"
-            >
-              Рассказать о задаче
+              {isCalcOpen ? 'Скрыть стоимость' : 'Стоимость'}
             </button>
           </div>
         </div>
@@ -633,11 +566,12 @@ function ServiceCard({ service, isCalcOpen, onToggleCalc, onSendSuccess }) {
 
       {/* Smoothly Expanding Calculator Panel */}
       <div
+        hidden={!isCalcOpen}
         className={`transition-all duration-300 ease-in-out overflow-hidden ${
           isCalcOpen ? 'max-h-[2500px] opacity-100 mt-6 pt-6 border-t border-neutral-800' : 'max-h-0 opacity-0 pointer-events-none'
         }`}
       >
-        <Calculator service={service} onSendSuccess={onSendSuccess} isCalcOpen={isCalcOpen} />
+        <Calculator service={service} />
       </div>
     </div>
   );
@@ -647,8 +581,6 @@ export default function Services() {
   const { text } = usePricing();
   const contentData = text(originalContentData);
   const [activeCalculator, setActiveCalculator] = useState(null);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const [successModalContent, setSuccessModalContent] = useState(null);
   const services = contentData.services.items;
 
   useEffect(() => {
@@ -743,10 +675,6 @@ export default function Services() {
               onToggleCalc={() => {
                 setActiveCalculator(prev => prev === service.number ? null : service.number);
               }}
-              onSendSuccess={() => {
-                setSuccessModalContent('Расчет успешно отправлен! Я свяжусь с вами в Telegram в течение 1 рабочего дня.');
-                setIsSuccessModalOpen(true);
-              }}
             />
           </motion.div>
         ))}
@@ -755,53 +683,6 @@ export default function Services() {
       </div>
     </motion.section>
 
-      {typeof document !== 'undefined' && createPortal(
-      <div
-        className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 backdrop-blur-md bg-black/40 transition-all duration-300 ease-in-out ${
-          isSuccessModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <div
-          className={`bg-white rounded-[1px] p-7 sm:p-9 max-w-[400px] w-full shadow-2xl relative flex flex-col items-center text-center gap-5 transition-all duration-300 transform ${
-            isSuccessModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
-          }`}
-        >
-          <button
-            onClick={() => {
-              setIsSuccessModalOpen(false);
-              setSuccessModalContent(null);
-              setActiveCalculator(null);
-            }}
-            className="absolute top-3.5 right-3.5 text-neutral-300 hover:text-neutral-500 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polyline points="5,15 11.5,21 23,8" stroke="#FF5B23" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-
-          <div>
-            <h3 className="text-[17px] font-semibold text-[#111111] mb-2 tracking-tight">Расчет отправлен</h3>
-            <p className="text-sm text-neutral-500 leading-relaxed">
-              {successModalContent || 'Я свяжусь с вами в Telegram в течение 1 рабочего дня.'}
-            </p>
-          </div>
-
-          <button
-            onClick={() => {
-              setIsSuccessModalOpen(false);
-              setSuccessModalContent(null);
-              setActiveCalculator(null);
-            }}
-            className="w-full mt-1 border border-neutral-200 text-[#111111] font-medium text-sm py-2.5 rounded-[1px] hover:border-neutral-300 hover:bg-neutral-50 transition-all duration-200 cursor-pointer"
-          >
-            Закрыть
-          </button>
-        </div>
-      </div>,
-      document.body
-    )}
 </>
   );
 }
