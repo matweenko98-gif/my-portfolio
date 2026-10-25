@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import contact from '../api/contact.js';
+import { telegramMessages } from '../server/telegram-format.js';
 
 test('brief API validates requests, keeps secrets server-side and verifies delivery', async () => {
   const originalFetch = globalThis.fetch;
@@ -14,7 +15,7 @@ test('brief API validates requests, keeps secrets server-side and verifies deliv
     const message = JSON.parse(options.body); sent.push(message);
     assert.equal(message.chat_id, 'test-chat');
     assert.ok(message.text.length <= 4096);
-    assert.equal(message.parse_mode, undefined);
+    assert.equal(message.parse_mode, 'HTML');
     return new Response(JSON.stringify({ ok: !failure }), { status: failure ? 400 : 200 });
   };
   let serial = 0;
@@ -33,7 +34,7 @@ test('brief API validates requests, keeps secrets server-side and verifies deliv
     assert.equal(success.headers['cache-control'],'no-store');
     const long='Полный бриф '.repeat(700); const count=sent.length;
     assert.equal((await run({body:{consent:true,message:long}})).statusCode,200);
-    assert.equal(sent.slice(count).map(x=>x.text).join(''),long);
+    assert.equal(sent.slice(count).map(x=>x.text.replace(/<\/?b>/g, '').replace(/\n/g, '')).join(''),long);
     failure=true; assert.equal((await run()).statusCode,502); failure=false;
     delete process.env.TELEGRAM_BOT_TOKEN; delete process.env.TELEGRAM_CHAT_ID;
     assert.equal((await run()).statusCode,503);
@@ -46,5 +47,17 @@ test('brief API validates requests, keeps secrets server-side and verifies deliv
     for(const [name,value] of Object.entries({TELEGRAM_BOT_TOKEN:env.token,TELEGRAM_CHAT_ID:env.chat,VITE_TELEGRAM_BOT_TOKEN:env.legacyToken,VITE_TELEGRAM_CHAT_ID:env.legacyChat})) {
       if(value===undefined) delete process.env[name]; else process.env[name]=value;
     }
+  }
+});
+
+test('Telegram formatting separates sections and escapes visitor HTML without breaking long messages', () => {
+  const result = telegramMessages('Заявка: Аудит сайта\n\nКонтакт: @client\n\nЧто проверить:\n<script> & <b>текст</b>');
+  assert.deepEqual(result, ['<b>Заявка:</b> Аудит сайта\n\n<b>Контакт:</b> @client\n\n<b>Что проверить:</b>\n&lt;script&gt; &amp; &lt;b&gt;текст&lt;/b&gt;']);
+  const chunks = telegramMessages('О задаче:\n' + '<&😀'.repeat(2000));
+  assert.ok(chunks.length > 1);
+  for (const chunk of chunks) {
+    assert.ok(chunk.length <= 3800);
+    assert.equal((chunk.match(/<b>/g) || []).length, (chunk.match(/<\/b>/g) || []).length);
+    assert.ok(!chunk.endsWith('&') && !/[\uD800-\uDBFF]$/.test(chunk));
   }
 });

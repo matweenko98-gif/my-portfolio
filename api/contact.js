@@ -1,3 +1,5 @@
+import { telegramMessages } from '../server/telegram-format.js';
+
 const attempts = new Map();
 const WINDOW_MS = 60_000;
 
@@ -46,16 +48,11 @@ export default async function contact(req, res) {
   attempts.set(ip, rate);
   try {
     const signal = AbortSignal.timeout(8000);
-    let remaining = payload.message;
-    while (remaining) {
-      let length = Math.min(3800, remaining.length);
-      if (length < remaining.length && /[\uD800-\uDBFF]/.test(remaining[length - 1])) length -= 1;
-      const text = remaining.slice(0, length);
-      remaining = remaining.slice(length);
+    for (const text of telegramMessages(payload.message)) {
       const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }),
+        body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML', disable_web_page_preview: true }),
         signal,
       });
       const result = await response.json();

@@ -1,0 +1,26 @@
+.site-audit{padding:56px 64px;background:#fafafa;border-top:1px solid #ededed;border-bottom:1px solid #ededed;scroll-margin-top:24px}
+.site-audit-top{display:flex;align-items:center;justify-content:space-between;color:#ff5b23;margin-bottom:36px;font-size:11px;letter-spacing:.08em}
+.site-audit-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
+.site-audit-intro h2{font-size:clamp(32px,3.6vw,54px);line-height:1.07;letter-spacing:-.04em;margin:0 0 24px;font-weight:500}
+.site-audit-intro h2>span{color:#717780}
+.site-audit-intro>p{font-size:15px;line-height:1.65;color:#52525b;max-width:460px}
+.site-audit-intro ul{padding:0;margin:32px 0;list-style:none;display:grid;gap:20px}
+.site-audit-intro li{display:flex;gap:12px;align-items:flex-start}
+.site-audit-intro li>svg{color:#ff5b23;margin-top:3px;flex-shrink:0}
+.site-audit-intro li strong{display:block;font-size:15px;font-weight:500;margin-bottom:4px}
+.site-audit-intro li span{display:block;color:#71717a;font-size:13px;line-height:1.5}
+.site-audit-intro .site-audit-note{font-size:12px;border-top:1px solid #d4d4d8;padding-top:20px;line-height:1.6}
+.site-audit-form-panel{background:white;padding:28px;border:1px solid #e4e4e7}
+.site-audit-form-panel h3{font-size:23px;font-weight:500;letter-spacing:-.02em;margin:0 0 10px;line-height:1.2}
+.site-audit-form-panel>p{color:#71717a;font-size:13px;line-height:1.5;margin:0 0 24px}
+.site-audit-form-panel .lp-lead-form{margin-top:0;gap:16px}
+.site-audit-form-panel .lp-lead-form label:not(.lp-consent){display:block}
+.site-audit-form-panel .lp-lead-form label:not(.lp-consent)>input,.site-audit-form-panel .lp-lead-form textarea{display:block;margin-top:8px}
+.site-audit-form-panel .lp-lead-form label:not(.lp-consent)>span{color:#71717a;font-size:12px}
+.site-audit-form-panel .lp-lead-form .mp-button{display:flex;gap:12px;justify-content:center;align-items:center;width:100%;background:#ff5b23;color:#fff}
+.site-audit-form-panel .lp-lead-form .mp-button:hover{background:#dd4617}
+.site-audit-success{padding:24px 0;min-height:280px}
+.site-audit-success>svg{color:#ff5b23;margin-bottom:20px}
+.site-audit-success p{color:#52525b;font-size:14px;line-height:1.6}
+@media(max-width:1279px){.site-audit{padding:56px 32px}.site-audit-grid{gap:28px}.site-audit-form-panel{padding:22px}}
+@media(max-width:767px){.site-audit{padding:40px 24px}.site-audit-grid{grid-template-columns:1fr;gap:24px}.site-audit-top{margin-bottom:28px}.site-audit-intro h2{font-size:36px}.site-audit-form-panel{padding:20px}.site-audit-intro ul{margin:24px 0}}

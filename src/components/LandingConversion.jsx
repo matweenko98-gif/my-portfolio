@@ -49,9 +49,7 @@ export function LandingLeadForm({ service = 'landing' }) {
     const contact = String(fields.get('contact') || '').trim();
     if (contact.length < 3) { setError('Укажите телефон, email или имя пользователя в Telegram.'); return; }
     setStatus('sending'); setError('');
-    const attribution = new URLSearchParams(location.search);
-    const source = ['utm_source','utm_medium','utm_campaign','utm_content'].map(key => `${key}: ${attribution.get(key) || '—'}`).join('\n');
-    const message = `Заявка: ${config.title}\nСтраница: ${location.pathname}\nВыбранная задача: ${goal || 'Обсудить'}\nО задаче: ${String(fields.get('industry') || '').trim() || 'Не указана'}\nИмя: ${String(fields.get('name') || '').trim()}\nКонтакт: ${contact}\n${config.price ? `Цена на странице: от ${money(config.price)}\n` : ''}${source}`;
+    const message = `Заявка: ${config.title}\n\nИмя: ${String(fields.get('name') || '').trim() || 'Не указано'}\nКонтакт: ${contact}\n\nЗадача: ${goal || 'Обсудить проект'}\n\nО задаче:\n${String(fields.get('industry') || '').trim() || 'Не указано'}${config.price ? `\n\nСтоимость на странице: от ${money(config.price)}` : ''}`;
     const ok = await submitBrief(message, fields.get('consent') === 'on');
     if (ok) { setStatus('success'); trackConversion('lead_submitted', { form_type:'service_short', service }); }
     else { setStatus('idle'); setError('Не удалось отправить заявку. Попробуйте ещё раз или напишите в Telegram.'); }

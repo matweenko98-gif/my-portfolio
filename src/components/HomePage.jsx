@@ -7,6 +7,7 @@ import Workflow from './Workflow';
 import Reviews from './Reviews';
 import FAQ from './FAQ';
 import Contacts from './Contacts';
+import SiteAudit from './SiteAudit';
 import contentData from '../contentData';
 import { FlickeringGrid } from "./ui/FlickeringGrid";
 
@@ -118,6 +119,7 @@ export default function HomePage() {
             <Suspense fallback={<SectionFallback />}>
               <Cases />
             </Suspense>
+            <SiteAudit />
             <Workflow />
             <Reviews />
             <FAQ />

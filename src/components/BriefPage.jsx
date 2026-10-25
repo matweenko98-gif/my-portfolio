@@ -269,8 +269,6 @@ export default function BriefPage() {
 📱 Контакт: ${formData.contact}
 🌐 Текущий сайт: ${formData.currentSite || 'Нет'}
 
-📍 Источник: ${searchParams.get('source') || 'Бриф'}
-Направление: ${searchParams.get('service') === 'tilda' ? 'Сайт на Tilda' : searchParams.get('service') === 'websites' ? 'Создание сайта — формат подберем' : searchParams.get('service') || 'Не выбрано'}
 🛠 Услуги: ${selectedServices.length > 0 ? selectedServices.join(', ') : 'Не выбрано'}
 🎯 Главная цель: ${finalGoal || 'Не выбрано'}
 
