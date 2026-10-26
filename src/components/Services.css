@@ -1,0 +1,59 @@
+.home-services{padding:80px 64px;background:#111;color:#f5f5f5;scroll-margin-top:0}
+.home-services-heading{margin-bottom:40px;max-width:850px}
+.home-services-heading h2{font-size:clamp(36px,4.8vw,68px);font-weight:300;line-height:1.08;letter-spacing:-.045em;margin:0 0 24px}
+.home-services-heading>p{max-width:580px;color:#a3a3a3;font-size:15px;line-height:1.65;margin:0}
+.home-services-list{display:grid;gap:16px}
+.home-service-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,.43fr);gap:36px;padding:32px;background:#191919;border:1px solid #303030;border-radius:4px;scroll-margin-top:24px;transition:border-color .2s}
+.home-service-card:hover{border-color:#4a4a4a}
+.home-service-main{min-width:0}
+.home-service-number{display:block;color:#9a9a9a;font-size:10px;letter-spacing:.12em;font-weight:500;margin-bottom:14px}
+.home-service-main h3{font-size:clamp(30px,2.8vw,40px);font-weight:400;line-height:.9;letter-spacing:-.035em;margin:0 0 14px;text-wrap:balance}
+.home-service-description{font-size:14px;line-height:1.6;color:#b0b0b0;max-width:560px;margin:0}
+.home-service-formats{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:20px}
+.home-service-formats a{font-size:12px;color:#dedede;text-decoration:underline;text-decoration-color:#e0fb4a;text-decoration-thickness:1px;text-underline-offset:5px;transition:color .2s}
+.home-service-formats a:hover{color:#fff;text-decoration-color:#e0fb4a}
+.home-service-result{display:flex;flex-wrap:wrap;gap:6px 12px;border-top:1px solid #2c2c2c;padding-top:18px;margin:24px 0 0;color:#a3a3a3;font-size:12px;line-height:1.6}
+.home-service-result>span{color:#888;flex-shrink:0}
+.home-service-summary{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;border-left:1px solid #303030;padding-left:32px;gap:28px}
+.home-service-price{font-size:clamp(24px,2.5vw,34px);font-weight:400;line-height:1.15;letter-spacing:-.035em;white-space:nowrap;margin:0 0 10px}
+.home-service-price>span{font-size:16px;letter-spacing:0;color:#999}
+.home-service-timing{font-size:12px;line-height:1.5;color:#999;margin:0}
+.home-service-link{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:46px;padding:12px 15px;border:1px solid #555;border-radius:2px;color:#eee;font-size:12px;line-height:1.4;width:100%;transition:background .2s,border-color .2s}
+.home-service-link>svg{color:#ff5b23;flex-shrink:0}
+.home-service-link:hover{background:#262626;border-color:#888}
+.home-services a:focus-visible{outline:2px solid #ff5b23;outline-offset:5px}
+.home-services-note{font-size:12px;color:#858585;line-height:1.6;margin:24px 0 0}
+.home-service-card{grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:36px;align-items:stretch}
+.home-service-main{display:flex;flex-direction:column;align-items:flex-start;padding:8px 0}
+.home-service-title{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px}
+.home-service-icon{display:flex;align-items:center;justify-content:center;width:46px;height:46px;border:1px solid #383838;color:#aaa;flex-shrink:0}
+.home-service-icon svg{width:22px;height:22px}
+.home-service-title .home-service-number{margin-bottom:8px}
+.home-service-title h3{margin:0}
+.home-service-actions{display:flex;align-items:center;flex-wrap:wrap;gap:18px;margin-top:auto;padding-top:28px}
+.home-service-discuss,.home-service-details{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:44px;font-size:12px;line-height:1.4}
+.home-service-discuss{background:#ff5b23;color:white;padding:12px 18px;border-radius:2px;font-weight:500;transition:background .2s}
+.home-service-discuss:hover{background:#df4919}
+.home-service-details{color:#bdbdbd;text-decoration:underline;text-decoration-color:#e0fb4a;text-decoration-thickness:1px;text-underline-offset:5px}
+.home-service-details:hover{color:white}
+.home-tariffs{min-width:0;overflow:hidden;border-left:1px solid #303030;padding-left:28px}
+.home-tariffs-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px;min-height:30px;font-size:11px;color:#aaa}
+.home-tariffs-controls{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.home-tariffs-controls>span{font-size:10px;color:#999;margin-right:4px;font-variant-numeric:tabular-nums}
+.home-tariffs-controls button{display:flex;align-items:center;justify-content:center;width:34px;height:34px;background:#ff5b2314;border:1px solid #ff5b2380;color:#fff;cursor:pointer;border-radius:2px}
+.home-tariffs-controls button:disabled{opacity:.25;cursor:default}
+.home-tariffs-controls button:not(:disabled):hover{background:#ff5b2333;border-color:#ff5b23}
+.home-tariffs-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;scrollbar-color:#a87964 #29211e;padding-bottom:12px;position:relative;overscroll-behavior-x:contain}
+.home-tariff{flex:0 0 100%;min-width:0;box-sizing:border-box;scroll-snap-align:start;background:linear-gradient(#ff5b230d,#ff5b230d),#191919;border:1px solid #ff5b2326;padding:22px;border-radius:3px}
+.home-tariff h4{font-size:19px;line-height:1.25;font-weight:400;letter-spacing:-.02em;margin:0 0 10px;color:#f0f0f0}
+.home-tariff-price{font-size:23px;font-weight:400;line-height:1.2;letter-spacing:-.02em;color:#eee;white-space:nowrap;margin:0 0 16px}
+.home-tariff-description{font-size:12px;color:#aaa;line-height:1.6;margin:0 0 18px}
+.home-tariff ul{list-style:none;padding:16px 0 0;border-top:1px solid #373737;margin:0;display:grid;gap:9px}
+.home-tariff li{font-size:12px;line-height:1.5;color:#ccc;display:flex;align-items:flex-start;gap:9px}
+.home-tariff li:before{content:'—';color:#777;flex-shrink:0}
+.home-tariffs-note{font-size:10px;color:#888;line-height:1.5;margin:10px 0 0}
+.home-tariffs button:focus-visible,.home-tariffs-track:focus-visible{outline:2px solid #ff5b23;outline-offset:2px}
+@media(max-width:1279px){.home-services{padding:64px 32px}.home-service-card{padding:26px;gap:24px;grid-template-columns:minmax(0,1fr) 220px}.home-service-summary{padding-left:24px}}
+@media(max-width:767px){.home-services{padding:48px 24px}.home-services-heading{margin-bottom:28px}.home-services-heading h2{font-size:36px}.home-service-card{padding:24px 20px;grid-template-columns:1fr;gap:24px}.home-service-summary{border-left:0;border-top:1px solid #303030;padding:20px 0 0;gap:20px}.home-service-main h3{font-size:26px}.home-service-number{margin-bottom:12px}.home-service-result{margin-top:20px;padding-top:16px}.home-service-price{font-size:28px}.home-service-formats{gap:12px 18px}.home-service-link{width:100%}}
+@media(min-width:768px) and (max-width:1279px){.home-service-card{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}.home-tariffs{padding-left:24px}.home-service-title{gap:12px}.home-service-icon{width:38px;height:38px}.home-service-title h3{font-size:32px}.home-tariff{padding:18px}}
+@media(max-width:767px){.home-tariffs{border-left:0;border-top:1px solid #303030;padding:20px 0 0}.home-service-title{gap:12px}.home-service-title h3{font-size:30px}.home-service-icon{width:38px;height:38px}.home-service-actions{gap:12px 18px}.home-service-discuss{width:100%}.home-tariff{padding:18px}.home-tariff-price{font-size:24px}.home-tariffs-heading{font-size:10px}}
