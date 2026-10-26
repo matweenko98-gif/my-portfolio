@@ -1,3 +1,4 @@
+import CaseHeroVideo from './CaseHeroVideo';
 import ServiceContact from './ServiceContact';
 import { relatedCaseServices } from '../content/serviceCatalog';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -451,7 +452,7 @@ export default function CaseTemplate() {
             </div>
 
             {/* Hero image placeholder or real image — full width */}
-            {(heroImageSrc || data.heroImage) && (
+            {(heroImageSrc || data.hero_video?.url) && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -461,7 +462,9 @@ export default function CaseTemplate() {
               >
                 {/* aspect-ratio задан через padding-trick контейнера, явный width/height предотвращает CLS */}
                 <div className="w-full border border-neutral-200/60 rounded-sm overflow-hidden bg-neutral-100 shadow-sm">
-                  <img
+                  {data.hero_video?.url ? (
+                    <CaseHeroVideo key={data.hero_video.url} video={data.hero_video} poster={heroImageSrc ? caseHeroImg(heroImageSrc) : undefined} title={data.title || data.card_title} />
+                  ) : <img
                     src={caseHeroImg(heroImageSrc || data.heroImage)}
                     alt={data.title || data.card_title}
                     loading="eager"
@@ -469,7 +472,7 @@ export default function CaseTemplate() {
                     width={1400}
                     height={787}
                     className="w-full h-auto object-cover max-h-[85vh]"
-                  />
+                  />}
                 </div>
               </motion.div>
             )}

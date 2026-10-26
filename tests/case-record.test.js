@@ -22,3 +22,14 @@ test('legacy columns override stored settings and clearing a demo persists', () 
   assert.equal(normalizeCaseRecord(payload).demo_url, '');
   assert.equal(normalizeCaseRecord(payload).is_ai_concept, false);
 });
+
+
+test('hero video dimensions persist in meta and removal restores image fallback', () => {
+  const video = { url: 'https://example.com/scroll.mp4', width: 1440, height: 900 };
+  const payload = serializeCaseRecord({ heroImage: '/cover.webp', hero_video: video });
+  assert.equal(Object.hasOwn(payload, 'hero_video'), false);
+  assert.deepEqual(normalizeCaseRecord(payload).hero_video, video);
+  const cleared = serializeCaseRecord({ hero_video: null }, payload.meta);
+  assert.equal(normalizeCaseRecord(cleared).hero_video, null);
+  assert.equal(payload.heroImage, '/cover.webp');
+});

@@ -1,6 +1,6 @@
 // These presentation settings are stored in the existing JSON meta column.
 // Older databases do not have separate columns for them.
-const presentationKeys = ['demo_url', 'description', 'is_ai_concept', 'is_desktop_only'];
+const presentationKeys = ['demo_url', 'description', 'is_ai_concept', 'is_desktop_only', 'hero_video'];
 
 export function normalizeCaseRecord(record) {
   if (!record) return record;

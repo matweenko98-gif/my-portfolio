@@ -1,3 +1,4 @@
+import CaseVideoUpload from './CaseVideoUpload';
 import { serviceCatalog } from '../content/serviceCatalog';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -306,6 +307,8 @@ export default function AdminWorkspace() {
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [heroImage, setHeroImage] = useState('');
+  const [heroVideo, setHeroVideo] = useState(null);
+  const [videoBusy, setVideoBusy] = useState(false);
 
   // Blog Categories state
   const defaultBlogCategories = [
@@ -894,6 +897,7 @@ export default function AdminWorkspace() {
 
   // Edit Mode starter
   const handleStartEdit = async (item) => {
+    if (videoBusy) return;
     try {
       const { data, error } = await supabase
         .from('cases')
@@ -919,7 +923,8 @@ export default function AdminWorkspace() {
       setDescription(data.description || '');
       setTitle(data.title || data.card_title || '');
       setSubtitle(data.subtitle || '');
-      setHeroImage(data.heroImage || '');
+      setHeroImage(data.heroImage || data.hero_image || '');
+      setHeroVideo(data.hero_video || null);
 
       // Load Preview Card fields
       setCardTitle(data.card_title || data.title || '');
@@ -1228,6 +1233,7 @@ export default function AdminWorkspace() {
 
   // Reset form states
   const resetForm = () => {
+    if (videoBusy) return;
     setEditingId(null);
     setSlug('');
     setIsInDevelopment(false);
@@ -1238,6 +1244,7 @@ export default function AdminWorkspace() {
     setTitle('');
     setSubtitle('');
     setHeroImage('');
+    setHeroVideo(null);
     setCardTitle('');
     setCardImage('');
     setCardTags('');
@@ -1270,6 +1277,7 @@ export default function AdminWorkspace() {
   // Publish / Save Handler
   const handlePublishCase = async (e) => {
     e.preventDefault();
+    if (videoBusy) return;
     if (!slug) {
       setToast({ show: true, message: 'Пожалуйста, укажите URL-адрес роута (slug)', type: 'error' });
       return;
@@ -1310,6 +1318,7 @@ export default function AdminWorkspace() {
           title,
           subtitle,
           heroImage,
+          hero_video: heroVideo,
           card_title: cardTitle,
           card_image: cardImage,
           card_tags: formattedCardTags,
@@ -1948,6 +1957,8 @@ export default function AdminWorkspace() {
                   onError={(msg) => setToast({ show: true, message: msg, type: 'error' })}
                   pathPrefix={`${slug}-hero`}
                 />
+                <CaseVideoUpload value={heroVideo} onChange={setHeroVideo} busy={videoBusy} onBusy={setVideoBusy}
+                  onError={(message) => setToast({ show: true, message, type: 'error' })} />
               </section>
 
               <hr className="border-neutral-200 my-8" />
@@ -2604,7 +2615,7 @@ export default function AdminWorkspace() {
               <div className="pt-6 border-t border-zinc-200 flex items-center gap-4">
                 <button
                   type="submit"
-                  disabled={publishing}
+                  disabled={publishing || videoBusy}
                   className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-black text-white hover:bg-neutral-800 rounded-sm text-sm font-semibold transition-colors disabled:bg-zinc-400 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {publishing && <Loader2 className="w-4 h-4 animate-spin" />}
