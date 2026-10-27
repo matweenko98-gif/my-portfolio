@@ -1,3 +1,4 @@
+import ServiceProcess from './ServiceProcess';
 import Reviews from './Reviews';
 import ServiceContact from './ServiceContact';
 import { LandingProjects } from './LandingConversion';
@@ -28,7 +29,7 @@ export default function TildaServicePage({service:originalService}) {
   <section className="mp-section tp-portfolio"><div><p className="mp-eyebrow">[ ПОРТФОЛИО ]</p><h2>Примеры работ<br/><span>в разделе кейсов</span></h2><p>Посмотрите сайты и веб-приложения с описанием задач и принятых решений, чтобы оценить дизайн и подход к работе.</p></div><LandingProjects service="tilda"/><Link className="mp-button" to="/cases">Посмотреть все кейсы<ArrowUpRight size={17}/></Link></section>
 
     <Reviews/>
-  <section className="mp-section tp-process"><Heading number="04" label="ЭТАПЫ РАБОТЫ">Как проходит<br/><span>создание сайта на Tilda</span></Heading><div className="tp-step-list">{s.steps.map(([title,text],i)=><article key={title}><span>0{i+1}</span><h3>{title}</h3><p>{text}</p></article>)}</div></section>
+  <section className="mp-section tp-process"><Heading number="04" label="ЭТАПЫ РАБОТЫ">Как проходит<br/><span>создание сайта на Tilda</span></Heading><ServiceProcess steps={s.steps}/></section>
   <section className="mp-section mp-faq tp-faq"><Heading number="05" label="FAQ">Вопросы о разработке<br/><span>и работе с Tilda</span></Heading>{s.faq.map(([q,a])=><details key={q}><summary><h3>{q}</h3><Plus size={18} className="mp-faq-icon"/></summary><p>{a}</p></details>)}</section>
   <ServiceContact service={s.slug} title={s.cta}/>
  </main></div>;

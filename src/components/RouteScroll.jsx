@@ -29,7 +29,7 @@ export default function RouteScroll() {
       if (stopped) return;
       const target = document.getElementById(id);
       if (!target) return false;
-      target.scrollIntoView({ block: 'start', behavior: 'instant' });
+      target.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
       return true;
     };
     const schedule = () => {

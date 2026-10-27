@@ -1,3 +1,4 @@
+import RelatedContentLink from './RelatedContentLink';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -484,7 +485,7 @@ export default function ArticlePage() {
 
             </article>
 
-            <section className="mp-section article-services" aria-label="Услуги по теме статьи"><h2>От статьи к вашему проекту</h2><div className="mp-reading-list">{(article.slug === 'landing-or-multipage-website' ? [['landing','Лендинг','Одна страница для вашего предложения'],['multipage','Сайт компании','Разделы услуг, проектов и информации о бизнесе']] : [['redesign','Редизайн сайта','Обновить структуру и оформление существующего сайта'],['ui-ux-design','Дизайн интерфейса','Получить макеты для дальнейшей разработки']]).map(([key,title,description]) => <Link key={key} to={`/services/${key}`}><h3>{title}</h3><p>{description}</p><span>Что входит в услугу ↗</span></Link>)}</div></section>
+            <section className="mp-section article-services" aria-label="Услуги по теме статьи"><h2>От статьи к вашему проекту</h2><div className="mp-reading-list">{(article.slug === 'landing-or-multipage-website' ? [['landing','Лендинг','Одна страница для вашего предложения'],['multipage','Сайт компании','Разделы услуг, проектов и информации о бизнесе']] : [['redesign','Редизайн сайта','Обновить структуру и оформление существующего сайта'],['ui-ux-design','Дизайн интерфейса','Получить макеты для дальнейшей разработки']]).map(([key,title,description]) => <RelatedContentLink key={key} to={`/services/${key}`}><h3>{title}</h3><p>{description}</p><span>Что входит в услугу ↗</span></RelatedContentLink>)}</div></section>
             {/* Back to Blog & Share Row */}
             <div className="mt-16 pt-8 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-4">
               <button

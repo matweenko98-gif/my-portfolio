@@ -41,8 +41,8 @@
 .mp-fit-list h3 { font-size:19px; font-weight:400; margin:0 0 9px; }
 .mp-fit-list p,.mp-scope-grid p,.mp-case-caption p,.mp-process-list p,.mp-reading-list p { font-size:14px; color:#71717a; line-height:1.45; margin:0; }
 .mp-fit-list svg { flex-shrink:0; margin-left:auto; color:#a1a1aa; }
-.mp-format-note { display:flex; flex-wrap:wrap; align-items:center; gap:14px 30px; margin-top:36px; padding:22px 0 0; }
-.mp-format-note>span { font-size:9px; letter-spacing:.06em; color:#71717a; }
+.mp-format-note { display:flex; flex-wrap:wrap; align-items:center; gap:14px 30px; margin-top:20px; padding:24px 28px; background:#f7f7f7; border:1px solid #efefef; border-radius:6px; }
+.mp-format-note>span { font-size:10px; letter-spacing:.09em; color:#ff5b23; }
 .mp-format-note a { display:inline-flex; gap:14px; align-items:center; color:#18181b; font-size:12px; border-bottom:1px solid #d4d4d8; padding-bottom:6px; }
 .mp-architecture,.mp-price { background:#111; color:#fff; border-color:#222; }
 .mp-heading-dark>.mp-eyebrow { color:#a3a3a3; }
@@ -72,7 +72,7 @@
 .mp-case-caption .mp-eyebrow { font-size:9px; margin-bottom:10px; color:#71717a; }
 .mp-case-caption h3 { font-size:25px; line-height:1.2; font-weight:400; margin:0; }
 .mp-case-caption .mp-text-link { margin-top:20px; }
-.mp-portfolio-link { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:28px; padding:30px 0; border-top:1px solid #d4d4d8; border-bottom:1px solid #d4d4d8; }
+.mp-portfolio-link { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:28px; padding:30px 0; border:0; }
 .mp-portfolio-link p { color:#71717a; font-size:14px; line-height:1.45; max-width:480px; margin:0; }
 .lp-flow-list { list-style:none; margin:24px 0 0; padding:0; }
 .lp-flow-list li { display:flex; align-items:center; gap:15px; padding:13px 12px; margin:9px 0; border:1px solid #242c1350; background:#efffa28a; font-size:12px; }
@@ -110,11 +110,16 @@
 .mp-faq details[open] .mp-faq-icon { transform:rotate(45deg); color:var(--mp-orange); }
 .mp-faq details>p { margin:0; padding:0 30px 25px 33px; color:#71717a; font-size:14px; line-height:1.45; max-width:800px; }
 .mp-reading { background:#fafafa; }
-.mp-reading-list { display:grid; }
-.mp-reading-list>a { display:flex; flex-direction:column; padding:27px 0; border-top:1px solid #d4d4d8; color:#18181b; }
+.mp-reading-list { display:grid; gap:16px; }
+.mp-reading-list>a { display:flex; flex-direction:column; align-items:flex-start; min-width:0; padding:28px; border:1px solid #efefef; border-radius:6px; background:#f7f7f7; color:#18181b; transition:background .2s,border-color .2s; }
+.mp-reading-list>a:hover { background:#f1f1f1; border-color:#e2e2e2; }
+.mp-reading-list>a:focus-visible { outline:2px solid #ff5b23; outline-offset:4px; }
+.mp-reading-list .mp-related-kind { color:#ff5b23; font-size:10px; font-weight:500; line-height:1.5; letter-spacing:.09em; margin-bottom:18px; }
 .mp-reading-list .mp-eyebrow { color:#71717a; font-size:9px; }
 .mp-reading-list h3 { font-size:26px; line-height:1.15; font-weight:400; margin:20px 0 14px; }
-.mp-reading-list .mp-text-link { margin-top:25px; }
+.mp-reading-list .mp-text-link { margin-top:auto; padding-top:25px; }
+.mp-reading-list p { margin-bottom:0; }
+.mp-reading-list>a>span:last-child:not(.mp-related-kind):not(.mp-eyebrow) { margin-top:auto; padding-top:25px; }
 .mp-contact { background:#111; color:#fff; }
 .mp-contact>.mp-eyebrow { margin-bottom:30px; }
 .mp-contact h2 { font-size:clamp(35px,5.8vw,78px); }
@@ -141,7 +146,7 @@
   .mp-price-layout { grid-template-columns:1fr 1fr; gap:45px; }
   .mp-process-list>div { grid-template-columns:50px 1fr 1.3fr; gap:25px; }
   .mp-process-list p { grid-column:auto; }
-  .mp-reading-list { grid-template-columns:1fr 1fr; gap:35px; }
+  .mp-reading-list { grid-template-columns:1fr 1fr; gap:20px; }
   .mp-contact-bottom { grid-template-columns:1fr 1fr; gap:40px; align-items:start; }
   .mp-contact-bottom>div { margin-left:auto; }
   .mp-footer { padding:24px 48px; }
@@ -408,3 +413,11 @@
 .store-product-preview { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:center; margin-top:24px; }.store-product-image { display:grid; place-items:center; min-height:120px; background:white; border:1px solid #e4e4e7; }.store-product-preview small { font-size:6px; letter-spacing:.1em; color:#71717a; }.store-product-preview b { display:block; font-weight:400; font-size:18px; margin:8px 0; }.store-product-preview p { font-size:9px; margin:0; }.store-size-options { display:flex; gap:4px; margin:10px 0; }.store-size-options span { border:1px solid #ccc; padding:3px 6px; font-size:7px; }.store-product-preview em,.store-cart-preview em { display:block; font-size:8px; font-style:normal; padding:8px; background:#27272a; color:#fff; }
 .store-cart-preview { margin:18px auto 0; max-width:250px; padding:14px; background:white; border:1px solid #ddd; }.store-cart-preview>div { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid #eee; font-size:10px; }.store-cart-preview b { font-size:10px; font-weight:400; }.store-cart-preview small { font-size:8px; color:#71717a; }.store-cart-preview p { font-size:9px; margin:10px 0; }
 .store-delivery-preview { margin-top:26px; }.store-delivery-preview>div { display:flex; align-items:center; gap:10px; font-size:12px; }.store-delivery-preview>div>span { font-size:8px; color:#999; }.store-delivery-preview b { font-weight:400; }.store-delivery-preview p { display:flex; align-items:center; gap:8px; font-size:9px; background:white; padding:10px; border:1px solid #ddd; }.store-delivery-preview p>span { color:#999; margin-left:auto; }.store-mini-products { display:flex; gap:6px; margin-top:12px; }.store-mini-products i { height:40px; flex:1; background:#e4e4e7; }
+
+.additional-price-layout { display:grid; gap:36px; align-items:start; }
+.additional-price-layout>div { min-width:0; }
+.additional-page #service-price .additional-price-value { font-size:clamp(32px,4.3vw,64px); line-height:1.05; font-weight:300; letter-spacing:-.04em; color:#fff; white-space:nowrap; margin:22px 0 32px; }
+.additional-price-details h3 { font-size:20px; font-weight:400; margin:0 0 20px; }
+.additional-price-details p { font-size:14px; line-height:1.55; margin:0; max-width:530px; }
+.additional-price-details .additional-price-note { margin-top:24px; color:#858585!important; font-size:12px; }
+@media(min-width:768px) { .additional-price-layout { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:50px; } }

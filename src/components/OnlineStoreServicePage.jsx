@@ -1,3 +1,5 @@
+import ServiceProcess from './ServiceProcess';
+import RelatedContentLink from './RelatedContentLink';
 import Reviews from './Reviews';
 import { LandingProjects, LandingLeadForm } from './LandingConversion';
 import { ScopeVisual } from './LandingVisuals';
@@ -83,7 +85,7 @@ export default function OnlineStoreServicePage() {
 
       <section className="mp-process mp-section">
         <SectionHeading number="07" label="ЭТАПЫ РАБОТЫ">Как проходит<br /><span>запуск магазина</span></SectionHeading>
-        <div className="mp-process-list">{service.steps.map(([title, text], i) => <div key={title}><span className="mp-process-number">0{i + 1}</span><h3>{title}</h3><p>{text}</p></div>)}</div>
+        <ServiceProcess steps={service.steps}/>
       </section>
 
       <section className="mp-faq mp-section">
@@ -91,10 +93,10 @@ export default function OnlineStoreServicePage() {
         <div>{service.faq.map(([question, answer], i) => <details key={question}><summary><span className="mp-row-number">{String(i + 1).padStart(2, '0')}</span><h3>{question}</h3><Plus size={18} className="mp-faq-icon" aria-hidden="true" /></summary><p>{answer}</p></details>)}</div>
       </section>
 
-      <section className="mp-reading mp-section">
+      <section className="mp-reading mp-section" id="related-content">
         <SectionHeading number="09" label="ВЫБОР РЕШЕНИЯ">Другие форматы<br /><span>и полезные материалы</span></SectionHeading>
-        <div className="mp-reading-list"><Link to="/services/landing"><span className="mp-eyebrow">ОДИН ПРОДУКТ</span><h3>Лендинг на Tilda</h3><p>Если нужно представить один продукт и собрать обращения, может быть достаточно одной страницы.</p><span className="mp-text-link">Посмотреть услугу<ArrowUpRight size={18} aria-hidden="true" /></span></Link><Link to="/services/multipage"><span className="mp-eyebrow">САЙТ КОМПАНИИ</span><h3>Многостраничный сайт</h3><p>Для компании с несколькими услугами, проектами и информационными разделами.</p><span className="mp-text-link">Посмотреть услугу<ArrowUpRight size={18} aria-hidden="true" /></span></Link></div>
-        <div className="mp-format-note"><span>СТАТЬЯ О ДИЗАЙНЕ</span><Link to="/blog/why-website-looks-cheap">Какие ошибки делают сайт визуально слабее<ArrowUpRight size={16} aria-hidden="true" /></Link></div>
+        <div className="mp-reading-list"><RelatedContentLink to="/services/landing"><span className="mp-eyebrow">ОДИН ПРОДУКТ</span><h3>Лендинг на Tilda</h3><p>Если нужно представить один продукт и собрать обращения, может быть достаточно одной страницы.</p><span className="mp-text-link">Посмотреть услугу<ArrowUpRight size={18} aria-hidden="true" /></span></RelatedContentLink><RelatedContentLink to="/services/multipage"><span className="mp-eyebrow">САЙТ КОМПАНИИ</span><h3>Многостраничный сайт</h3><p>Для компании с несколькими услугами, проектами и информационными разделами.</p><span className="mp-text-link">Посмотреть услугу<ArrowUpRight size={18} aria-hidden="true" /></span></RelatedContentLink></div>
+        <div className="mp-format-note"><span>[ СТАТЬЯ ]</span><Link to="/blog/why-website-looks-cheap">Какие ошибки делают сайт визуально слабее<ArrowUpRight size={16} aria-hidden="true" /></Link></div>
       </section>
 
       <section className="mp-contact mp-section" id="mp-contact">

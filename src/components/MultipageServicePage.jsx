@@ -1,3 +1,5 @@
+import ServiceProcess from './ServiceProcess';
+import RelatedContentLink from './RelatedContentLink';
 import Reviews from './Reviews';
 import { LandingProjects, LandingLeadForm } from './LandingConversion';
 import { ScopeVisual } from './LandingVisuals';
@@ -85,7 +87,7 @@ export default function MultipageServicePage() {
 
       <section className="mp-process mp-section">
         <SectionHeading number="07" label="ЭТАПЫ РАБОТЫ">Как проходит<br /><span>разработка сайта</span></SectionHeading>
-        <div className="mp-process-list">{service.steps.map(([title, text], i) => <div key={title}><span className="mp-process-number">0{i + 1}</span><h3>{title}</h3><p>{text}</p></div>)}</div>
+        <ServiceProcess steps={service.steps}/>
       </section>
 
       <section className="mp-faq mp-section">
@@ -93,9 +95,9 @@ export default function MultipageServicePage() {
         <div>{service.faq.map(([question, answer], i) => <details key={question}><summary><span className="mp-row-number">{String(i + 1).padStart(2, '0')}</span><h3>{question}</h3><Plus size={18} className="mp-faq-icon" aria-hidden="true" /></summary><p>{answer}</p></details>)}</div>
       </section>
 
-      <section className="mp-reading mp-section">
+      <section className="mp-reading mp-section" id="related-content">
         <SectionHeading number="09" label="ПОЛЕЗНЫЕ МАТЕРИАЛЫ">Статьи о выборе<br /><span>и дизайне сайта</span></SectionHeading>
-        <div className="mp-reading-list"><Link to="/services/websites"><span className="mp-eyebrow">ВЫБОР ФОРМАТА</span><h3>Какой формат сайта выбрать</h3><p>Когда достаточно одной страницы, а когда бизнесу нужна структура из нескольких разделов.</p><span className="mp-text-link">Сравнить форматы<ArrowUpRight size={18} aria-hidden="true" /></span></Link><Link to="/blog/why-website-looks-cheap"><span className="mp-eyebrow">ДИЗАЙН И ДОВЕРИЕ</span><h3>Почему сайт выглядит дёшево</h3><p>Как типографика, фотографии и мобильная версия влияют на восприятие компании.</p><span className="mp-text-link">Посмотреть ошибки<ArrowUpRight size={18} aria-hidden="true" /></span></Link></div>
+        <div className="mp-reading-list"><RelatedContentLink to="/blog/landing-or-multipage-website"><span className="mp-eyebrow">ВЫБОР ФОРМАТА</span><h3>Какой формат сайта выбрать</h3><p>Когда достаточно одной страницы, а когда бизнесу нужна структура из нескольких разделов.</p><span className="mp-text-link">Сравнить форматы<ArrowUpRight size={18} aria-hidden="true" /></span></RelatedContentLink><RelatedContentLink to="/blog/why-website-looks-cheap"><span className="mp-eyebrow">ДИЗАЙН И ДОВЕРИЕ</span><h3>Почему сайт выглядит дёшево</h3><p>Как типографика, фотографии и мобильная версия влияют на восприятие компании.</p><span className="mp-text-link">Посмотреть ошибки<ArrowUpRight size={18} aria-hidden="true" /></span></RelatedContentLink></div>
       </section>
 
       <section className="mp-contact mp-section" id="mp-contact">

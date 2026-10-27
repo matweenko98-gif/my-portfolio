@@ -1,3 +1,4 @@
+import ServiceProcess from './ServiceProcess';
 import Reviews from './Reviews';
 import ServiceContact from './ServiceContact';
 import { LandingProjects } from './LandingConversion';
@@ -67,7 +68,7 @@ export default function WebsiteServicePage({service:originalService}) {
     <section className="mp-section ws-portfolio" id="website-portfolio"><div><p className="mp-eyebrow">[ ПОРТФОЛИО ]</p><h2>От задачи<br/>к работающему<br/><span>сайту</span></h2><p>В кейсах — реальные проекты, их задачи и решения. Посмотрите работы, чтобы оценить дизайн и подход к разработке.</p><Link className="mp-button" to="/cases">Посмотреть все кейсы<ArrowUpRight size={17}/></Link></div><LandingProjects service="websites"/></section>
     <section className="mp-section ws-estimate" id="service-price"><Heading n="04" label="СТОИМОСТЬ">Сколько стоит<br/><span>{isTilda?'сайт на Tilda':'создание сайта'}</span></Heading><div className="ws-price-grid"><div><p className="mp-eyebrow">ЛЕНДИНГ НА TILDA</p><p className="ws-big-price">от {money(30000)}</p><p>{text(isTilda?'Многостраничный сайт и интернет-магазин — от 45 000 ₽. Итоговая стоимость зависит от количества макетов, наполнения и подключений.':'Многостраничный сайт и магазин на Tilda — от 45 000 ₽. Индивидуальная разработка и админка оцениваются отдельно.')}</p>{cta('Рассчитать мой проект')}</div><div className="ws-price-note"><span>В ОЦЕНКЕ УЧИТЫВАЕМ</span>{(isTilda?['Количество страниц и макетов','Сложность Zero Block и анимации','Материалы и наполнение','Формы, каталог и подключения']:['Количество страниц и макетов','Функции и интеграции','Материалы и наполнение','Редактор контента и роли']).map((t,i)=><div key={t}><span>0{i+1}</span>{t}<Plus size={14}/></div>)}<p>Подписка платформы, домен и платные внешние сервисы оплачиваются отдельно. Состав, стоимость и срок фиксируем до начала.</p></div></div></section>
     <Reviews/>
-    <section className="mp-section ws-process"><Heading n="05" label="ПРОЦЕСС">Как проходит<br/><span>работа над сайтом</span></Heading><div className="ws-timeline">{s.steps.map(([title,text],i)=><article key={title}><span>0{i+1}<ArrowRight size={18}/></span><h3>{title}</h3><p>{text}</p></article>)}</div></section>
+    <section className="mp-section ws-process"><Heading n="05" label="ПРОЦЕСС">Как проходит<br/><span>работа над сайтом</span></Heading><ServiceProcess steps={s.steps}/></section>
     <section className="mp-faq mp-section"><Heading n="06" label="FAQ">Вопросы<br/><span>перед заказом</span></Heading>{s.faq.map(([q,a])=><details key={q}><summary><h3>{q}</h3><Plus size={18} className="mp-faq-icon"/></summary><p>{a}</p></details>)}</section>
     <ServiceContact service={s.slug} title={s.cta}/>
   </main></div>;

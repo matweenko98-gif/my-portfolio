@@ -1,3 +1,4 @@
+import RelatedContentLink from './RelatedContentLink';
 import CaseHeroVideo from './CaseHeroVideo';
 import ServiceContact from './ServiceContact';
 import { relatedCaseServices } from '../content/serviceCatalog';
@@ -966,7 +967,7 @@ export default function CaseTemplate() {
           {/* ══════════════════════════════════════════════════════════
           8. БЛОК «ОБСУДИТЬ ПРОЕКТ» — полная копия с главной
           ══════════════════════════════════════════════════════════ */}
-          <section className="mp-section case-related-services"><h2>Услуги для похожей задачи</h2><div className="mp-reading-list">{relatedCaseServices(data).map(service => <Link key={service.key} to={`/services/${service.key}`}><h3>{service.name}</h3><p>{service.description}</p><span className="mp-text-link">Что входит в услугу ↗</span></Link>)}</div></section>
+          <section className="mp-section case-related-services"><h2>Услуги для похожей задачи</h2><div className="mp-reading-list">{relatedCaseServices(data).map(service => <RelatedContentLink key={service.key} to={`/services/${service.key}`}><h3>{service.name}</h3><p>{service.description}</p><span className="mp-text-link">Что входит в услугу ↗</span></RelatedContentLink>)}</div></section>
           <ServiceContact id="contacts" service={relatedCaseServices(data)[0]?.key || 'general'} title="Обсудим похожий проект"/>
 
           {/* ══════════════════════════════════════════════════════════
