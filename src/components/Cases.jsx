@@ -1,8 +1,8 @@
+import { mergePortfolioCases } from '../utils/portfolioCases';
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import contentData from '../contentData';
-import { normalizeCaseRecord } from '../utils/caseRecord';
 import { supabase } from '../lib/supabaseClient';
 import { caseCardImg } from '../utils/imageUtils';
 import ConceptToolbarModal from './ConceptToolbarModal';
@@ -90,34 +90,7 @@ export default function Cases() {
           .order('sort_order', { ascending: true });
         if (error) throw error;
         
-        const dbCases = (rawDbCases || []).map(normalizeCaseRecord);
-        const allLocalItems = (contentData?.cases?.items || []);
-        const dbAiConcepts = dbCases.filter(item => item.is_ai_concept || item.isAiConcept);
-        const localAiConcepts = [...dbAiConcepts, ...allLocalItems.filter(item =>
-          (item.is_ai_concept || item.isAiConcept) && !dbCases.some(row => row.slug === item.slug))];
-        
-        let realCases = [];
-        if (dbCases && dbCases.length > 0) {
-          const validDbCases = dbCases.filter(c => (c.slug || c.title || c.card_title) && !c.is_ai_concept && !c.isAiConcept);
-          realCases = [...validDbCases];
-        } else {
-          realCases = allLocalItems.filter(item => !item.is_ai_concept && !item.isAiConcept);
-        }
-
-        // Interleave 1:1: [Real Case 1, AI Concept 1, Real Case 2, AI Concept 2...]
-        let mergedCases = [];
-        let rIdx = 0;
-        let aIdx = 0;
-        while (rIdx < realCases.length || aIdx < localAiConcepts.length) {
-          if (rIdx < realCases.length) {
-            mergedCases.push(realCases[rIdx]);
-            rIdx++;
-          }
-          if (aIdx < localAiConcepts.length) {
-            mergedCases.push(localAiConcepts[aIdx]);
-            aIdx++;
-          }
-        }
+        const mergedCases = mergePortfolioCases(rawDbCases, contentData.cases.items, true);
 
         setCases(mergedCases);
       } catch (err) {

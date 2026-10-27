@@ -1,3 +1,4 @@
+import { mergePortfolioCases, builtInConceptPayload, savePortfolioOrder, isConcept } from '../utils/portfolioCases';
 import CaseVideoUpload from './CaseVideoUpload';
 import { serviceCatalog } from '../content/serviceCatalog';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
@@ -534,11 +535,11 @@ export default function AdminWorkspace() {
     try {
       const { data, error } = await supabase
         .from('cases')
-        .select('id, slug, title, card_title, sort_order, meta')
+        .select('id, slug, title, card_title, card_image, card_tags, sort_order, meta')
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      setCasesList((data || []).map(normalizeCaseRecord));
+      setCasesList(mergePortfolioCases(data, contentData.cases.items));
     } catch (err) {
       console.error('Error fetching cases:', err);
     } finally {
@@ -831,17 +832,19 @@ export default function AdminWorkspace() {
   // Deletion handler
   const handleDeleteCase = async (id, slug) => {
     try {
-      const { error } = await supabase
-        .from('cases')
-        .delete()
-        .eq('id', id);
+      const item = casesList.find(row => row.id === id);
+      const builtIn = contentData.cases.items.find(row => row.slug === slug && isConcept(row));
+      const result = builtIn
+        ? await supabase.from('cases').upsert({ ...builtInConceptPayload(item || builtIn), meta: { ...(item?.meta || {}), presentation: { ...builtInConceptPayload(item || builtIn).meta.presentation, hidden: true } } }, { onConflict: 'slug' })
+        : await supabase.from('cases').delete().eq('id', id);
+      const { error } = result;
 
       if (error) throw error;
       setToast({ show: true, message: `Кейс ${slug} успешно удален.`, type: 'success' });
       if (editingId === id) {
         resetForm();
       }
-      fetchCases();
+      await fetchCases();
     } catch (err) {
       console.error('Delete error:', err);
       setToast({ show: true, message: 'Ошибка при\u00a0удалении: ' + err.message, type: 'error' });
@@ -853,52 +856,29 @@ export default function AdminWorkspace() {
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= casesList.length) return;
 
-    const currentItem = casesList[index];
-    const targetItem = casesList[targetIndex];
-
+    const reordered = [...casesList];
+    [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
     try {
-      let currentSort = currentItem.sort_order !== null && currentItem.sort_order !== undefined ? currentItem.sort_order : 0;
-      let targetSort = targetItem.sort_order !== null && targetItem.sort_order !== undefined ? targetItem.sort_order : 0;
-
-      if (currentSort === targetSort) {
-        if (direction === 'up') {
-          currentSort = targetSort - 1;
-        } else {
-          currentSort = targetSort + 1;
-        }
-      } else {
-        const temp = currentSort;
-        currentSort = targetSort;
-        targetSort = temp;
-      }
-
-      // Update currentItem sort_order
-      const { error: err1 } = await supabase
-        .from('cases')
-        .update({ sort_order: currentSort })
-        .eq('id', currentItem.id);
-
-      if (err1) throw err1;
-
-      // Update targetItem sort_order
-      const { error: err2 } = await supabase
-        .from('cases')
-        .update({ sort_order: targetSort })
-        .eq('id', targetItem.id);
-
-      if (err2) throw err2;
-
+      setLoadingList(true);
+      await savePortfolioOrder(supabase, reordered);
       fetchCases();
     } catch (err) {
       console.error('Error swapping positions:', err);
       setToast({ show: true, message: 'Ошибка при\u00a0перемещении: ' + err.message, type: 'error' });
-    }
+    } finally { setLoadingList(false); }
   };
 
   // Edit Mode starter
   const handleStartEdit = async (item) => {
     if (videoBusy) return;
     try {
+      if (item.isLocalConcept) {
+        const { data: saved, error: saveError } = await supabase.from('cases')
+          .upsert(builtInConceptPayload(item), { onConflict: 'slug' }).select('*').single();
+        if (saveError) throw saveError;
+        item = normalizeCaseRecord(saved);
+        await fetchCases();
+      }
       const { data, error } = await supabase
         .from('cases')
         .select('*')
@@ -908,11 +888,7 @@ export default function AdminWorkspace() {
       if (error) throw error;
       Object.assign(data, normalizeCaseRecord(data));
       const isAi = !!data.is_ai_concept || !!data.isAiConcept;
-      if (isAi) {
-        setActiveTab('ai');
-      } else {
-        setActiveTab('cases');
-      }
+      setActiveTab('cases');
 
       setEditingId(data.id);
       setSlug(data.slug || '');
@@ -1007,16 +983,7 @@ export default function AdminWorkspace() {
 
     try {
       setLoadingList(true);
-      const updatePromises = reorderedList.map((item, idx) => {
-        return supabase
-          .from('cases')
-          .update({ sort_order: idx })
-          .eq('id', item.id);
-      });
-
-      const results = await Promise.all(updatePromises);
-      const firstError = results.find(r => r.error);
-      if (firstError) throw firstError.error;
+      await savePortfolioOrder(supabase, reorderedList);
 
       setToast({ show: true, message: 'Порядок кейсов успешно изменен!', type: 'success' });
       fetchCases();
@@ -1397,7 +1364,7 @@ export default function AdminWorkspace() {
       
       {/* LEFT COLUMN: Project List (Narrow sidebar) */}
       <aside className="w-full lg:w-96 border-r border-zinc-200 bg-white p-6 shrink-0">
-        <div className="sticky top-6">
+        <div className="sticky top-6 lg:max-h-[calc(100vh-48px)] lg:overflow-y-auto lg:pr-1">
           <Link
             to="/"
             className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-black hover:underline mb-8 no-underline"
@@ -1460,16 +1427,14 @@ export default function AdminWorkspace() {
                 <span>Загрузка списка...</span>
               </div>
             ) : (() => {
-              const filteredList = casesList.filter(item => {
-                const isAi = !!item.is_ai_concept || !!item.isAiConcept || (item.card_tags && String(item.card_tags).toLowerCase().includes('ии'));
-                return !isAi;
-              });
+              const filteredList = casesList;
 
               if (filteredList.length === 0) {
                 return <p className="text-xs text-zinc-400 italic py-4">Список кейсов пуст</p>;
               }
 
               return (
+                <><p className="text-[11px] text-zinc-500 mb-3 leading-relaxed">Кейсы и ИИ-концепты в общем порядке. Перетаскивайте строки или используйте стрелки — этот порядок применяется на главной и в разделе «Кейсы».</p>
                 <ul className="space-y-2 pl-0 list-none my-0">
                   {filteredList.map((item, index) => {
                     const caseNumber = String(index + 1).padStart(2, '0');
@@ -1495,7 +1460,7 @@ export default function AdminWorkspace() {
                               {item.title || item.card_title || '(Без\u00a0названия)'}
                             </span>
                             <span className="block text-[10px] text-zinc-400 truncate mt-0.5">
-                              /{item.slug}
+                              {isConcept(item) ? 'ИИ-концепт · ' : 'Кейс · '}/{item.slug}
                             </span>
                           </div>
                         </div>
@@ -1541,7 +1506,7 @@ export default function AdminWorkspace() {
                       </li>
                     );
                   })}
-                </ul>
+                </ul></>
               );
             })()
           ) : activeTab === 'blog' ? (

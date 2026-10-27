@@ -181,6 +181,9 @@ export default function Sidebar({ activeSection }) {
               ↗
             </span>
           </a>
+          <Link to="/brief" onClick={() => setIsOpen(false)} className="inline-flex items-center gap-1.5 group text-[14px] font-normal text-zinc-900">
+            <span className="border-b border-zinc-900 pb-0.5 group-hover:border-[#FF5B23] transition-colors">Заполнить бриф</span><span className="text-[#FF5B23]">→</span>
+          </Link>
         </div>
       </nav>
 
@@ -262,6 +265,9 @@ export default function Sidebar({ activeSection }) {
                 ↗
               </span>
             </a>
+            <Link to="/brief" className="inline-flex items-center gap-1.5 group text-[13px] font-normal text-[#111111]">
+              <span className="border-b border-[#111111] pb-0.5 group-hover:border-[#FF5B23] transition-colors">Заполнить бриф</span><span className="text-[#FF5B23]">→</span>
+            </Link>
           </div>
         </div>
       </motion.aside>
