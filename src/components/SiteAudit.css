@@ -1,7 +1,7 @@
 .site-audit{padding:56px 64px;background:#fafafa;border-top:1px solid #ededed;border-bottom:1px solid #ededed;scroll-margin-top:24px}
 .site-audit-top{display:flex;align-items:center;justify-content:space-between;color:#ff5b23;margin-bottom:36px;font-size:11px;letter-spacing:.08em}
 .site-audit-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
-.site-audit-intro h2{font-size:clamp(32px,3.6vw,54px);line-height:1.07;letter-spacing:-.04em;margin:0 0 24px;font-weight:500}
+.site-audit-intro h2{font-size:clamp(32px,3.6vw,54px);line-height:.9;letter-spacing:-.04em;margin:0 0 24px;font-weight:300}
 .site-audit-intro h2>span{color:#717780}
 .site-audit-intro>p{font-size:15px;line-height:1.65;color:#52525b;max-width:460px}
 .site-audit-intro ul{padding:0;margin:32px 0;list-style:none;display:grid;gap:20px}
