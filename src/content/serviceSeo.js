@@ -9,7 +9,7 @@ export const servicePages = {
  [LANDING_PATH]: {...landingService, path:LANDING_PATH, slug:'landing'},
  [ONLINE_STORE_PATH]: {...onlineStoreService, path:ONLINE_STORE_PATH, slug:'online-store'},
 };
-export const servicesUpdatedAt = '2026-10-22';
+export const servicesUpdatedAt = '2026-10-31';
 export function servicePageSchema(path) {
  const page=servicePages[path];
  if (!page) return null;

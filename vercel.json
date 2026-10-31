@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/services/websites",
+      "destination": "/services/tilda",
+      "permanent": true
+    },
+    {
       "source": "/index.html",
       "has": [
         {

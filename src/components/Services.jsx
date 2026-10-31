@@ -35,12 +35,12 @@ const ICON_MAP = {
 
 
 const directions = {
-  '01': { slug: 'websites', priceKey: 'landing', description: 'Сайт для вашего бизнеса — от структуры и дизайна до готового запуска.', timing: 'От 7 рабочих дней', result: 'Готовый сайт с формами заявок и управлением контентом' },
+  '01': { slug: 'tilda', priceKey: 'landing', description: 'Сайт для вашего бизнеса — от структуры и дизайна до готового запуска.', timing: 'От 7 рабочих дней', result: 'Готовый сайт с формами заявок и управлением контентом' },
   '02': { slug: 'redesign', priceKey: 'redesign', description: 'Обновлю существующий сайт: сделаю предложение понятнее, а путь к заявке — удобнее.', timing: 'От 5 рабочих дней', result: 'Обновлённый дизайн и согласованные доработки сайта' },
   '03': { slug: 'web-apps', priceKey: 'web-apps', description: 'Разработаю сервис или первую версию продукта для проверки вашей идеи.', timing: 'Срок — по составу функций', result: 'Рабочий продукт с согласованными функциями и интеграциями' },
   '04': { slug: 'ui-ux-design', priceKey: 'ui-ux-design', description: 'Спроектирую логику и визуальный стиль сайта или приложения для вашей команды разработки.', timing: 'От 10 рабочих дней', result: 'Прототипы, макеты в Figma и компоненты для разработки' },
 };
-const formats = [['landing', 'Лендинги'], ['multipage', 'Сайты компаний'], ['online-store', 'Интернет-магазины'], ['tilda', 'Сайты на Tilda']];
+const formats = [['landing', 'Лендинги'], ['multipage', 'Сайты компаний'], ['online-store', 'Интернет-магазины']];
 
 function TariffSlider({ number, timing }) {
   const { text } = usePricing();

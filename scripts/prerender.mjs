@@ -28,7 +28,7 @@ await build({ configFile: false, plugins: [react()], logLevel: 'error',
   const { render } = await import(pathToFileURL(resolve('scratch/ssr/entry-prerender.js')));
   const shell = await readFile(resolve(outputDir, 'index.html'), 'utf8');
   const serviceStyles = (await readdir(resolve(outputDir, 'assets')))
-    .filter(name => /^(MultipageServicePage|LandingServicePage|OnlineStoreServicePage|AdditionalServicePage|WebsiteServicePage)-.*\.css$/.test(name));
+    .filter(name => /^(MultipageServicePage|LandingServicePage|OnlineStoreServicePage|AdditionalServicePage|WebsiteServicePage|ServiceProcess)-.*\.css$/.test(name));
   await mkdir(resolve(outputDir, '_seo'), { recursive: true });
   const pages = [
     ...Object.entries(additionalServices).map(([path,page])=>[path,`service-${page.slug}`,page.title]),

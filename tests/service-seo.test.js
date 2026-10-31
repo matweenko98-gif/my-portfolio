@@ -35,7 +35,8 @@ test('all service pages are indexable HTML with unique metadata, matching schema
     const json=JSON.parse(html.match(/<script id="jsonld-server" type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
     assert.deepEqual(json,servicePageSchema(path));
     assert.equal(json['@graph'].find(n=>n['@type']==='FAQPage').mainEntity.length,page.faq.length);
-    const styles=[...html.matchAll(/rel="stylesheet" href="(\/assets\/[^"]+)"/g)];assert.ok(styles.length>=2,path);
+    const styles=[...html.matchAll(/rel="stylesheet"[^>]*?href="(\/assets\/[^"]+)"/g)];assert.ok(styles.length>=2,path);
+    assert.ok(styles.some(([,href])=>href.includes('/ServiceProcess-')),`${path}: process styles must work without JavaScript`);
     for(const [,href] of styles)await readFile(buildDir+href);
    }
    for(const content of [xml,staticSitemap,llms])assert.ok(content.includes('https://www.ksenweb.com'+path),path);
@@ -46,4 +47,15 @@ test('all service pages are indexable HTML with unique metadata, matching schema
    assert.ok(!xml.includes('<loc>https://www.ksenweb.com'+from+'</loc>'));
   }
  } finally{globalThis.fetch=savedFetch;}
+});
+
+test('homepage links the website service to the consolidated Tilda page', async()=>{
+ const html=await readFile(buildDir+'/_seo/home.html','utf8');
+ const start=html.indexOf('id="service-card-01"');
+ assert.ok(start>=0);
+ const card=html.slice(start,html.indexOf('</article>',start));
+ assert.match(card,/class="home-service-details"[^>]*href="\/services\/tilda"/);
+ assert.doesNotMatch(card,/Сайты на Tilda|\/services\/websites/);
+ assert.equal(servicePages['/services/websites'],undefined);
+ assert.equal(serviceRedirects['/services/websites'],'/services/tilda');
 });
